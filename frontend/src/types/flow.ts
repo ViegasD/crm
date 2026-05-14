@@ -27,3 +27,14 @@ export interface FlowGraph {
   nodes: FlowNode[];
   edges: FlowEdge[];
 }
+
+export interface Flow {
+  id: string;
+  workspaceId: string;
+  name: string;
+  description?: string;
+  isActive: boolean;
+  graph?: FlowGraph;
+  createdAt: string;
+  updatedAt: string;
+}

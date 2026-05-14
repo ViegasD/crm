@@ -1,1 +1,5 @@
-// Re-export inbox components: ConversationList, MessageBubble, ReplyBox, etc.
+// Re-export inbox components
+export { ConversationList } from "./conversation-list";
+export { MessageThread } from "./message-thread";
+export { ReplyBox } from "./reply-box";
+export { ConversationHeader } from "./conversation-header";
