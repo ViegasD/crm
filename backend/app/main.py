@@ -1,0 +1,60 @@
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.api.v1 import auth, channel_accounts, contacts, conversations, flows, labels, media, messages, sectors, sla, users, workspaces
+from app.core.redis import close_redis, get_redis
+from app.webhooks.whatsapp import evolution as evolution_webhook
+from app.webhooks.whatsapp import meta as meta_webhook
+from app.websocket.handlers import router as ws_router
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # startup
+    await get_redis()
+    yield
+    # shutdown
+    await close_redis()
+
+
+app = FastAPI(title="CRM API", version="0.1.0", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ── Auth / User
+app.include_router(auth.router, prefix="/api/v1")
+app.include_router(users.router, prefix="/api/v1")
+
+# ── Workspaces & sub-resources
+app.include_router(workspaces.router, prefix="/api/v1")
+app.include_router(sectors.router, prefix="/api/v1")
+app.include_router(channel_accounts.router, prefix="/api/v1")
+app.include_router(contacts.router, prefix="/api/v1")
+app.include_router(conversations.router, prefix="/api/v1")
+app.include_router(messages.router, prefix="/api/v1")
+app.include_router(labels.router, prefix="/api/v1")
+app.include_router(flows.router, prefix="/api/v1")
+app.include_router(sla.router, prefix="/api/v1")
+
+# ── Media
+app.include_router(media.router, prefix="/api/v1")
+
+# ── Webhooks
+app.include_router(meta_webhook.router)
+app.include_router(evolution_webhook.router)
+
+# ── WebSocket
+app.include_router(ws_router)
+
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
