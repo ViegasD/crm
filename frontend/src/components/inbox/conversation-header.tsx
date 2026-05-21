@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { conversationsApi } from "@/lib/api";
 import { useConversationStore } from "@/stores/conversation-store";
 import type { Conversation } from "@/types/conversation";
-import { CheckCheck, MoreVertical } from "lucide-react";
+import { CheckCheck } from "lucide-react";
 
 interface Props {
   workspaceId: string;
@@ -32,11 +32,12 @@ export function ConversationHeader({ workspaceId, conversation }: Props) {
   }
 
   const isResolved = conversation.status === "resolved";
+  const displayName = conversation.contactName ?? conversation.contactPhone ?? "Unknown";
 
   return (
     <div className="flex items-center justify-between border-b border-border bg-white px-4 py-2.5 shrink-0">
       <div className="flex items-center gap-2">
-        <span className="font-semibold text-slate-900">{conversation.contactName ?? "Unknown"}</span>
+        <span className="font-semibold text-slate-900">{displayName}</span>
         <Badge status={conversation.status}>{conversation.status}</Badge>
         {conversation.slaStatus && conversation.slaStatus !== "ok" && (
           <Badge status={conversation.slaStatus}>SLA {conversation.slaStatus}</Badge>

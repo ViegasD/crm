@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/layout";
 import { useAuthStore } from "@/stores/auth-store";
 import { usersApi, workspacesApi } from "@/lib/api";
+import type { Workspace } from "@/types/workspace";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -17,10 +18,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     // Load user + workspaces on mount
     usersApi.me().then((r) => setUser(r.data)).catch(() => router.replace("/login"));
     workspacesApi.list().then((r) => {
-      const ws = r.data as { id: string; name: string; slug: string; plan: string; created_at: string }[];
-      const mapped = ws.map((w) => ({ id: w.id, name: w.name, slug: w.slug, plan: w.plan, createdAt: w.created_at }));
-      setWorkspaces(mapped);
-      if (!currentWorkspace && mapped.length > 0) setCurrentWorkspace(mapped[0]);
+      const workspaces = r.data as Workspace[];
+      setWorkspaces(workspaces);
+      if (!currentWorkspace && workspaces.length > 0) setCurrentWorkspace(workspaces[0]);
     });
   }, [accessToken]); // eslint-disable-line react-hooks/exhaustive-deps
 

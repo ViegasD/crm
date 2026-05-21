@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { useAuthStore } from "@/stores/auth-store";
 import { useConversationStore } from "@/stores/conversation-store";
-import { ConversationList, MessageThread, ReplyBox, ConversationHeader } from "@/components/inbox";
+import { ConversationList, MessageThread, ReplyBox, ConversationHeader, ConversationSidePanel } from "@/components/inbox";
 import { WorkspaceSocket } from "@/lib/websocket";
 import { conversationsApi, messagesApi } from "@/lib/api";
 import type { Conversation, Message } from "@/types/conversation";
@@ -20,7 +20,6 @@ export default function InboxPage() {
     const unsub = socket.on(async (event) => {
       if (event.type === "message.new") {
         const convId = event.conversation_id as string;
-        const msgId = event.message_id as string;
         // Fetch the new message
         try {
           const r = await messagesApi.list(currentWorkspace.id, convId, { page_size: 1 });
@@ -74,6 +73,9 @@ export default function InboxPage() {
           </div>
         )}
       </div>
+      {activeConversation && (
+        <ConversationSidePanel workspaceId={currentWorkspace.id} conversationId={activeConversation.id} />
+      )}
     </div>
   );
 }

@@ -20,6 +20,7 @@ from app.models.enums import (
     SenderType,
 )
 from app.schemas.message import SendMessageRequest
+from app.channels.base import NormalizedEvent
 
 
 async def get_or_create_contact_by_phone(
@@ -32,7 +33,11 @@ async def get_or_create_contact_by_phone(
     )
     cp = result.scalar_one_or_none()
     if cp:
-        return await db.get(Contact, cp.contact_id)
+        contact = await db.get(Contact, cp.contact_id)
+        if contact and name and (not contact.name or contact.name == phone):
+            contact.name = name
+            await db.flush()
+        return contact
 
     # Create new contact
     contact = Contact(workspace_id=workspace_id, name=name or phone)
@@ -147,6 +152,53 @@ async def persist_inbound_message(
     return msg
 
 
+async def persist_normalized_event(
+    db: AsyncSession,
+    channel_account: ChannelAccount,
+    event: NormalizedEvent,
+) -> Message | None:
+    if event.event_type != "message.received" or event.direction != "inbound":
+        return None
+
+    try:
+        message_type = MessageType(event.message_type)
+    except ValueError:
+        message_type = MessageType.text
+
+    contact = await get_or_create_contact_by_phone(
+        db,
+        channel_account.workspace_id,
+        event.contact_phone,
+        name=event.contact_name,
+    )
+    conversation, _ = await get_or_create_conversation(
+        db,
+        channel_account.workspace_id,
+        channel_account,
+        contact,
+    )
+    idempotency_key = build_idempotency_key(event.provider, channel_account.id, event.external_message_id)
+    is_duplicate = await is_duplicate_message(db, idempotency_key)
+    msg = await persist_inbound_message(
+        db=db,
+        workspace_id=channel_account.workspace_id,
+        conversation=conversation,
+        contact=contact,
+        channel_account=channel_account,
+        provider=event.provider,
+        external_message_id=event.external_message_id,
+        text=event.text,
+        message_type=message_type,
+        attachments=event.attachments,
+        wamid=event.wamid,
+    )
+    if not is_duplicate:
+        from app.services.flow_executor import run_message_received_flows
+
+        await run_message_received_flows(db, conversation, msg)
+    return msg
+
+
 async def send_agent_message(
     db: AsyncSession,
     workspace_id: UUID,
@@ -180,4 +232,43 @@ async def send_agent_message(
         conversation.first_replied_at = datetime.now(timezone.utc)
 
     await db.flush()
+    if body.is_note:
+        db.add(ConversationEvent(
+            workspace_id=workspace_id,
+            conversation_id=conversation.id,
+            type=ConvEventType.note_added,
+            actor_id=agent_id,
+            actor_type="agent",
+            payload={"message_id": str(msg.id)},
+        ))
+
+        from app.services.mention_service import resolve_mentions
+        from app.websocket.manager import manager
+
+        mentioned = await resolve_mentions(db, workspace_id, body.content)
+        for user in mentioned:
+            if user.id == agent_id:
+                continue
+            db.add(ConversationEvent(
+                workspace_id=workspace_id,
+                conversation_id=conversation.id,
+                type=ConvEventType.mention,
+                actor_id=agent_id,
+                actor_type="agent",
+                payload={
+                    "message_id": str(msg.id),
+                    "mentioned_user_id": str(user.id),
+                    "mentioned_user_name": user.name,
+                },
+            ))
+            await manager.broadcast(
+                str(workspace_id),
+                {
+                    "type": "mention",
+                    "conversation_id": str(conversation.id),
+                    "message_id": str(msg.id),
+                    "mentioned_user_id": str(user.id),
+                },
+            )
+        await db.flush()
     return msg

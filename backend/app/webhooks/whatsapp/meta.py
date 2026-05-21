@@ -4,7 +4,16 @@ WhatsApp Meta Cloud API webhook handler.
 GET  /webhooks/whatsapp/meta  — Hub challenge verification
 POST /webhooks/whatsapp/meta  — Inbound events (messages, status updates)
 
-Security: HMAC-SHA256 via X-Hub-Signature-256 header (app secret).
+Security pipeline:
+1. Parse JSON (400 on malformed)
+2. Resolve channel account by phone_number_id
+3. Verify HMAC-SHA256 X-Hub-Signature-256 (401 on missing/invalid)
+4. Reject stale payload timestamp (>5min, 409)
+5. Reject replayed signature via Redis (409)
+6. Persist payload in webhook_events (durable)
+7. Normalize and persist messages
+8. Mark webhook_events status
+9. Return 200
 """
 import logging
 from typing import Annotated
@@ -16,10 +25,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.channels.whatsapp.meta_cloud import MetaCloudAdapter
 from app.core.database import get_db
 from app.core.encryption import decrypt_payload
-from app.core.security import verify_hmac_sha256
+from app.core.redis import get_redis
+from app.core.request_meta import client_ip, user_agent
+from app.core.security import (
+    is_webhook_signature_registered,
+    register_webhook_signature,
+    verify_hmac_sha256,
+    verify_webhook_timestamp,
+)
 from app.models.channel import ChannelAccount, ChannelCredential
-from app.models.enums import WhatsAppProvider
-from app.services.message_service import persist_inbound_message
+from app.models.enums import WebhookEventStatus, WhatsAppProvider
+from app.services.message_service import persist_normalized_event
+from app.services.security_audit_service import log_security_event
+from app.services.webhook_event_service import mark_event_status, record_webhook_event
 from app.websocket.manager import manager
 
 logger = logging.getLogger(__name__)
@@ -49,6 +67,24 @@ async def _get_app_secret(db: AsyncSession, channel_account_id) -> str | None:
     return decrypt_payload(cred.encrypted_payload).get("app_secret")
 
 
+def _extract_payload_timestamp(body: dict) -> int | None:
+    """Meta payloads carry timestamps inside entry[].changes[].value.{messages,statuses}[]."""
+    try:
+        value = body["entry"][0]["changes"][0]["value"]
+    except (KeyError, IndexError, TypeError):
+        return None
+    for key in ("messages", "statuses"):
+        items = value.get(key) or []
+        if items:
+            ts = items[0].get("timestamp")
+            if ts is not None:
+                try:
+                    return int(ts)
+                except (TypeError, ValueError):
+                    return None
+    return None
+
+
 @router.get("")
 async def verify_hub(
     hub_mode: str = Query(alias="hub.mode", default=""),
@@ -65,45 +101,142 @@ async def verify_hub(
 @router.post("")
 async def receive_event(request: Request, db: Annotated[AsyncSession, Depends(get_db)]):
     raw_body = await request.body()
-    body = await request.json()
+    ip = client_ip(request)
+    ua = user_agent(request)
+    headers = dict(request.headers)
+    sig_header = request.headers.get("x-hub-signature-256", "")
 
-    # Extract phone_number_id from first entry to find channel account
+    # 1. Parse JSON
+    try:
+        body = await request.json()
+    except ValueError:
+        await log_security_event(
+            action="webhook_malformed",
+            target_type="whatsapp_meta_webhook",
+            new_value={"reason": "invalid_json"},
+            ip_address=ip,
+            user_agent=ua,
+        )
+        raise HTTPException(status_code=400, detail="Malformed payload")
+
+    # 2. Resolve channel
     try:
         phone_number_id = (
             body["entry"][0]["changes"][0]["value"]["metadata"]["phone_number_id"]
         )
-    except (KeyError, IndexError):
+    except (KeyError, IndexError, TypeError):
+        await log_security_event(
+            action="webhook_malformed",
+            target_type="whatsapp_meta_webhook",
+            new_value={"reason": "missing_phone_number_id"},
+            ip_address=ip,
+            user_agent=ua,
+        )
         raise HTTPException(status_code=400, detail="Malformed payload")
 
     account = await _resolve_account(db, phone_number_id)
     if not account:
-        # Unknown channel — acknowledge and ignore
         logger.warning("No channel account found for phone_number_id=%s", phone_number_id)
+        await log_security_event(
+            action="webhook_unknown_channel",
+            target_type="whatsapp_meta_webhook",
+            new_value={"phone_number_id": phone_number_id},
+            ip_address=ip,
+            user_agent=ua,
+        )
         return {"status": "ignored"}
 
-    # Verify HMAC
+    # 3. Verify HMAC
     app_secret = await _get_app_secret(db, account.id)
-    if app_secret:
-        sig_header = request.headers.get("x-hub-signature-256", "")
-        sig = sig_header.removeprefix("sha256=")
-        if not verify_hmac_sha256(app_secret, raw_body, sig):
-            raise HTTPException(status_code=401, detail="Invalid signature")
+    if not app_secret:
+        await log_security_event(
+            action="webhook_missing_secret",
+            workspace_id=account.workspace_id,
+            target_type="channel_account",
+            target_id=account.id,
+            new_value={"provider": "meta_cloud"},
+            ip_address=ip,
+            user_agent=ua,
+        )
+        raise HTTPException(status_code=401, detail="Webhook secret not configured")
+    if not verify_hmac_sha256(app_secret, raw_body, sig_header):
+        await log_security_event(
+            action="webhook_invalid_signature",
+            workspace_id=account.workspace_id,
+            target_type="channel_account",
+            target_id=account.id,
+            new_value={"provider": "meta_cloud"},
+            ip_address=ip,
+            user_agent=ua,
+        )
+        raise HTTPException(status_code=401, detail="Invalid signature")
 
+    # 4. Timestamp anti-replay (when the payload contains one)
+    payload_ts = _extract_payload_timestamp(body)
+    if payload_ts is not None and not verify_webhook_timestamp(payload_ts):
+        await log_security_event(
+            action="webhook_stale_timestamp",
+            workspace_id=account.workspace_id,
+            target_type="channel_account",
+            target_id=account.id,
+            new_value={"provider": "meta_cloud", "timestamp": payload_ts},
+            ip_address=ip,
+            user_agent=ua,
+        )
+        raise HTTPException(status_code=409, detail="Stale webhook timestamp")
+
+    # 5. Signature replay window (Redis)
+    redis = await get_redis()
+    if await is_webhook_signature_registered(redis, "meta_cloud", sig_header):
+        await log_security_event(
+            action="webhook_replay_detected",
+            workspace_id=account.workspace_id,
+            target_type="channel_account",
+            target_id=account.id,
+            new_value={"provider": "meta_cloud"},
+            ip_address=ip,
+            user_agent=ua,
+        )
+        raise HTTPException(status_code=409, detail="Replay detected")
+
+    # 6. Reserve signature BEFORE processing — prevents concurrent retries from racing
+    await register_webhook_signature(redis, "meta_cloud", sig_header)
+
+    # 7. Durable persistence (own transaction)
+    event_id = await record_webhook_event(
+        provider="meta_cloud",
+        headers=headers,
+        payload=body,
+        workspace_id=account.workspace_id,
+        channel_account_id=account.id,
+        signature=sig_header,
+    )
+
+    # 8. Normalize + persist
     adapter = MetaCloudAdapter(
-        access_token="",  # not needed for parse
+        access_token="",
         phone_number_id=phone_number_id,
         app_secret=app_secret or "",
     )
-    events = adapter.parse_webhook(dict(request.headers), body)
+    try:
+        events = adapter.parse_webhook(headers, body)
+        for event in events:
+            event.workspace_id = str(account.workspace_id)
+            event.channel_account_id = str(account.id)
+            msg = await persist_normalized_event(db, account, event)
+            if msg:
+                await manager.broadcast(
+                    str(account.workspace_id),
+                    {
+                        "type": "message.new",
+                        "conversation_id": str(msg.conversation_id),
+                        "message_id": str(msg.id),
+                    },
+                )
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("Meta webhook processing failed")
+        await mark_event_status(event_id, WebhookEventStatus.failed, str(exc))
+        raise
 
-    for event in events:
-        event.workspace_id = str(account.workspace_id)
-        event.channel_account_id = str(account.id)
-        msg = await persist_inbound_message(db, event)
-        if msg:
-            await manager.broadcast(
-                str(account.workspace_id),
-                {"type": "message.new", "conversation_id": str(msg.conversation_id), "message_id": str(msg.id)},
-            )
-
+    await mark_event_status(event_id, WebhookEventStatus.processed)
     return {"status": "ok"}

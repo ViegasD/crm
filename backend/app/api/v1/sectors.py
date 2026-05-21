@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user
+from app.core.dependencies import require_workspace_member
 from app.models.workspace import Sector, SectorMember, User
 from app.schemas.workspace import SectorCreate, SectorMemberAdd, SectorOut
 
@@ -17,7 +17,7 @@ router = APIRouter(prefix="/workspaces/{workspace_id}/sectors", tags=["sectors"]
 async def create_sector(
     workspace_id: UUID,
     body: SectorCreate,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     sector = Sector(workspace_id=workspace_id, name=body.name, description=body.description)
@@ -29,7 +29,7 @@ async def create_sector(
 @router.get("", response_model=list[SectorOut])
 async def list_sectors(
     workspace_id: UUID,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     result = await db.execute(select(Sector).where(Sector.workspace_id == workspace_id))
@@ -40,7 +40,7 @@ async def list_sectors(
 async def delete_sector(
     workspace_id: UUID,
     sector_id: UUID,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     sector = await db.get(Sector, sector_id)
@@ -54,7 +54,7 @@ async def add_member(
     workspace_id: UUID,
     sector_id: UUID,
     body: SectorMemberAdd,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     db.add(SectorMember(sector_id=sector_id, user_id=body.user_id, workspace_id=workspace_id))
@@ -65,7 +65,7 @@ async def remove_member(
     workspace_id: UUID,
     sector_id: UUID,
     user_id: UUID,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     result = await db.execute(

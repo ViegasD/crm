@@ -6,7 +6,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user
+from app.core.dependencies import require_workspace_member
 from app.models.contact import Contact, ContactEmail, ContactPhone
 from app.models.workspace import User
 from app.schemas.contact import ContactCreate, ContactOut, ContactUpdate
@@ -18,7 +18,7 @@ router = APIRouter(prefix="/workspaces/{workspace_id}/contacts", tags=["contacts
 async def create_contact(
     workspace_id: UUID,
     body: ContactCreate,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     contact = Contact(
@@ -41,7 +41,7 @@ async def create_contact(
 @router.get("", response_model=dict)
 async def list_contacts(
     workspace_id: UUID,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
     search: str | None = Query(None),
     page: int = Query(1, ge=1),
@@ -53,14 +53,19 @@ async def list_contacts(
     total = (await db.execute(select(func.count()).select_from(q.subquery()))).scalar_one()
     q = q.order_by(Contact.name).offset((page - 1) * page_size).limit(page_size)
     items = (await db.execute(q)).scalars().all()
-    return {"items": items, "total": total, "page": page, "page_size": page_size}
+    return {
+        "items": [ContactOut.model_validate(item) for item in items],
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+    }
 
 
 @router.get("/{contact_id}", response_model=ContactOut)
 async def get_contact(
     workspace_id: UUID,
     contact_id: UUID,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     contact = await db.get(Contact, contact_id)
@@ -74,7 +79,7 @@ async def update_contact(
     workspace_id: UUID,
     contact_id: UUID,
     body: ContactUpdate,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     contact = await db.get(Contact, contact_id)
@@ -89,7 +94,7 @@ async def update_contact(
 async def delete_contact(
     workspace_id: UUID,
     contact_id: UUID,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     contact = await db.get(Contact, contact_id)

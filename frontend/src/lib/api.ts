@@ -1,5 +1,26 @@
 import axios, { type AxiosError } from "axios";
 
+function toCamelCase(key: string) {
+  return key.replace(/_([a-z0-9])/g, (_, char: string) => char.toUpperCase());
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return Object.prototype.toString.call(value) === "[object Object]";
+}
+
+function camelizeKeys<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map((item) => camelizeKeys(item)) as T;
+  }
+  if (!isPlainObject(value)) {
+    return value;
+  }
+  return Object.entries(value).reduce<Record<string, unknown>>((acc, [key, entry]) => {
+    acc[toCamelCase(key)] = camelizeKeys(entry);
+    return acc;
+  }, {}) as T;
+}
+
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000",
 });
@@ -14,7 +35,10 @@ api.interceptors.request.use((config) => {
 
 // Auto-retry on 401: refresh token then retry once
 api.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    res.data = camelizeKeys(res.data);
+    return res;
+  },
   async (error: AxiosError) => {
     const original = error.config as (typeof error.config) & { _retry?: boolean };
     if (error.response?.status === 401 && !original._retry) {
@@ -46,11 +70,11 @@ export default api;
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 export const authApi = {
   login: (email: string, password: string) =>
-    api.post<{ access_token: string; refresh_token: string }>("/api/v1/auth/login", { email, password }),
+    api.post<{ accessToken: string; refreshToken: string }>("/api/v1/auth/login", { email, password }),
   register: (name: string, email: string, password: string) =>
     api.post("/api/v1/auth/register", { name, email, password }),
   refresh: (refreshToken: string) =>
-    api.post<{ access_token: string; refresh_token: string }>("/api/v1/auth/refresh", { refresh_token: refreshToken }),
+    api.post<{ accessToken: string; refreshToken: string }>("/api/v1/auth/refresh", { refresh_token: refreshToken }),
 };
 
 // ─── Users ────────────────────────────────────────────────────────────────────
@@ -118,6 +142,22 @@ export const conversationsApi = {
     api.patch(`/api/v1/workspaces/${wsId}/conversations/${convId}`, data),
   transfer: (wsId: string, convId: string, data: { assignee_id?: string; sector_id?: string; note?: string }) =>
     api.post(`/api/v1/workspaces/${wsId}/conversations/${convId}/transfer`, data),
+  events: (wsId: string, convId: string) =>
+    api.get(`/api/v1/workspaces/${wsId}/conversations/${convId}/events`),
+  participants: (wsId: string, convId: string) =>
+    api.get(`/api/v1/workspaces/${wsId}/conversations/${convId}/participants`),
+  addParticipant: (wsId: string, convId: string, userId: string) =>
+    api.post(`/api/v1/workspaces/${wsId}/conversations/${convId}/participants`, { user_id: userId }),
+  removeParticipant: (wsId: string, convId: string, userId: string) =>
+    api.delete(`/api/v1/workspaces/${wsId}/conversations/${convId}/participants/${userId}`),
+  bulkLabel: (wsId: string, data: { conversation_ids: string[]; label_id: string }) =>
+    api.post(`/api/v1/workspaces/${wsId}/conversations/bulk/label`, data),
+  bulkTransfer: (
+    wsId: string,
+    data: { conversation_ids: string[]; assignee_id?: string; sector_id?: string; note?: string },
+  ) => api.post(`/api/v1/workspaces/${wsId}/conversations/bulk/transfer`, data),
+  bulkStatus: (wsId: string, data: { conversation_ids: string[]; status: string }) =>
+    api.post(`/api/v1/workspaces/${wsId}/conversations/bulk/status`, data),
 };
 
 // ─── Messages ─────────────────────────────────────────────────────────────────
@@ -135,12 +175,27 @@ export const labelsApi = {
   list: (wsId: string) => api.get(`/api/v1/workspaces/${wsId}/labels`),
   create: (wsId: string, name: string, color: string) =>
     api.post(`/api/v1/workspaces/${wsId}/labels`, { name, color }),
+  update: (wsId: string, labelId: string, data: { name?: string; color?: string }) =>
+    api.patch(`/api/v1/workspaces/${wsId}/labels/${labelId}`, data),
   delete: (wsId: string, labelId: string) =>
     api.delete(`/api/v1/workspaces/${wsId}/labels/${labelId}`),
   assign: (wsId: string, labelId: string, conversationId: string) =>
     api.post(`/api/v1/workspaces/${wsId}/labels/${labelId}/assign`, { conversation_id: conversationId }),
   unassign: (wsId: string, labelId: string, conversationId: string) =>
     api.delete(`/api/v1/workspaces/${wsId}/labels/${labelId}/assign/${conversationId}`),
+};
+
+// ─── Canned responses ─────────────────────────────────────────────────────────
+export const cannedResponsesApi = {
+  list: (wsId: string) => api.get(`/api/v1/workspaces/${wsId}/canned-responses`),
+  create: (wsId: string, data: Record<string, unknown>) =>
+    api.post(`/api/v1/workspaces/${wsId}/canned-responses`, data),
+  update: (wsId: string, responseId: string, data: Record<string, unknown>) =>
+    api.patch(`/api/v1/workspaces/${wsId}/canned-responses/${responseId}`, data),
+  delete: (wsId: string, responseId: string) =>
+    api.delete(`/api/v1/workspaces/${wsId}/canned-responses/${responseId}`),
+  render: (wsId: string, responseId: string, data: { conversation_id?: string }) =>
+    api.post(`/api/v1/workspaces/${wsId}/canned-responses/${responseId}/render`, data),
 };
 
 // ─── Flows ────────────────────────────────────────────────────────────────────

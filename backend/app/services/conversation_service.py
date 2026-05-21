@@ -5,7 +5,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.conversation import Conversation, ConversationEvent
+from app.models.conversation import Conversation, ConversationEvent, ConversationLabel
 from app.models.enums import ConvEventType, ConversationStatus
 from app.schemas.conversation import ConversationListFilters, ConversationTransfer, ConversationUpdate
 
@@ -31,6 +31,15 @@ async def list_conversations(
         q = q.where(Conversation.sector_id == filters.sector_id)
     if filters.channel_account_id:
         q = q.where(Conversation.channel_account_id == filters.channel_account_id)
+    if filters.label_id:
+        q = q.where(
+            Conversation.id.in_(
+                select(ConversationLabel.conversation_id).where(
+                    ConversationLabel.workspace_id == workspace_id,
+                    ConversationLabel.label_id == filters.label_id,
+                )
+            )
+        )
 
     count_q = select(func.count()).select_from(q.subquery())
     total = (await db.execute(count_q)).scalar_one()
@@ -50,7 +59,7 @@ async def update_conversation(
 ) -> Conversation:
     conv = await get_conversation_or_404(db, workspace_id, conversation_id)
 
-    if body.assignee_id is not None:
+    if "assignee_id" in body.model_fields_set:
         old_assignee = conv.assignee_id
         conv.assignee_id = body.assignee_id
         event_type = ConvEventType.assigned if body.assignee_id else ConvEventType.unassigned
@@ -63,10 +72,10 @@ async def update_conversation(
             payload={"from": str(old_assignee), "to": str(body.assignee_id)},
         ))
 
-    if body.sector_id is not None:
+    if "sector_id" in body.model_fields_set:
         conv.sector_id = body.sector_id
 
-    if body.status is not None:
+    if "status" in body.model_fields_set and body.status is not None:
         conv.status = body.status
         if body.status == ConversationStatus.resolved:
             conv.resolved_at = datetime.now(timezone.utc)
@@ -78,11 +87,22 @@ async def update_conversation(
                 actor_type="agent",
                 payload={},
             ))
+        elif body.status in (ConversationStatus.open, ConversationStatus.in_progress) and conv.resolved_at:
+            conv.resolved_at = None
+            db.add(ConversationEvent(
+                workspace_id=workspace_id,
+                conversation_id=conv.id,
+                type=ConvEventType.reopened,
+                actor_id=actor_id,
+                actor_type="agent",
+                payload={},
+            ))
 
-    if body.priority is not None:
+    if "priority" in body.model_fields_set and body.priority is not None:
         conv.priority = body.priority
 
     await db.flush()
+    await db.refresh(conv)
     return conv
 
 
@@ -97,9 +117,9 @@ async def transfer_conversation(
     old_assignee = conv.assignee_id
     old_sector = conv.sector_id
 
-    if body.assignee_id is not None:
+    if "assignee_id" in body.model_fields_set:
         conv.assignee_id = body.assignee_id
-    if body.sector_id is not None:
+    if "sector_id" in body.model_fields_set:
         conv.sector_id = body.sector_id
 
     db.add(ConversationEvent(
@@ -109,12 +129,13 @@ async def transfer_conversation(
         actor_id=actor_id,
         actor_type="agent",
         payload={
-            "from_agent": str(old_assignee),
-            "to_agent": str(body.assignee_id),
-            "from_sector": str(old_sector),
-            "to_sector": str(body.sector_id),
+            "from_agent": str(old_assignee) if old_assignee else None,
+            "to_agent": str(body.assignee_id) if body.assignee_id else None,
+            "from_sector": str(old_sector) if old_sector else None,
+            "to_sector": str(body.sector_id) if body.sector_id else None,
             "note": body.note,
         },
     ))
     await db.flush()
+    await db.refresh(conv)
     return conv

@@ -115,8 +115,8 @@ class EvolutionAdapter(WhatsAppProviderAdapter):
 
     def verify_webhook_signature(self, headers: dict, raw_body: bytes) -> bool:
         if not self.webhook_secret:
-            return True  # no secret configured — allow (dev mode)
-        sig = headers.get("x-evolution-signature", "") or headers.get("authorization", "")
+            return False
+        sig = headers.get("x-evolution-signature", "")
         expected = "sha256=" + hmac.new(
             self.webhook_secret.encode(), raw_body, hashlib.sha256
         ).hexdigest()
@@ -187,6 +187,7 @@ class EvolutionAdapter(WhatsAppProviderAdapter):
                 text=text,
                 timestamp=ts,
                 origin=origin,
+                contact_name=msg.get("pushName") or msg.get("senderName"),
                 attachments=attachments,
                 raw=msg,
             ))

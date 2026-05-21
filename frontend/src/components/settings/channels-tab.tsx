@@ -95,15 +95,17 @@ function CreateChannelModal({ open, onClose, workspaceId, onCreated }: {
 }) {
   const [name, setName] = useState("");
   const [channelType, setChannelType] = useState("whatsapp");
-  const [provider, setProvider] = useState("evolution");
+  const [provider, setProvider] = useState("evolution_baileys");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   // Evolution fields
   const [evoUrl, setEvoUrl] = useState("");
   const [evoKey, setEvoKey] = useState("");
   const [evoInstance, setEvoInstance] = useState("");
+  const [evoWebhookSecret, setEvoWebhookSecret] = useState("");
   // Meta Cloud fields
   const [metaToken, setMetaToken] = useState("");
+  const [metaAppSecret, setMetaAppSecret] = useState("");
   const [metaPhoneId, setMetaPhoneId] = useState("");
   const [metaWabaId, setMetaWabaId] = useState("");
 
@@ -113,18 +115,28 @@ function CreateChannelModal({ open, onClose, workspaceId, onCreated }: {
     setLoading(true);
     try {
       const r = await channelsApi.create(workspaceId, {
-        name, channel_type: channelType as "whatsapp", provider: provider as "evolution",
+        display_name: name,
+        channel_type: channelType,
+        provider,
+        phone_number_id: provider === "meta_cloud" ? metaPhoneId : undefined,
+        waba_id: provider === "meta_cloud" ? metaWabaId : undefined,
+        external_account_id: provider.startsWith("evolution") ? evoInstance : undefined,
       });
       const ch = r.data as ChannelAccount;
       // Upsert credentials
-      const creds = provider === "evolution"
-        ? { url: evoUrl, api_key: evoKey, instance_name: evoInstance }
-        : { access_token: metaToken, phone_number_id: metaPhoneId, waba_id: metaWabaId };
-      await channelsApi.upsertCredential(workspaceId, ch.id, provider === "evolution" ? "evolution" : "meta_cloud", creds);
+      const creds = provider.startsWith("evolution")
+        ? {
+            evolution_base_url: evoUrl,
+            evolution_api_key: evoKey,
+            evolution_instance_id: evoInstance,
+            webhook_secret: evoWebhookSecret,
+          }
+        : { access_token: metaToken, app_secret: metaAppSecret };
+      await channelsApi.upsertCredential(workspaceId, ch.id, provider.startsWith("evolution") ? "evolution" : "meta_cloud", creds);
       onCreated(ch);
       onClose();
-      setName(""); setEvoUrl(""); setEvoKey(""); setEvoInstance("");
-      setMetaToken(""); setMetaPhoneId(""); setMetaWabaId(""); setError("");
+      setName(""); setEvoUrl(""); setEvoKey(""); setEvoInstance(""); setEvoWebhookSecret("");
+      setMetaToken(""); setMetaAppSecret(""); setMetaPhoneId(""); setMetaWabaId(""); setError("");
     } catch {
       setError("Failed to create channel");
     } finally {
@@ -149,13 +161,14 @@ function CreateChannelModal({ open, onClose, workspaceId, onCreated }: {
           <div className="flex flex-col gap-1.5">
             <Label>Provider</Label>
             <Select value={provider} onChange={(e) => setProvider(e.target.value)}>
-              <option value="evolution">Evolution API</option>
+              <option value="evolution_baileys">Evolution API - Baileys</option>
+              <option value="evolution_cloud">Evolution API - Cloud</option>
               <option value="meta_cloud">Meta Cloud API</option>
             </Select>
           </div>
         </div>
 
-        {provider === "evolution" && (
+        {provider.startsWith("evolution") && (
           <>
             <div className="flex flex-col gap-1.5">
               <Label>Evolution URL</Label>
@@ -169,6 +182,10 @@ function CreateChannelModal({ open, onClose, workspaceId, onCreated }: {
               <Label>Instance Name</Label>
               <Input value={evoInstance} onChange={(e) => setEvoInstance(e.target.value)} placeholder="my-instance" />
             </div>
+            <div className="flex flex-col gap-1.5">
+              <Label>Webhook Secret</Label>
+              <Input value={evoWebhookSecret} onChange={(e) => setEvoWebhookSecret(e.target.value)} placeholder="Shared HMAC secret" />
+            </div>
           </>
         )}
 
@@ -177,6 +194,10 @@ function CreateChannelModal({ open, onClose, workspaceId, onCreated }: {
             <div className="flex flex-col gap-1.5">
               <Label>Access Token</Label>
               <Input value={metaToken} onChange={(e) => setMetaToken(e.target.value)} placeholder="EAAxxxxxxx..." />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label>App Secret</Label>
+              <Input value={metaAppSecret} onChange={(e) => setMetaAppSecret(e.target.value)} placeholder="Meta app secret" />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>Phone Number ID</Label>

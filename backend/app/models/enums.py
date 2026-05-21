@@ -108,8 +108,19 @@ class ConvEventType(str, enum.Enum):
     label_added = "label_added"
     label_removed = "label_removed"
     note_added = "note_added"
+    mention = "mention"
+    participant_added = "participant_added"
+    participant_removed = "participant_removed"
     bot_handed_off = "bot_handed_off"
     bot_took_over = "bot_took_over"
+
+
+class WebhookEventStatus(str, enum.Enum):
+    received = "received"
+    processing = "processing"
+    processed = "processed"
+    failed = "failed"
+    ignored = "ignored"
 
 
 class SlaEventType(str, enum.Enum):

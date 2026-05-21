@@ -61,18 +61,58 @@ async def get_workspace_member(
     return current_user, membership
 
 
+async def require_workspace_member(
+    workspace_id: UUID,
+    current_user=Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Same as get_workspace_member but returns the User directly.
+
+    Use this as a dependency on workspace-scoped routes to enforce membership
+    without changing existing handler signatures.
+    """
+    from app.models.workspace import UserWorkspaceMembership
+
+    result = await db.execute(
+        select(UserWorkspaceMembership).where(
+            UserWorkspaceMembership.user_id == current_user.id,
+            UserWorkspaceMembership.workspace_id == workspace_id,
+        )
+    )
+    membership = result.scalar_one_or_none()
+    if membership is None:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+    return current_user
+
+
 def require_roles(*roles: str):
-    """Dependency factory that checks the membership role."""
+    """Dependency factory that checks the membership role.
+
+    Returns a callable that resolves to the User for compatibility with handlers
+    that previously expected `current_user`.
+    """
 
     async def _check(
-        pair=Depends(get_workspace_member),
+        workspace_id: UUID,
+        current_user=Depends(get_current_user),
+        db: AsyncSession = Depends(get_db),
     ):
-        user, membership = pair
+        from app.models.workspace import UserWorkspaceMembership
+
+        result = await db.execute(
+            select(UserWorkspaceMembership).where(
+                UserWorkspaceMembership.user_id == current_user.id,
+                UserWorkspaceMembership.workspace_id == workspace_id,
+            )
+        )
+        membership = result.scalar_one_or_none()
+        if membership is None:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
         if membership.role not in roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"Required role: {', '.join(roles)}",
             )
-        return user, membership
+        return current_user
 
     return _check

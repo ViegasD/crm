@@ -6,7 +6,7 @@ from sqlalchemy import func, select, update as sa_update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user
+from app.core.dependencies import require_workspace_member
 from app.models.conversation import Message, MessageIdentity
 from app.models.enums import SenderType
 from app.models.workspace import User
@@ -24,7 +24,7 @@ router = APIRouter(
 async def list_messages(
     workspace_id: UUID,
     conversation_id: UUID,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=200),
@@ -34,7 +34,12 @@ async def list_messages(
     total = (await db.execute(select(func.count()).select_from(q.subquery()))).scalar_one()
     q = q.order_by(Message.created_at.desc()).offset((page - 1) * page_size).limit(page_size)
     items = (await db.execute(q)).scalars().all()
-    return {"items": items, "total": total, "page": page, "page_size": page_size}
+    return {
+        "items": [MessageOut.model_validate(item) for item in items],
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+    }
 
 
 @router.post("", response_model=MessageOut, status_code=201)
@@ -42,11 +47,11 @@ async def send_message(
     workspace_id: UUID,
     conversation_id: UUID,
     body: SendMessageRequest,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     conv = await get_conversation_or_404(db, workspace_id, conversation_id)
-    msg = await send_agent_message(db, conv, current_user.id, body)
+    msg = await send_agent_message(db, workspace_id, conv, current_user.id, body)
     from app.websocket.manager import manager
     await manager.broadcast(
         str(workspace_id),
@@ -59,7 +64,7 @@ async def send_message(
 async def mark_read(
     workspace_id: UUID,
     conversation_id: UUID,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     await get_conversation_or_404(db, workspace_id, conversation_id)

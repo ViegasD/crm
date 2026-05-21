@@ -38,6 +38,15 @@ class SectorMemberAdd(BaseModel):
     user_id: uuid.UUID
 
 
+class MembershipUserInline(BaseModel):
+    model_config = {"from_attributes": True}
+
+    id: uuid.UUID
+    name: str
+    email: str
+    avatar_url: str | None = None
+
+
 class MembershipOut(BaseModel):
     model_config = {"from_attributes": True}
 
@@ -46,3 +55,4 @@ class MembershipOut(BaseModel):
     workspace_id: uuid.UUID
     role: str
     created_at: datetime
+    user: MembershipUserInline | None = None

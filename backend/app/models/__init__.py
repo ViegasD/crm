@@ -4,6 +4,7 @@ from app.models.workspace import User, UserWorkspaceMembership, Workspace, Secto
 from app.models.channel import ChannelAccount, ChannelCredential  # noqa: F401
 from app.models.contact import Contact, ContactPhone, ContactEmail, ContactCustomAttribute  # noqa: F401
 from app.models.conversation import (  # noqa: F401
+    CannedResponse,
     Conversation,
     ConversationEvent,
     ConversationLabel,
@@ -12,6 +13,8 @@ from app.models.conversation import (  # noqa: F401
     Message,
     MessageIdentity,
 )
+from app.models.audit import SecurityAuditLog  # noqa: F401
+from app.models.webhook import WebhookEvent  # noqa: F401
 from app.models.sla import AgentCapacity, SlaEvent, SlaPolicy  # noqa: F401
 from app.models.flow import Flow, FlowExecution  # noqa: F401
 from app.models.bot import BotConfig, BotConfigCapability  # noqa: F401

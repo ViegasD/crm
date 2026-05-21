@@ -20,7 +20,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const r = await authApi.login(email, password);
-      setTokens(r.data.access_token, r.data.refresh_token);
+      setTokens(r.data.accessToken, r.data.refreshToken);
       const me = await usersApi.me();
       setUser(me.data);
       router.replace("/inbox");

@@ -44,6 +44,7 @@ frontend/.env
 frontend/.env.local
 frontend/.env.production
 backend/.env
+backend/.env.local
 
 # Docker volumes / data
 postgres_data/

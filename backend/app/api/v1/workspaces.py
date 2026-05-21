@@ -6,11 +6,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user
-from app.core.security import hash_password
+from app.core.dependencies import get_current_user, require_workspace_member
 from app.models.workspace import User, UserWorkspaceMembership, Workspace
-from app.schemas.user import UserOut, UserUpdate
-from app.schemas.workspace import MembershipOut, WorkspaceCreate, WorkspaceOut
+from app.schemas.workspace import MembershipOut, MembershipUserInline, WorkspaceCreate, WorkspaceOut
 
 router = APIRouter(prefix="/workspaces", tags=["workspaces"])
 
@@ -27,7 +25,6 @@ async def create_workspace(
     ws = Workspace(name=body.name, slug=body.slug)
     db.add(ws)
     await db.flush()
-    # Auto-add creator as admin
     db.add(UserWorkspaceMembership(user_id=current_user.id, workspace_id=ws.id, role="admin"))
     return ws
 
@@ -48,7 +45,7 @@ async def list_workspaces(
 @router.get("/{workspace_id}", response_model=WorkspaceOut)
 async def get_workspace(
     workspace_id: UUID,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     ws = await db.get(Workspace, workspace_id)
@@ -60,22 +57,30 @@ async def get_workspace(
 @router.get("/{workspace_id}/members", response_model=list[MembershipOut])
 async def list_members(
     workspace_id: UUID,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     result = await db.execute(
-        select(UserWorkspaceMembership).where(
-            UserWorkspaceMembership.workspace_id == workspace_id
-        )
+        select(UserWorkspaceMembership, User)
+        .join(User, User.id == UserWorkspaceMembership.user_id)
+        .where(UserWorkspaceMembership.workspace_id == workspace_id)
+        .order_by(User.name.asc())
     )
-    return result.scalars().all()
+    output: list[MembershipOut] = []
+    for membership, user in result.all():
+        output.append(
+            MembershipOut.model_validate(membership).model_copy(
+                update={"user": MembershipUserInline.model_validate(user)}
+            )
+        )
+    return output
 
 
 @router.delete("/{workspace_id}/members/{user_id}", status_code=204)
 async def remove_member(
     workspace_id: UUID,
     user_id: UUID,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     result = await db.execute(

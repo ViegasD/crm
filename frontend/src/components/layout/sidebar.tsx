@@ -4,11 +4,10 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   MessageSquare, Users, Settings, GitBranch,
-  BarChart2, LogOut, ChevronDown,
+  BarChart2, LogOut,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
 import { Avatar } from "@/components/ui/avatar";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 const navItems = [
@@ -22,7 +21,6 @@ const navItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const { user, currentWorkspace, logout } = useAuthStore();
-  const [wsMenuOpen, setWsMenuOpen] = useState(false);
   const router = useRouter();
 
   function handleLogout() {
@@ -33,13 +31,12 @@ export function Sidebar() {
   return (
     <aside className="flex h-screen w-14 flex-col items-center bg-sidebar py-3 shrink-0">
       {/* Workspace avatar */}
-      <button
+      <div
         className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-white text-sm font-bold hover:opacity-90"
-        onClick={() => setWsMenuOpen((v) => !v)}
         title={currentWorkspace?.name}
       >
         {currentWorkspace?.name?.[0]?.toUpperCase() ?? "W"}
-      </button>
+      </div>
 
       {/* Nav */}
       <nav className="flex flex-1 flex-col items-center gap-1">

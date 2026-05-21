@@ -141,6 +141,7 @@ class MetaCloudAdapter(WhatsAppProviderAdapter):
                         text=text,
                         timestamp=datetime.fromtimestamp(int(ts), tz=timezone.utc).isoformat(),
                         origin="customer",
+                        contact_name=contact_map.get(from_number),
                         wamid=ext_id,
                         attachments=attachments,
                         raw=msg,

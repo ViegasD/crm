@@ -17,6 +17,7 @@ class NormalizedEvent:
     text: str | None
     timestamp: str
     origin: str              # "customer" | "whatsapp_business_app" | ...
+    contact_name: str | None = None
     wamid: str | None = None
     attachments: list[dict] = field(default_factory=list)
     raw: dict = field(default_factory=dict)

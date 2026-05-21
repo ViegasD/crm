@@ -191,3 +191,23 @@ class ConversationParticipant(Base, TimestampMixin):
     )
 
     conversation: Mapped["Conversation"] = relationship(back_populates="participants")
+
+
+class CannedResponse(Base, TimestampMixin):
+    __tablename__ = "canned_responses"
+    __table_args__ = (
+        UniqueConstraint("workspace_id", "shortcut"),
+        Index("ix_canned_ws_active", "workspace_id", "active"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=gen_uuid)
+    workspace_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    sector_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("sectors.id", ondelete="SET NULL"), nullable=True
+    )
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    shortcut: Mapped[str] = mapped_column(String(100), nullable=False)
+    content: Mapped[str] = mapped_column(String, nullable=False)
+    active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)

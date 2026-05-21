@@ -53,8 +53,11 @@ def decode_token(token: str) -> dict[str, Any]:
 
 def verify_hmac_sha256(secret: str, payload: bytes, signature: str) -> bool:
     """Constant-time HMAC-SHA256 comparison."""
+    if not secret or not signature:
+        return False
     expected = hmac.new(secret.encode(), payload, hashlib.sha256).hexdigest()
-    return hmac.compare_digest(expected, signature.removeprefix("sha256="))
+    provided = signature.removeprefix("sha256=")
+    return hmac.compare_digest(expected, provided)
 
 
 def verify_webhook_timestamp(ts: int | str, max_age_seconds: int = 300) -> bool:
@@ -64,3 +67,22 @@ def verify_webhook_timestamp(ts: int | str, max_age_seconds: int = 300) -> bool:
         return 0 <= age <= max_age_seconds
     except (ValueError, TypeError):
         return False
+
+
+def webhook_replay_key(provider: str, signature: str) -> str:
+    digest = hashlib.sha256(f"{provider}:{signature}".encode()).hexdigest()
+    return f"webhook:replay:{digest}"
+
+
+async def is_webhook_signature_registered(redis, provider: str, signature: str) -> bool:
+    if not signature:
+        return False
+    return bool(await redis.exists(webhook_replay_key(provider, signature)))
+
+
+async def register_webhook_signature(redis, provider: str, signature: str, ttl_seconds: int = 300) -> bool:
+    """Return False when a webhook signature was already seen in the TTL window."""
+    if not signature:
+        return False
+    key = webhook_replay_key(provider, signature)
+    return bool(await redis.set(key, "1", ex=ttl_seconds, nx=True))

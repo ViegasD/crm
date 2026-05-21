@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user
+from app.core.dependencies import require_workspace_member
 from app.core.encryption import encrypt_payload
 from app.models.channel import ChannelAccount, ChannelCredential
 from app.models.enums import WhatsAppProvider
@@ -41,7 +41,7 @@ def _apply_capabilities(account: ChannelAccount) -> None:
 async def create_channel(
     workspace_id: UUID,
     body: ChannelAccountCreate,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     account = ChannelAccount(
@@ -65,7 +65,7 @@ async def create_channel(
 @router.get("", response_model=list[ChannelAccountOut])
 async def list_channels(
     workspace_id: UUID,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     result = await db.execute(
@@ -78,7 +78,7 @@ async def list_channels(
 async def get_channel(
     workspace_id: UUID,
     channel_id: UUID,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     account = await db.get(ChannelAccount, channel_id)
@@ -92,7 +92,7 @@ async def update_channel(
     workspace_id: UUID,
     channel_id: UUID,
     body: ChannelAccountUpdate,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     account = await db.get(ChannelAccount, channel_id)
@@ -107,7 +107,7 @@ async def update_channel(
 async def delete_channel(
     workspace_id: UUID,
     channel_id: UUID,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     account = await db.get(ChannelAccount, channel_id)
@@ -121,7 +121,7 @@ async def upsert_credential(
     workspace_id: UUID,
     channel_id: UUID,
     body: CredentialUpsert,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """Store (or replace) encrypted credentials for a channel account."""

@@ -4,7 +4,6 @@ import { useAuthStore } from "@/stores/auth-store";
 import { workspacesApi } from "@/lib/api";
 import type { Membership } from "@/types/workspace";
 import { Avatar } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 
 export function TeamTab() {

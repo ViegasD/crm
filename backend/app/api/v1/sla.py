@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user
+from app.core.dependencies import require_workspace_member
 from app.models.sla import AgentCapacity, SlaPolicy
 from app.models.workspace import User
 from app.schemas.sla import AgentCapacityOut, AgentCapacitySet, SlaPolicyCreate, SlaPolicyOut, SlaPolicyUpdate
@@ -18,7 +18,7 @@ router = APIRouter(prefix="/workspaces/{workspace_id}/sla", tags=["sla"])
 async def create_policy(
     workspace_id: UUID,
     body: SlaPolicyCreate,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     policy = SlaPolicy(
@@ -37,7 +37,7 @@ async def create_policy(
 @router.get("/policies", response_model=list[SlaPolicyOut])
 async def list_policies(
     workspace_id: UUID,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     result = await db.execute(select(SlaPolicy).where(SlaPolicy.workspace_id == workspace_id))
@@ -49,7 +49,7 @@ async def update_policy(
     workspace_id: UUID,
     policy_id: UUID,
     body: SlaPolicyUpdate,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     policy = await db.get(SlaPolicy, policy_id)
@@ -64,7 +64,7 @@ async def update_policy(
 async def delete_policy(
     workspace_id: UUID,
     policy_id: UUID,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     policy = await db.get(SlaPolicy, policy_id)
@@ -78,7 +78,7 @@ async def delete_policy(
 async def set_capacity(
     workspace_id: UUID,
     body: AgentCapacitySet,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     result = await db.execute(
@@ -106,7 +106,7 @@ async def set_capacity(
 @router.get("/capacity", response_model=list[AgentCapacityOut])
 async def list_capacity(
     workspace_id: UUID,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     result = await db.execute(

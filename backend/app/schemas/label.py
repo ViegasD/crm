@@ -9,6 +9,11 @@ class LabelCreate(BaseModel):
     color: str  # Hex e.g. "#3B82F6"
 
 
+class LabelUpdate(BaseModel):
+    name: str | None = None
+    color: str | None = None
+
+
 class LabelOut(BaseModel):
     model_config = {"from_attributes": True}
 
@@ -20,4 +25,9 @@ class LabelOut(BaseModel):
 
 
 class LabelAssign(BaseModel):
+    conversation_id: uuid.UUID
+
+
+class LabelBulkAssign(BaseModel):
+    conversation_ids: list[uuid.UUID]
     label_id: uuid.UUID
