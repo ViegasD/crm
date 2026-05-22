@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.channels.whatsapp.evolution import EvolutionAdapter
 from app.core.database import get_db
 from app.core.encryption import decrypt_payload
+from app.core.rate_limit import webhook_rate_limit
 from app.core.redis import get_redis
 from app.core.request_meta import client_ip, user_agent
 from app.core.security import (
@@ -61,7 +62,10 @@ async def _get_evolution_creds(db: AsyncSession, channel_account_id) -> dict:
     return decrypt_payload(cred.encrypted_payload)
 
 
-@router.post("/{instance_name}")
+@router.post(
+    "/{instance_name}",
+    dependencies=[Depends(webhook_rate_limit("evolution", limit=300, window_seconds=60))],
+)
 async def receive_event(
     instance_name: str,
     request: Request,
@@ -168,8 +172,11 @@ async def receive_event(
                 )
     except Exception as exc:  # noqa: BLE001
         logger.exception("Evolution webhook processing failed")
+        from app.services.webhook_retry import schedule_retry
+
         await mark_event_status(event_id, WebhookEventStatus.failed, str(exc))
-        raise
+        await schedule_retry(event_id, str(exc))
+        return {"status": "deferred"}
 
     await mark_event_status(event_id, WebhookEventStatus.processed)
     return {"status": "ok"}

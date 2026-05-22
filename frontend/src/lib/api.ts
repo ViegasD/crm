@@ -289,6 +289,18 @@ export const mentionsApi = {
     api.post(`/api/v1/workspaces/${wsId}/mentions/read`, { mention_ids: mentionIds ?? null }),
 };
 
+// ─── Webhook events (admin) ──────────────────────────────────────────────────
+export const webhookEventsApi = {
+  list: (
+    wsId: string,
+    params?: { status?: string; provider?: string; channel_account_id?: string; page?: number; page_size?: number },
+  ) => api.get(`/api/v1/workspaces/${wsId}/webhook-events`, { params }),
+  stats: (wsId: string) => api.get(`/api/v1/workspaces/${wsId}/webhook-events/stats`),
+  get: (wsId: string, id: string) => api.get(`/api/v1/workspaces/${wsId}/webhook-events/${id}`),
+  retry: (wsId: string, id: string) =>
+    api.post(`/api/v1/workspaces/${wsId}/webhook-events/${id}/retry`),
+};
+
 // ─── Flows ────────────────────────────────────────────────────────────────────
 export const flowsApi = {
   list: (wsId: string) => api.get(`/api/v1/workspaces/${wsId}/flows`),

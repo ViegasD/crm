@@ -25,6 +25,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.channels.whatsapp.meta_cloud import MetaCloudAdapter
 from app.core.database import get_db
 from app.core.encryption import decrypt_payload
+from app.core.rate_limit import webhook_rate_limit
 from app.core.redis import get_redis
 from app.core.request_meta import client_ip, user_agent
 from app.core.security import (
@@ -98,7 +99,7 @@ async def verify_hub(
     raise HTTPException(status_code=403, detail="Verification failed")
 
 
-@router.post("")
+@router.post("", dependencies=[Depends(webhook_rate_limit("meta", limit=300, window_seconds=60))])
 async def receive_event(request: Request, db: Annotated[AsyncSession, Depends(get_db)]):
     raw_body = await request.body()
     ip = client_ip(request)
@@ -235,8 +236,14 @@ async def receive_event(request: Request, db: Annotated[AsyncSession, Depends(ge
                 )
     except Exception as exc:  # noqa: BLE001
         logger.exception("Meta webhook processing failed")
+        from app.services.webhook_retry import schedule_retry
+
         await mark_event_status(event_id, WebhookEventStatus.failed, str(exc))
-        raise
+        await schedule_retry(event_id, str(exc))
+        # We still return 200 to the provider — the event is durably stored
+        # and the worker will retry. Returning 5xx triggers their own retries
+        # which would just duplicate work.
+        return {"status": "deferred"}
 
     await mark_event_status(event_id, WebhookEventStatus.processed)
     return {"status": "ok"}

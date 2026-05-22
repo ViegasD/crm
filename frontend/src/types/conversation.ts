@@ -240,3 +240,32 @@ export interface Snooze {
   snoozedBy?: string | null;
   createdAt: string;
 }
+
+export type WebhookEventStatus =
+  | "received"
+  | "processing"
+  | "processed"
+  | "failed"
+  | "ignored"
+  | "dead_letter";
+
+export interface WebhookEvent {
+  id: string;
+  workspaceId?: string | null;
+  channelAccountId?: string | null;
+  provider: string;
+  signatureHash?: string | null;
+  status: WebhookEventStatus;
+  attempts: number;
+  maxAttempts: number;
+  errorMessage?: string | null;
+  nextRetryAt?: string | null;
+  lastErrorAt?: string | null;
+  createdAt: string;
+  processedAt?: string | null;
+}
+
+export interface WebhookEventDetail extends WebhookEvent {
+  headers: Record<string, unknown>;
+  payload: Record<string, unknown>;
+}

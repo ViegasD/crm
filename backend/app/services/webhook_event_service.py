@@ -74,10 +74,13 @@ async def mark_event_status(
             event.error_message = error_message
             if status in (
                 WebhookEventStatus.processed,
-                WebhookEventStatus.failed,
                 WebhookEventStatus.ignored,
             ):
                 event.processed_at = datetime.now(timezone.utc)
+                event.next_retry_at = None
+            elif status == WebhookEventStatus.failed:
+                # retry clock is handled by webhook_retry.schedule_retry
+                event.last_error_at = datetime.now(timezone.utc)
             await db.commit()
     except SQLAlchemyError:
         logger.exception("Failed to update webhook event status: %s", event_id)
