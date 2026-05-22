@@ -62,14 +62,22 @@ async def schedule_retry(event_id: UUID, error_message: str | None = None) -> No
 
 async def reprocess_event(event_id: UUID) -> tuple[bool, str | None]:
     """Reprocess a single webhook event. Returns (success, error_message)."""
+    import time
+
     from app.channels.whatsapp.evolution import EvolutionAdapter
     from app.channels.whatsapp.meta_cloud import MetaCloudAdapter
     from app.core.encryption import decrypt_payload
     from app.models.channel import ChannelCredential
     from app.services.message_service import persist_normalized_event
     from app.services.webhook_event_service import mark_event_status
+    from app.services.webhook_ops_service import (
+        record_attempt,
+        record_circuit_failure,
+        record_circuit_success,
+    )
     from app.websocket.manager import manager
 
+    started = time.perf_counter()
     async with AsyncSessionLocal() as db:
         event = await db.get(WebhookEvent, event_id)
         if not event:
@@ -137,11 +145,31 @@ async def reprocess_event(event_id: UUID) -> tuple[bool, str | None]:
                     )
             await db.commit()
         except Exception as exc:  # noqa: BLE001
+            latency = int((time.perf_counter() - started) * 1000)
             logger.exception("webhook reprocess failed: %s", event_id)
             await schedule_retry(event_id, str(exc))
+            await record_attempt(
+                webhook_event_id=event_id,
+                attempt=event.attempts + 1,
+                payload=event.payload or {},
+                status="failed",
+                error_message=str(exc),
+                latency_ms=latency,
+            )
+            await record_circuit_failure(account.workspace_id, account.id, str(exc))
             return False, str(exc)
 
+    latency = int((time.perf_counter() - started) * 1000)
     await mark_event_status(event_id, WebhookEventStatus.processed)
+    await record_attempt(
+        webhook_event_id=event_id,
+        attempt=event.attempts + 1,
+        payload=event.payload or {},
+        status="success",
+        error_message=None,
+        latency_ms=latency,
+    )
+    await record_circuit_success(account.workspace_id, account.id)
     return True, None
 
 

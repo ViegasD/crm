@@ -269,3 +269,47 @@ export interface WebhookEventDetail extends WebhookEvent {
   headers: Record<string, unknown>;
   payload: Record<string, unknown>;
 }
+
+export type CircuitState = "closed" | "open" | "half_open";
+
+export interface ChannelCircuit {
+  id: string;
+  channelAccountId: string;
+  workspaceId: string;
+  state: CircuitState;
+  failureCount: number;
+  lastFailureAt?: string | null;
+  openedAt?: string | null;
+  nextProbeAt?: string | null;
+  lastErrorMessage?: string | null;
+}
+
+export interface WebhookIpAllowlistRow {
+  id: string;
+  workspaceId: string;
+  provider: string;
+  cidr: string;
+  description?: string | null;
+  createdAt: string;
+}
+
+export interface WebhookAttempt {
+  id: string;
+  webhookEventId: string;
+  attempt: number;
+  payloadHash: string;
+  status: string;
+  errorMessage?: string | null;
+  latencyMs?: number | null;
+  createdAt: string;
+}
+
+export interface LatencyStats {
+  windowMinutes: number;
+  sampleSize: number;
+  p50Ms?: number | null;
+  p95Ms?: number | null;
+  p99Ms?: number | null;
+  avgMs?: number | null;
+  maxMs?: number | null;
+}

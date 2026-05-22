@@ -1,6 +1,7 @@
 import uuid
+from datetime import datetime
 
-from sqlalchemy import Boolean, ForeignKey, String, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -61,6 +62,10 @@ class ChannelCredential(Base, TimestampMixin):
     credential_type: Mapped[str] = mapped_column(String(100), nullable=False)
     # AES-256-GCM encrypted JSON
     encrypted_payload: Mapped[str] = mapped_column(String, nullable=False)
-    rotated_at: Mapped[str | None] = mapped_column(nullable=True)
+    # Previous credential kept during a rotation grace window so webhooks signed
+    # with the old secret keep working until grace_until passes.
+    previous_payload: Mapped[str | None] = mapped_column(String, nullable=True)
+    grace_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    rotated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     channel_account: Mapped["ChannelAccount"] = relationship(back_populates="credentials")

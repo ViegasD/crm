@@ -15,6 +15,11 @@ from app.models.conversation import (  # noqa: F401
 )
 from app.models.audit import SecurityAuditLog  # noqa: F401
 from app.models.webhook import WebhookEvent  # noqa: F401
+from app.models.webhook_ops import (  # noqa: F401
+    ChannelCircuitState,
+    WebhookEventAttempt,
+    WebhookIpAllowlist,
+)
 from app.models.catalog import (  # noqa: F401
     CannedResponseCategory,
     ConversationSnooze,

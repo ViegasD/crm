@@ -149,6 +149,12 @@ class ViewVisibility(str, enum.Enum):
     workspace = "workspace"
 
 
+class CircuitState(str, enum.Enum):
+    closed = "closed"      # normal operation
+    open = "open"          # too many errors, traffic rejected
+    half_open = "half_open"  # probing — next try decides
+
+
 class SlaEventType(str, enum.Enum):
     first_response = "first_response"
     resolution = "resolution"

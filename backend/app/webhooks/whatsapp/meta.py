@@ -4,18 +4,21 @@ WhatsApp Meta Cloud API webhook handler.
 GET  /webhooks/whatsapp/meta  — Hub challenge verification
 POST /webhooks/whatsapp/meta  — Inbound events (messages, status updates)
 
-Security pipeline:
-1. Parse JSON (400 on malformed)
-2. Resolve channel account by phone_number_id
-3. Verify HMAC-SHA256 X-Hub-Signature-256 (401 on missing/invalid)
-4. Reject stale payload timestamp (>5min, 409)
-5. Reject replayed signature via Redis (409)
-6. Persist payload in webhook_events (durable)
-7. Normalize and persist messages
-8. Mark webhook_events status
-9. Return 200
+Security pipeline (Tier 1 + Tier 2):
+1. Rate limit (per ip + provider)
+2. Parse JSON
+3. Resolve channel account by phone_number_id
+4. IP allowlist (if any configured for the workspace)
+5. Circuit breaker check
+6. HMAC verification — accepts current OR previous secret during rotation
+7. Stale timestamp (payload)
+8. Replay protection (Redis)
+9. Durable persistence in webhook_events
+10. Normalize + persist + record_attempt
+11. Update circuit + return
 """
 import logging
+import time
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
@@ -24,14 +27,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.channels.whatsapp.meta_cloud import MetaCloudAdapter
 from app.core.database import get_db
-from app.core.encryption import decrypt_payload
 from app.core.rate_limit import webhook_rate_limit
 from app.core.redis import get_redis
 from app.core.request_meta import client_ip, user_agent
 from app.core.security import (
     is_webhook_signature_registered,
     register_webhook_signature,
-    verify_hmac_sha256,
     verify_webhook_timestamp,
 )
 from app.models.channel import ChannelAccount, ChannelCredential
@@ -39,6 +40,14 @@ from app.models.enums import WebhookEventStatus, WhatsAppProvider
 from app.services.message_service import persist_normalized_event
 from app.services.security_audit_service import log_security_event
 from app.services.webhook_event_service import mark_event_status, record_webhook_event
+from app.services.webhook_ops_service import (
+    check_ip_allowed,
+    is_circuit_open,
+    record_attempt,
+    record_circuit_failure,
+    record_circuit_success,
+    verify_hmac_with_rotation,
+)
 from app.websocket.manager import manager
 
 logger = logging.getLogger(__name__)
@@ -55,21 +64,17 @@ async def _resolve_account(db: AsyncSession, phone_number_id: str) -> ChannelAcc
     return result.scalar_one_or_none()
 
 
-async def _get_app_secret(db: AsyncSession, channel_account_id) -> str | None:
+async def _get_credential(db: AsyncSession, channel_account_id) -> ChannelCredential | None:
     result = await db.execute(
         select(ChannelCredential).where(
             ChannelCredential.channel_account_id == channel_account_id,
             ChannelCredential.credential_type == "meta_cloud",
         )
     )
-    cred = result.scalar_one_or_none()
-    if not cred:
-        return None
-    return decrypt_payload(cred.encrypted_payload).get("app_secret")
+    return result.scalar_one_or_none()
 
 
 def _extract_payload_timestamp(body: dict) -> int | None:
-    """Meta payloads carry timestamps inside entry[].changes[].value.{messages,statuses}[]."""
     try:
         value = body["entry"][0]["changes"][0]["value"]
     except (KeyError, IndexError, TypeError):
@@ -92,7 +97,6 @@ async def verify_hub(
     hub_challenge: str = Query(alias="hub.challenge", default=""),
     hub_verify_token: str = Query(alias="hub.verify_token", default=""),
 ):
-    """Facebook Hub challenge-response for webhook subscription."""
     from app.core.config import settings
     if hub_mode == "subscribe" and hub_verify_token == settings.meta_webhook_verify_token:
         return Response(content=hub_challenge, media_type="text/plain")
@@ -122,9 +126,7 @@ async def receive_event(request: Request, db: Annotated[AsyncSession, Depends(ge
 
     # 2. Resolve channel
     try:
-        phone_number_id = (
-            body["entry"][0]["changes"][0]["value"]["metadata"]["phone_number_id"]
-        )
+        phone_number_id = body["entry"][0]["changes"][0]["value"]["metadata"]["phone_number_id"]
     except (KeyError, IndexError, TypeError):
         await log_security_event(
             action="webhook_malformed",
@@ -147,9 +149,35 @@ async def receive_event(request: Request, db: Annotated[AsyncSession, Depends(ge
         )
         return {"status": "ignored"}
 
-    # 3. Verify HMAC
-    app_secret = await _get_app_secret(db, account.id)
-    if not app_secret:
+    # 3. IP allowlist (Tier 2)
+    if not await check_ip_allowed(db, account.workspace_id, "meta_cloud", ip):
+        await log_security_event(
+            action="webhook_ip_blocked",
+            workspace_id=account.workspace_id,
+            target_type="channel_account",
+            target_id=account.id,
+            new_value={"provider": "meta_cloud"},
+            ip_address=ip,
+            user_agent=ua,
+        )
+        raise HTTPException(status_code=403, detail="IP not allowed")
+
+    # 4. Circuit breaker (Tier 2)
+    if await is_circuit_open(db, account.workspace_id, account.id):
+        await log_security_event(
+            action="webhook_circuit_open_rejected",
+            workspace_id=account.workspace_id,
+            target_type="channel_account",
+            target_id=account.id,
+            new_value={"provider": "meta_cloud"},
+            ip_address=ip,
+            user_agent=ua,
+        )
+        raise HTTPException(status_code=503, detail="Channel temporarily unavailable")
+
+    # 5. HMAC verification — supports rotation
+    credential = await _get_credential(db, account.id)
+    if not credential:
         await log_security_event(
             action="webhook_missing_secret",
             workspace_id=account.workspace_id,
@@ -160,7 +188,9 @@ async def receive_event(request: Request, db: Annotated[AsyncSession, Depends(ge
             user_agent=ua,
         )
         raise HTTPException(status_code=401, detail="Webhook secret not configured")
-    if not verify_hmac_sha256(app_secret, raw_body, sig_header):
+
+    ok, used_secret = verify_hmac_with_rotation(credential, "app_secret", raw_body, sig_header)
+    if not ok:
         await log_security_event(
             action="webhook_invalid_signature",
             workspace_id=account.workspace_id,
@@ -171,8 +201,18 @@ async def receive_event(request: Request, db: Annotated[AsyncSession, Depends(ge
             user_agent=ua,
         )
         raise HTTPException(status_code=401, detail="Invalid signature")
+    if used_secret == "previous":
+        await log_security_event(
+            action="webhook_signed_with_previous_secret",
+            workspace_id=account.workspace_id,
+            target_type="channel_account",
+            target_id=account.id,
+            new_value={"provider": "meta_cloud"},
+            ip_address=ip,
+            user_agent=ua,
+        )
 
-    # 4. Timestamp anti-replay (when the payload contains one)
+    # 6. Timestamp anti-replay
     payload_ts = _extract_payload_timestamp(body)
     if payload_ts is not None and not verify_webhook_timestamp(payload_ts):
         await log_security_event(
@@ -186,7 +226,7 @@ async def receive_event(request: Request, db: Annotated[AsyncSession, Depends(ge
         )
         raise HTTPException(status_code=409, detail="Stale webhook timestamp")
 
-    # 5. Signature replay window (Redis)
+    # 7. Signature replay
     redis = await get_redis()
     if await is_webhook_signature_registered(redis, "meta_cloud", sig_header):
         await log_security_event(
@@ -199,11 +239,9 @@ async def receive_event(request: Request, db: Annotated[AsyncSession, Depends(ge
             user_agent=ua,
         )
         raise HTTPException(status_code=409, detail="Replay detected")
-
-    # 6. Reserve signature BEFORE processing — prevents concurrent retries from racing
     await register_webhook_signature(redis, "meta_cloud", sig_header)
 
-    # 7. Durable persistence (own transaction)
+    # 8. Durable persistence
     event_id = await record_webhook_event(
         provider="meta_cloud",
         headers=headers,
@@ -213,12 +251,9 @@ async def receive_event(request: Request, db: Annotated[AsyncSession, Depends(ge
         signature=sig_header,
     )
 
-    # 8. Normalize + persist
-    adapter = MetaCloudAdapter(
-        access_token="",
-        phone_number_id=phone_number_id,
-        app_secret=app_secret or "",
-    )
+    # 9. Normalize + persist + attempt log
+    adapter = MetaCloudAdapter(access_token="", phone_number_id=phone_number_id, app_secret="")
+    started = time.perf_counter()
     try:
         events = adapter.parse_webhook(headers, body)
         for event in events:
@@ -235,15 +270,32 @@ async def receive_event(request: Request, db: Annotated[AsyncSession, Depends(ge
                     },
                 )
     except Exception as exc:  # noqa: BLE001
+        latency = int((time.perf_counter() - started) * 1000)
         logger.exception("Meta webhook processing failed")
         from app.services.webhook_retry import schedule_retry
 
         await mark_event_status(event_id, WebhookEventStatus.failed, str(exc))
         await schedule_retry(event_id, str(exc))
-        # We still return 200 to the provider — the event is durably stored
-        # and the worker will retry. Returning 5xx triggers their own retries
-        # which would just duplicate work.
+        await record_attempt(
+            webhook_event_id=event_id,
+            attempt=1,
+            payload=body,
+            status="failed",
+            error_message=str(exc),
+            latency_ms=latency,
+        )
+        await record_circuit_failure(account.workspace_id, account.id, str(exc))
         return {"status": "deferred"}
 
+    latency = int((time.perf_counter() - started) * 1000)
     await mark_event_status(event_id, WebhookEventStatus.processed)
+    await record_attempt(
+        webhook_event_id=event_id,
+        attempt=1,
+        payload=body,
+        status="success",
+        error_message=None,
+        latency_ms=latency,
+    )
+    await record_circuit_success(account.workspace_id, account.id)
     return {"status": "ok"}

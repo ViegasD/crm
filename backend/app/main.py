@@ -19,6 +19,7 @@ from app.api.v1 import (
     sla,
     users,
     webhook_events,
+    webhook_ops,
     workspaces,
 )
 from app.core.redis import close_redis, get_redis
@@ -62,6 +63,7 @@ app.include_router(canned_responses.router, prefix="/api/v1")
 app.include_router(macros.router, prefix="/api/v1")
 app.include_router(catalog.router, prefix="/api/v1")
 app.include_router(webhook_events.router, prefix="/api/v1")
+app.include_router(webhook_ops.router, prefix="/api/v1")
 app.include_router(flows.router, prefix="/api/v1")
 app.include_router(sla.router, prefix="/api/v1")
 

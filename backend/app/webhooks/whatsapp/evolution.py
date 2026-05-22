@@ -29,7 +29,15 @@ from app.models.enums import WebhookEventStatus, WhatsAppProvider
 from app.services.message_service import persist_normalized_event
 from app.services.security_audit_service import log_security_event
 from app.services.webhook_event_service import mark_event_status, record_webhook_event
+from app.services.webhook_ops_service import (
+    check_ip_allowed,
+    is_circuit_open,
+    record_attempt,
+    record_circuit_failure,
+    record_circuit_success,
+)
 from app.websocket.manager import manager
+import time
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/webhooks/whatsapp/evolution", tags=["webhooks"])
@@ -100,6 +108,30 @@ async def receive_event(
         )
         return {"status": "ignored"}
 
+    # IP allowlist + circuit breaker (Tier 2)
+    if not await check_ip_allowed(db, account.workspace_id, "evolution", ip):
+        await log_security_event(
+            action="webhook_ip_blocked",
+            workspace_id=account.workspace_id,
+            target_type="channel_account",
+            target_id=account.id,
+            new_value={"provider": "evolution"},
+            ip_address=ip,
+            user_agent=ua,
+        )
+        raise HTTPException(status_code=403, detail="IP not allowed")
+    if await is_circuit_open(db, account.workspace_id, account.id):
+        await log_security_event(
+            action="webhook_circuit_open_rejected",
+            workspace_id=account.workspace_id,
+            target_type="channel_account",
+            target_id=account.id,
+            new_value={"provider": "evolution"},
+            ip_address=ip,
+            user_agent=ua,
+        )
+        raise HTTPException(status_code=503, detail="Channel temporarily unavailable")
+
     mode = "cloud" if account.provider == WhatsAppProvider.evolution_cloud else "baileys"
     creds = await _get_evolution_creds(db, account.id)
     webhook_secret = creds.get("webhook_secret")
@@ -159,6 +191,7 @@ async def receive_event(
         signature=signature,
     )
 
+    started = time.perf_counter()
     try:
         events = adapter.parse_webhook(headers, body)
         for event in events:
@@ -171,12 +204,32 @@ async def receive_event(
                     {"type": "message.new", "conversation_id": str(msg.conversation_id), "message_id": str(msg.id)},
                 )
     except Exception as exc:  # noqa: BLE001
+        latency = int((time.perf_counter() - started) * 1000)
         logger.exception("Evolution webhook processing failed")
         from app.services.webhook_retry import schedule_retry
 
         await mark_event_status(event_id, WebhookEventStatus.failed, str(exc))
         await schedule_retry(event_id, str(exc))
+        await record_attempt(
+            webhook_event_id=event_id,
+            attempt=1,
+            payload=body,
+            status="failed",
+            error_message=str(exc),
+            latency_ms=latency,
+        )
+        await record_circuit_failure(account.workspace_id, account.id, str(exc))
         return {"status": "deferred"}
 
+    latency = int((time.perf_counter() - started) * 1000)
     await mark_event_status(event_id, WebhookEventStatus.processed)
+    await record_attempt(
+        webhook_event_id=event_id,
+        attempt=1,
+        payload=body,
+        status="success",
+        error_message=None,
+        latency_ms=latency,
+    )
+    await record_circuit_success(account.workspace_id, account.id)
     return {"status": "ok"}

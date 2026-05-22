@@ -9,6 +9,7 @@ import { LabelsTab } from "@/components/settings/labels-tab";
 import { MacrosTab } from "@/components/settings/macros-tab";
 import { ReasonsTab } from "@/components/settings/reasons-tab";
 import { WebhookEventsTab } from "@/components/settings/webhook-events-tab";
+import { WebhookOpsTab } from "@/components/settings/webhook-ops-tab";
 import { cn } from "@/lib/utils";
 
 const TABS = [
@@ -21,6 +22,7 @@ const TABS = [
   "Reasons",
   "SLA",
   "Webhooks",
+  "Webhook ops",
 ] as const;
 type Tab = typeof TABS[number];
 
@@ -59,6 +61,7 @@ export default function SettingsPage() {
         {activeTab === "Reasons" && <ReasonsTab />}
         {activeTab === "SLA" && <SlaTab />}
         {activeTab === "Webhooks" && <WebhookEventsTab />}
+        {activeTab === "Webhook ops" && <WebhookOpsTab />}
       </div>
     </div>
   );

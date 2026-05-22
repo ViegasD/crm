@@ -301,6 +301,40 @@ export const webhookEventsApi = {
     api.post(`/api/v1/workspaces/${wsId}/webhook-events/${id}/retry`),
 };
 
+// ─── Webhook ops (Tier 2) ────────────────────────────────────────────────────
+export const webhookOpsApi = {
+  // IP allowlist
+  listIpAllowlist: (wsId: string, provider?: string) =>
+    api.get(`/api/v1/workspaces/${wsId}/webhook-ops/ip-allowlist`, { params: { provider } }),
+  addIpAllowlist: (wsId: string, data: { provider: string; cidr: string; description?: string | null }) =>
+    api.post(`/api/v1/workspaces/${wsId}/webhook-ops/ip-allowlist`, data),
+  deleteIpAllowlist: (wsId: string, id: string) =>
+    api.delete(`/api/v1/workspaces/${wsId}/webhook-ops/ip-allowlist/${id}`),
+  // Circuits
+  listCircuits: (wsId: string) =>
+    api.get(`/api/v1/workspaces/${wsId}/webhook-ops/circuits`),
+  resetCircuit: (wsId: string, channelAccountId: string) =>
+    api.post(`/api/v1/workspaces/${wsId}/webhook-ops/circuits/${channelAccountId}/reset`),
+  // Secret rotation
+  rotateCredential: (
+    wsId: string,
+    channelAccountId: string,
+    data: { credential_type: string; payload: Record<string, unknown>; grace_hours?: number },
+  ) =>
+    api.post(`/api/v1/workspaces/${wsId}/webhook-ops/channels/${channelAccountId}/rotate-credential`, data),
+  finalizeRotation: (wsId: string, channelAccountId: string, credentialType: string) =>
+    api.post(
+      `/api/v1/workspaces/${wsId}/webhook-ops/channels/${channelAccountId}/finalize-rotation`,
+      null,
+      { params: { credential_type: credentialType } },
+    ),
+  // Attempts + latency
+  listAttempts: (wsId: string, eventId: string) =>
+    api.get(`/api/v1/workspaces/${wsId}/webhook-ops/events/${eventId}/attempts`),
+  latency: (wsId: string, windowMinutes = 60) =>
+    api.get(`/api/v1/workspaces/${wsId}/webhook-ops/latency`, { params: { window_minutes: windowMinutes } }),
+};
+
 // ─── Flows ────────────────────────────────────────────────────────────────────
 export const flowsApi = {
   list: (wsId: string) => api.get(`/api/v1/workspaces/${wsId}/flows`),
@@ -329,6 +363,25 @@ export const slaApi = {
   listCapacity: (wsId: string) => api.get(`/api/v1/workspaces/${wsId}/sla/capacity`),
   setCapacity: (wsId: string, data: Record<string, unknown>) =>
     api.put(`/api/v1/workspaces/${wsId}/sla/capacity`, data),
+  listPauseReasons: (wsId: string) => api.get(`/api/v1/workspaces/${wsId}/sla/pause-reasons`),
+  createPauseReason: (wsId: string, data: Record<string, unknown>) =>
+    api.post(`/api/v1/workspaces/${wsId}/sla/pause-reasons`, data),
+  listAgentStatus: (wsId: string) => api.get(`/api/v1/workspaces/${wsId}/sla/agent-status`),
+  setAgentStatus: (wsId: string, userId: string, data: Record<string, unknown>) =>
+    api.put(`/api/v1/workspaces/${wsId}/sla/agent-status/${userId}`, data),
+  listBusinessHours: (wsId: string, params?: { sector_id?: string }) =>
+    api.get(`/api/v1/workspaces/${wsId}/sla/business-hours`, { params }),
+  createBusinessHours: (wsId: string, data: Record<string, unknown>) =>
+    api.post(`/api/v1/workspaces/${wsId}/sla/business-hours`, data),
+  deleteBusinessHours: (wsId: string, hoursId: string) =>
+    api.delete(`/api/v1/workspaces/${wsId}/sla/business-hours/${hoursId}`),
+  listRoutingRules: (wsId: string) => api.get(`/api/v1/workspaces/${wsId}/sla/routing-rules`),
+  upsertRoutingRule: (wsId: string, data: Record<string, unknown>) =>
+    api.put(`/api/v1/workspaces/${wsId}/sla/routing-rules`, data),
+  assignNext: (wsId: string, data: { conversation_id: string; sector_id?: string | null }) =>
+    api.post(`/api/v1/workspaces/${wsId}/sla/assign-next`, data),
+  evaluate: (wsId: string) => api.post(`/api/v1/workspaces/${wsId}/sla/evaluate`),
+  supervisorOverview: (wsId: string) => api.get(`/api/v1/workspaces/${wsId}/sla/supervisor/overview`),
 };
 
 // ─── Media ────────────────────────────────────────────────────────────────────
