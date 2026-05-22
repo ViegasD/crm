@@ -7,6 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin, gen_uuid
 from app.models.enums import (
+    CannedVisibility,
     ConvEventType,
     ConvPriority,
     ConversationStatus,
@@ -55,6 +56,11 @@ class Conversation(Base, TimestampMixin):
     unread_agent_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     first_replied_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    is_private: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    service_reason_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("service_reasons.id", ondelete="SET NULL"), nullable=True
+    )
+    resolve_note: Mapped[str | None] = mapped_column(String, nullable=True)
 
     messages: Mapped[list["Message"]] = relationship(back_populates="conversation", cascade="all, delete-orphan")
     events: Mapped[list["ConversationEvent"]] = relationship(
@@ -152,8 +158,12 @@ class Label(Base, TimestampMixin):
     workspace_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False, index=True
     )
+    category_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("label_categories.id", ondelete="SET NULL"), nullable=True
+    )
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     color: Mapped[str] = mapped_column(String(7), nullable=False)
+    description: Mapped[str | None] = mapped_column(String, nullable=True)
 
 
 class ConversationLabel(Base, TimestampMixin):
@@ -196,8 +206,8 @@ class ConversationParticipant(Base, TimestampMixin):
 class CannedResponse(Base, TimestampMixin):
     __tablename__ = "canned_responses"
     __table_args__ = (
-        UniqueConstraint("workspace_id", "shortcut"),
         Index("ix_canned_ws_active", "workspace_id", "active"),
+        Index("ix_canned_shortcut_lookup", "workspace_id", "shortcut"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=gen_uuid)
@@ -207,7 +217,18 @@ class CannedResponse(Base, TimestampMixin):
     sector_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("sectors.id", ondelete="SET NULL"), nullable=True
     )
+    user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=True
+    )
+    category_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("canned_response_categories.id", ondelete="SET NULL"), nullable=True
+    )
+    visibility: Mapped[CannedVisibility] = mapped_column(
+        default=CannedVisibility.workspace, nullable=False
+    )
+    language: Mapped[str | None] = mapped_column(String(10), nullable=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     shortcut: Mapped[str] = mapped_column(String(100), nullable=False)
     content: Mapped[str] = mapped_column(String, nullable=False)
+    attachments: Mapped[list] = mapped_column(JSONB, default=list, nullable=False)
     active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)

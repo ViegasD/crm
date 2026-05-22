@@ -121,6 +121,32 @@ class WebhookEventStatus(str, enum.Enum):
     processed = "processed"
     failed = "failed"
     ignored = "ignored"
+    dead_letter = "dead_letter"
+
+
+class CannedVisibility(str, enum.Enum):
+    workspace = "workspace"
+    sector = "sector"
+    user = "user"
+
+
+class MacroActionType(str, enum.Enum):
+    send_message = "send_message"
+    send_canned = "send_canned"
+    apply_label = "apply_label"
+    remove_label = "remove_label"
+    transfer = "transfer"
+    assign = "assign"
+    add_note = "add_note"
+    set_status = "set_status"
+    set_priority = "set_priority"
+    add_participant = "add_participant"
+
+
+class ViewVisibility(str, enum.Enum):
+    personal = "personal"
+    sector = "sector"
+    workspace = "workspace"
 
 
 class SlaEventType(str, enum.Enum):

@@ -8,6 +8,7 @@ from sqlalchemy import select
 from app.core.database import get_db
 from app.core.dependencies import require_workspace_member
 from app.core.request_meta import client_ip, user_agent
+from app.models.catalog import ConversationSnooze, ConversationView, TransferReason
 from app.models.contact import Contact, ContactPhone
 from app.models.conversation import (
     Conversation,
@@ -20,6 +21,8 @@ from app.models.conversation import (
 from app.models.enums import ConvEventType
 from app.models.workspace import User
 from app.schemas.conversation import (
+    ConversationBulkAddParticipant,
+    ConversationBulkAssign,
     ConversationBulkLabel,
     ConversationBulkStatus,
     ConversationBulkTransfer,
@@ -75,6 +78,10 @@ async def _conversation_out(db: AsyncSession, conv: Conversation) -> Conversatio
     )
     labels = [LabelInline.model_validate(label) for label in labels_q.scalars().all()]
 
+    snooze = (await db.execute(
+        select(ConversationSnooze).where(ConversationSnooze.conversation_id == conv.id)
+    )).scalar_one_or_none()
+
     return ConversationOut.model_validate(conv).model_copy(
         update={
             "contact_name": contact.name if contact else None,
@@ -83,6 +90,7 @@ async def _conversation_out(db: AsyncSession, conv: Conversation) -> Conversatio
             "last_message_at": last_message.created_at if last_message else None,
             "assignee_name": assignee_name,
             "labels": labels,
+            "snoozed_until": snooze.until if snooze else None,
         }
     )
 
@@ -97,19 +105,42 @@ async def list_convs(
     sector_id: UUID | None = Query(None),
     channel_account_id: UUID | None = Query(None),
     label_id: UUID | None = Query(None),
+    priority: str | None = Query(None),
+    is_private: bool | None = Query(None),
+    snoozed: bool | None = Query(None),
+    mentions_for_me: bool | None = Query(None),
+    search: str | None = Query(None),
+    view_id: UUID | None = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(30, ge=1, le=100),
 ):
-    filters = ConversationListFilters(
-        status=status,
-        assignee_id=assignee_id,
-        sector_id=sector_id,
-        channel_account_id=channel_account_id,
-        label_id=label_id,
-        page=page,
-        page_size=page_size,
-    )
-    items, total = await list_conversations(db, workspace_id, filters)
+    base_filters = {
+        "status": status,
+        "assignee_id": assignee_id,
+        "sector_id": sector_id,
+        "channel_account_id": channel_account_id,
+        "label_id": label_id,
+        "priority": priority,
+        "is_private": is_private,
+        "snoozed": snoozed,
+        "mentions_for_user_id": current_user.id if mentions_for_me else None,
+        "search": search,
+        "page": page,
+        "page_size": page_size,
+    }
+
+    # Custom view overrides explicit query params (view defines the filter)
+    if view_id:
+        view = await db.get(ConversationView, view_id)
+        if not view or view.workspace_id != workspace_id:
+            raise HTTPException(status_code=404, detail="View not found")
+        # view.filters is a dict matching ConversationListFilters fields
+        for k, v in (view.filters or {}).items():
+            if k in base_filters and base_filters[k] in (None, False):
+                base_filters[k] = v
+
+    filters = ConversationListFilters(**{k: v for k, v in base_filters.items() if v is not None})
+    items, total = await list_conversations(db, workspace_id, filters, current_user)
     return {
         "items": [await _conversation_out(db, item) for item in items],
         "total": total,
@@ -151,6 +182,22 @@ async def transfer_conv(
     current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
+    # Enforce required reasons if the workspace has any required transfer reasons
+    has_required = await db.execute(
+        select(TransferReason.id).where(
+            TransferReason.workspace_id == workspace_id,
+            TransferReason.required.is_(True),
+            TransferReason.active.is_(True),
+        ).limit(1)
+    )
+    if has_required.scalar_one_or_none() and body.transfer_reason_id is None:
+        raise HTTPException(status_code=400, detail="transfer_reason_id is required")
+
+    if body.transfer_reason_id is not None:
+        reason = await db.get(TransferReason, body.transfer_reason_id)
+        if not reason or reason.workspace_id != workspace_id or not reason.active:
+            raise HTTPException(status_code=400, detail="Invalid transfer reason")
+
     conv = await transfer_conversation(db, workspace_id, conversation_id, body, current_user.id)
     await _broadcast_update(workspace_id, conv)
     await log_security_event(
@@ -376,12 +423,68 @@ async def bulk_status(
     current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    update = ConversationUpdate(status=body.status)
+    update = ConversationUpdate(
+        status=body.status,
+        service_reason_id=body.service_reason_id,
+        resolve_note=body.resolve_note,
+    )
     for conv_id in body.conversation_ids:
         try:
             await update_conversation(db, workspace_id, conv_id, update, current_user.id)
         except HTTPException:
             continue
+
+
+@router.post("/bulk/assign", status_code=204)
+async def bulk_assign(
+    workspace_id: UUID,
+    body: ConversationBulkAssign,
+    current_user: Annotated[User, Depends(require_workspace_member)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    update = ConversationUpdate(assignee_id=body.assignee_id)
+    for conv_id in body.conversation_ids:
+        try:
+            await update_conversation(db, workspace_id, conv_id, update, current_user.id)
+        except HTTPException:
+            continue
+
+
+@router.post("/bulk/add-participant", status_code=204)
+async def bulk_add_participant(
+    workspace_id: UUID,
+    body: ConversationBulkAddParticipant,
+    current_user: Annotated[User, Depends(require_workspace_member)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    for conv_id in body.conversation_ids:
+        conv = await db.get(Conversation, conv_id)
+        if not conv or conv.workspace_id != workspace_id:
+            continue
+        existing = await db.execute(
+            select(ConversationParticipant).where(
+                ConversationParticipant.workspace_id == workspace_id,
+                ConversationParticipant.conversation_id == conv_id,
+                ConversationParticipant.user_id == body.user_id,
+            )
+        )
+        if existing.scalar_one_or_none():
+            continue
+        db.add(
+            ConversationParticipant(
+                workspace_id=workspace_id, conversation_id=conv_id, user_id=body.user_id
+            )
+        )
+        db.add(
+            ConversationEvent(
+                workspace_id=workspace_id,
+                conversation_id=conv_id,
+                type=ConvEventType.participant_added,
+                actor_id=current_user.id,
+                actor_type="agent",
+                payload={"user_id": str(body.user_id), "via": "bulk"},
+            )
+        )
 
 
 async def _broadcast_update(workspace_id: UUID, conv) -> None:

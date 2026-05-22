@@ -6,6 +6,20 @@ export type ConvPriority = "low" | "medium" | "high" | "urgent";
 export type MessageType = "text" | "image" | "audio" | "video" | "file" | "internal_note" | "activity";
 export type ChannelType = "whatsapp" | "instagram" | "facebook" | "telegram" | "line" | "tiktok" | "sms" | "email" | "live_chat";
 
+export type CannedVisibility = "workspace" | "sector" | "user";
+export type ViewVisibility = "personal" | "sector" | "workspace";
+export type MacroActionType =
+  | "send_message"
+  | "send_canned"
+  | "apply_label"
+  | "remove_label"
+  | "transfer"
+  | "assign"
+  | "add_note"
+  | "set_status"
+  | "set_priority"
+  | "add_participant";
+
 export interface LabelInline {
   id: string;
   name: string;
@@ -35,11 +49,15 @@ export interface Conversation {
   resolvedAt?: string;
   createdAt: string;
   updatedAt: string;
+  isPrivate?: boolean;
+  serviceReasonId?: string | null;
+  resolveNote?: string | null;
   contactName?: string;
   contactPhone?: string;
   lastMessage?: string;
   lastMessageAt?: string;
   labels?: LabelInline[];
+  snoozedUntil?: string | null;
 }
 
 export interface Message {
@@ -87,13 +105,27 @@ export interface ConversationParticipant {
 export interface CannedResponse {
   id: string;
   workspaceId: string;
-  sectorId?: string;
+  sectorId?: string | null;
+  userId?: string | null;
+  categoryId?: string | null;
+  visibility: CannedVisibility;
+  language?: string | null;
   title: string;
   shortcut: string;
   content: string;
+  attachments?: Attachment[];
   active: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface CannedCategory {
+  id: string;
+  workspaceId: string;
+  name: string;
+  color?: string | null;
+  position: number;
+  createdAt: string;
 }
 
 export interface CannedRenderResponse {
@@ -106,6 +138,17 @@ export interface Label {
   workspaceId: string;
   name: string;
   color: string;
+  categoryId?: string | null;
+  description?: string | null;
+  createdAt: string;
+}
+
+export interface LabelCategory {
+  id: string;
+  workspaceId: string;
+  name: string;
+  color?: string | null;
+  position: number;
   createdAt: string;
 }
 
@@ -116,4 +159,84 @@ export interface WorkspaceMember {
   role: "admin" | "supervisor" | "agent";
   createdAt: string;
   user?: UserInline | null;
+}
+
+export interface TransferReason {
+  id: string;
+  workspaceId: string;
+  label: string;
+  required: boolean;
+  active: boolean;
+  createdAt: string;
+}
+
+export interface ServiceReason {
+  id: string;
+  workspaceId: string;
+  label: string;
+  description?: string | null;
+  position: number;
+  active: boolean;
+  createdAt: string;
+}
+
+export interface ConversationView {
+  id: string;
+  workspaceId: string;
+  userId?: string | null;
+  sectorId?: string | null;
+  visibility: ViewVisibility;
+  name: string;
+  icon?: string | null;
+  filters: Record<string, unknown>;
+  pinned: boolean;
+  position: number;
+  createdAt: string;
+}
+
+export interface MacroAction {
+  id?: string;
+  actionType: MacroActionType;
+  params: Record<string, unknown>;
+  position: number;
+}
+
+export interface Macro {
+  id: string;
+  workspaceId: string;
+  name: string;
+  description?: string | null;
+  visibility: CannedVisibility;
+  sectorId?: string | null;
+  userId?: string | null;
+  active: boolean;
+  actions: MacroAction[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MacroRunResult {
+  executed: string[];
+  skipped: string[];
+  errors: string[];
+}
+
+export interface Mention {
+  id: string;
+  workspaceId: string;
+  conversationId: string;
+  messageId?: string | null;
+  mentionedBy?: string | null;
+  snippet?: string | null;
+  readAt?: string | null;
+  createdAt: string;
+}
+
+export interface Snooze {
+  id: string;
+  conversationId: string;
+  until: string;
+  reason?: string | null;
+  snoozedBy?: string | null;
+  createdAt: string;
 }

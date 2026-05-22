@@ -5,11 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { conversationsApi, labelsApi } from "@/lib/api";
+import { conversationsApi, labelsApi, viewsApi } from "@/lib/api";
 import { useConversationStore } from "@/stores/conversation-store";
-import type { Conversation, ConversationStatus, Label } from "@/types/conversation";
+import type { Conversation, ConversationStatus, ConversationView, Label } from "@/types/conversation";
 import { formatDistanceToNow } from "date-fns";
-import { Check, CheckSquare, Square } from "lucide-react";
+import { AtSign, BellOff, Check, CheckSquare, Square, Star } from "lucide-react";
 
 const TABS: { label: string; status: ConversationStatus | "all" }[] = [
   { label: "Open", status: "open" },
@@ -17,6 +17,8 @@ const TABS: { label: string; status: ConversationStatus | "all" }[] = [
   { label: "Pending", status: "pending" },
   { label: "Resolved", status: "resolved" },
 ];
+
+type SpecialView = "mentions" | "snoozed" | null;
 
 interface Props {
   workspaceId: string;
@@ -34,8 +36,11 @@ export function ConversationList({ workspaceId }: Props) {
   const [tab, setTab] = useState<ConversationStatus | "all">("open");
   const [search, setSearch] = useState("");
   const [labelFilter, setLabelFilter] = useState<string>("");
+  const [special, setSpecial] = useState<SpecialView>(null);
+  const [viewId, setViewId] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [labels, setLabels] = useState<Label[]>([]);
+  const [views, setViews] = useState<ConversationView[]>([]);
   const [selectionMode, setSelectionMode] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
@@ -43,18 +48,27 @@ export function ConversationList({ workspaceId }: Props) {
 
   useEffect(() => {
     setLoading(true);
+    const params: Record<string, unknown> = {
+      label_id: labelFilter || undefined,
+      page_size: 50,
+    };
+    if (viewId) {
+      params.view_id = viewId;
+    } else {
+      params.status = tab === "all" ? undefined : tab;
+      if (special === "mentions") params.mentions_for_me = true;
+      else if (special === "snoozed") params.snoozed = true;
+      if (search.trim()) params.search = search.trim();
+    }
     conversationsApi
-      .list(workspaceId, {
-        status: tab === "all" ? undefined : tab,
-        label_id: labelFilter || undefined,
-        page_size: 50,
-      })
+      .list(workspaceId, params)
       .then((r) => setConversations(r.data.items ?? [], r.data.total ?? 0))
       .finally(() => setLoading(false));
-  }, [workspaceId, tab, labelFilter]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [workspaceId, tab, labelFilter, special, viewId, search]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     labelsApi.list(workspaceId).then((r) => setLabels(r.data ?? []));
+    viewsApi.list(workspaceId).then((r) => setViews(r.data ?? []));
   }, [workspaceId]);
 
   const filtered = conversations.filter((c) =>
@@ -106,14 +120,18 @@ export function ConversationList({ workspaceId }: Props) {
         />
       </div>
 
-      <div className="flex gap-1 px-3 pb-2">
+      <div className="flex flex-wrap gap-1 px-3 pb-2">
         {TABS.map((t) => (
           <button
             key={t.status}
-            onClick={() => setTab(t.status)}
+            onClick={() => {
+              setTab(t.status);
+              setSpecial(null);
+              setViewId("");
+            }}
             className={cn(
               "rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors",
-              tab === t.status
+              tab === t.status && !special && !viewId
                 ? "bg-primary text-white"
                 : "text-muted hover:text-slate-900",
             )}
@@ -121,7 +139,53 @@ export function ConversationList({ workspaceId }: Props) {
             {t.label}
           </button>
         ))}
+        <button
+          onClick={() => {
+            setSpecial(special === "mentions" ? null : "mentions");
+            setViewId("");
+          }}
+          className={cn(
+            "flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors",
+            special === "mentions" ? "bg-primary text-white" : "text-muted hover:text-slate-900",
+          )}
+        >
+          <AtSign className="h-3 w-3" /> @me
+        </button>
+        <button
+          onClick={() => {
+            setSpecial(special === "snoozed" ? null : "snoozed");
+            setViewId("");
+          }}
+          className={cn(
+            "flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors",
+            special === "snoozed" ? "bg-primary text-white" : "text-muted hover:text-slate-900",
+          )}
+        >
+          <BellOff className="h-3 w-3" /> Snoozed
+        </button>
       </div>
+      {views.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1 px-3 pb-2">
+          {views.map((v) => (
+            <button
+              key={v.id}
+              onClick={() => {
+                setViewId(viewId === v.id ? "" : v.id);
+                setSpecial(null);
+              }}
+              className={cn(
+                "flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium",
+                viewId === v.id
+                  ? "border-slate-900 text-slate-900"
+                  : "border-border text-muted hover:text-slate-700",
+              )}
+            >
+              {v.pinned && <Star className="h-3 w-3" />}
+              {v.name}
+            </button>
+          ))}
+        </div>
+      )}
 
       {labels.length > 0 && (
         <div className="flex flex-wrap items-center gap-1 px-3 pb-2">
@@ -283,10 +347,18 @@ function BulkActionsBar({
 }) {
   const [labelId, setLabelId] = useState("");
   const [status, setStatus] = useState<ConversationStatus | "">("");
+  const [assigneeId, setAssigneeId] = useState("");
+  const [members, setMembers] = useState<{ userId: string; user?: { name: string } | null }[]>([]);
   const [working, setWorking] = useState(false);
 
   const ids = useMemo(() => Array.from(selected), [selected]);
   const disabled = working || ids.length === 0;
+
+  useEffect(() => {
+    import("@/lib/api").then(({ workspacesApi }) =>
+      workspacesApi.listMembers(workspaceId).then((r) => setMembers(r.data ?? [])),
+    );
+  }, [workspaceId]);
 
   async function applyLabel() {
     if (!labelId || ids.length === 0) return;
@@ -304,6 +376,17 @@ function BulkActionsBar({
     setWorking(true);
     try {
       await conversationsApi.bulkStatus(workspaceId, { conversation_ids: ids, status });
+      onDone();
+    } finally {
+      setWorking(false);
+    }
+  }
+
+  async function applyAssign() {
+    if (!assigneeId || ids.length === 0) return;
+    setWorking(true);
+    try {
+      await conversationsApi.bulkAssign(workspaceId, { conversation_ids: ids, assignee_id: assigneeId });
       onDone();
     } finally {
       setWorking(false);
@@ -344,6 +427,23 @@ function BulkActionsBar({
             <option value="resolved">Resolved</option>
           </select>
           <Button size="sm" onClick={applyStatus} disabled={disabled || !status}>
+            <Check className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+        <div className="flex items-center gap-1">
+          <select
+            value={assigneeId}
+            onChange={(e) => setAssigneeId(e.target.value)}
+            className="h-7 flex-1 rounded-md border border-border bg-white px-1 text-xs"
+          >
+            <option value="">Assign to…</option>
+            {members.map((m) => (
+              <option key={m.userId} value={m.userId}>
+                {m.user?.name ?? m.userId}
+              </option>
+            ))}
+          </select>
+          <Button size="sm" onClick={applyAssign} disabled={disabled || !assigneeId}>
             <Check className="h-3.5 w-3.5" />
           </Button>
         </div>

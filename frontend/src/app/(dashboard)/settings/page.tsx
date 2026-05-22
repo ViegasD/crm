@@ -6,9 +6,20 @@ import { SectorsTab } from "@/components/settings/sectors-tab";
 import { SlaTab } from "@/components/settings/sla-tab";
 import { CannedResponsesTab } from "@/components/settings/canned-responses-tab";
 import { LabelsTab } from "@/components/settings/labels-tab";
+import { MacrosTab } from "@/components/settings/macros-tab";
+import { ReasonsTab } from "@/components/settings/reasons-tab";
 import { cn } from "@/lib/utils";
 
-const TABS = ["Channels", "Team", "Sectors", "Labels", "Canned responses", "SLA"] as const;
+const TABS = [
+  "Channels",
+  "Team",
+  "Sectors",
+  "Labels",
+  "Canned responses",
+  "Macros",
+  "Reasons",
+  "SLA",
+] as const;
 type Tab = typeof TABS[number];
 
 export default function SettingsPage() {
@@ -17,17 +28,17 @@ export default function SettingsPage() {
   return (
     <div className="flex h-full flex-col">
       <div className="border-b border-border bg-white px-6 py-3">
-        <h1 className="text-base font-semibold text-slate-900 mb-3">Settings</h1>
-        <div className="flex gap-4">
+        <h1 className="mb-3 text-base font-semibold text-slate-900">Settings</h1>
+        <div className="flex flex-wrap gap-4">
           {TABS.map((t) => (
             <button
               key={t}
               onClick={() => setActiveTab(t)}
               className={cn(
-                "pb-2 text-sm font-medium border-b-2 transition-colors",
+                "border-b-2 pb-2 text-sm font-medium transition-colors",
                 activeTab === t
                   ? "border-primary text-primary"
-                  : "border-transparent text-muted hover:text-slate-700"
+                  : "border-transparent text-muted hover:text-slate-700",
               )}
             >
               {t}
@@ -42,6 +53,8 @@ export default function SettingsPage() {
         {activeTab === "Sectors" && <SectorsTab />}
         {activeTab === "Labels" && <LabelsTab />}
         {activeTab === "Canned responses" && <CannedResponsesTab />}
+        {activeTab === "Macros" && <MacrosTab />}
+        {activeTab === "Reasons" && <ReasonsTab />}
         {activeTab === "SLA" && <SlaTab />}
       </div>
     </div>

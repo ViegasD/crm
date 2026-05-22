@@ -140,8 +140,11 @@ export const conversationsApi = {
     api.get(`/api/v1/workspaces/${wsId}/conversations/${convId}`),
   update: (wsId: string, convId: string, data: Record<string, unknown>) =>
     api.patch(`/api/v1/workspaces/${wsId}/conversations/${convId}`, data),
-  transfer: (wsId: string, convId: string, data: { assignee_id?: string; sector_id?: string; note?: string }) =>
-    api.post(`/api/v1/workspaces/${wsId}/conversations/${convId}/transfer`, data),
+  transfer: (
+    wsId: string,
+    convId: string,
+    data: { assignee_id?: string; sector_id?: string; note?: string; transfer_reason_id?: string },
+  ) => api.post(`/api/v1/workspaces/${wsId}/conversations/${convId}/transfer`, data),
   events: (wsId: string, convId: string) =>
     api.get(`/api/v1/workspaces/${wsId}/conversations/${convId}/events`),
   participants: (wsId: string, convId: string) =>
@@ -154,10 +157,16 @@ export const conversationsApi = {
     api.post(`/api/v1/workspaces/${wsId}/conversations/bulk/label`, data),
   bulkTransfer: (
     wsId: string,
-    data: { conversation_ids: string[]; assignee_id?: string; sector_id?: string; note?: string },
+    data: { conversation_ids: string[]; assignee_id?: string; sector_id?: string; note?: string; transfer_reason_id?: string },
   ) => api.post(`/api/v1/workspaces/${wsId}/conversations/bulk/transfer`, data),
-  bulkStatus: (wsId: string, data: { conversation_ids: string[]; status: string }) =>
-    api.post(`/api/v1/workspaces/${wsId}/conversations/bulk/status`, data),
+  bulkStatus: (
+    wsId: string,
+    data: { conversation_ids: string[]; status: string; resolve_note?: string; service_reason_id?: string },
+  ) => api.post(`/api/v1/workspaces/${wsId}/conversations/bulk/status`, data),
+  bulkAssign: (wsId: string, data: { conversation_ids: string[]; assignee_id: string }) =>
+    api.post(`/api/v1/workspaces/${wsId}/conversations/bulk/assign`, data),
+  bulkAddParticipant: (wsId: string, data: { conversation_ids: string[]; user_id: string }) =>
+    api.post(`/api/v1/workspaces/${wsId}/conversations/bulk/add-participant`, data),
 };
 
 // ─── Messages ─────────────────────────────────────────────────────────────────
@@ -173,9 +182,9 @@ export const messagesApi = {
 // ─── Labels ───────────────────────────────────────────────────────────────────
 export const labelsApi = {
   list: (wsId: string) => api.get(`/api/v1/workspaces/${wsId}/labels`),
-  create: (wsId: string, name: string, color: string) =>
-    api.post(`/api/v1/workspaces/${wsId}/labels`, { name, color }),
-  update: (wsId: string, labelId: string, data: { name?: string; color?: string }) =>
+  create: (wsId: string, data: { name: string; color: string; category_id?: string | null; description?: string | null }) =>
+    api.post(`/api/v1/workspaces/${wsId}/labels`, data),
+  update: (wsId: string, labelId: string, data: Record<string, unknown>) =>
     api.patch(`/api/v1/workspaces/${wsId}/labels/${labelId}`, data),
   delete: (wsId: string, labelId: string) =>
     api.delete(`/api/v1/workspaces/${wsId}/labels/${labelId}`),
@@ -183,11 +192,21 @@ export const labelsApi = {
     api.post(`/api/v1/workspaces/${wsId}/labels/${labelId}/assign`, { conversation_id: conversationId }),
   unassign: (wsId: string, labelId: string, conversationId: string) =>
     api.delete(`/api/v1/workspaces/${wsId}/labels/${labelId}/assign/${conversationId}`),
+  // categories
+  listCategories: (wsId: string) =>
+    api.get(`/api/v1/workspaces/${wsId}/labels/categories`),
+  createCategory: (wsId: string, data: Record<string, unknown>) =>
+    api.post(`/api/v1/workspaces/${wsId}/labels/categories`, data),
+  updateCategory: (wsId: string, id: string, data: Record<string, unknown>) =>
+    api.patch(`/api/v1/workspaces/${wsId}/labels/categories/${id}`, data),
+  deleteCategory: (wsId: string, id: string) =>
+    api.delete(`/api/v1/workspaces/${wsId}/labels/categories/${id}`),
 };
 
 // ─── Canned responses ─────────────────────────────────────────────────────────
 export const cannedResponsesApi = {
-  list: (wsId: string) => api.get(`/api/v1/workspaces/${wsId}/canned-responses`),
+  list: (wsId: string, params?: { category_id?: string; scope?: "all" | "workspace" | "sector" | "personal"; active?: boolean }) =>
+    api.get(`/api/v1/workspaces/${wsId}/canned-responses`, { params }),
   create: (wsId: string, data: Record<string, unknown>) =>
     api.post(`/api/v1/workspaces/${wsId}/canned-responses`, data),
   update: (wsId: string, responseId: string, data: Record<string, unknown>) =>
@@ -196,6 +215,78 @@ export const cannedResponsesApi = {
     api.delete(`/api/v1/workspaces/${wsId}/canned-responses/${responseId}`),
   render: (wsId: string, responseId: string, data: { conversation_id?: string }) =>
     api.post(`/api/v1/workspaces/${wsId}/canned-responses/${responseId}/render`, data),
+  // categories
+  listCategories: (wsId: string) =>
+    api.get(`/api/v1/workspaces/${wsId}/canned-responses/categories`),
+  createCategory: (wsId: string, data: Record<string, unknown>) =>
+    api.post(`/api/v1/workspaces/${wsId}/canned-responses/categories`, data),
+  updateCategory: (wsId: string, id: string, data: Record<string, unknown>) =>
+    api.patch(`/api/v1/workspaces/${wsId}/canned-responses/categories/${id}`, data),
+  deleteCategory: (wsId: string, id: string) =>
+    api.delete(`/api/v1/workspaces/${wsId}/canned-responses/categories/${id}`),
+};
+
+// ─── Macros ───────────────────────────────────────────────────────────────────
+export const macrosApi = {
+  list: (wsId: string) => api.get(`/api/v1/workspaces/${wsId}/macros`),
+  get: (wsId: string, id: string) => api.get(`/api/v1/workspaces/${wsId}/macros/${id}`),
+  create: (wsId: string, data: Record<string, unknown>) =>
+    api.post(`/api/v1/workspaces/${wsId}/macros`, data),
+  update: (wsId: string, id: string, data: Record<string, unknown>) =>
+    api.patch(`/api/v1/workspaces/${wsId}/macros/${id}`, data),
+  delete: (wsId: string, id: string) =>
+    api.delete(`/api/v1/workspaces/${wsId}/macros/${id}`),
+  run: (wsId: string, id: string, conversationId: string) =>
+    api.post(`/api/v1/workspaces/${wsId}/macros/${id}/run`, { conversation_id: conversationId }),
+};
+
+// ─── Catalog: reasons, snooze, views, mentions ───────────────────────────────
+export const transferReasonsApi = {
+  list: (wsId: string, params?: { active?: boolean }) =>
+    api.get(`/api/v1/workspaces/${wsId}/transfer-reasons`, { params }),
+  create: (wsId: string, data: Record<string, unknown>) =>
+    api.post(`/api/v1/workspaces/${wsId}/transfer-reasons`, data),
+  update: (wsId: string, id: string, data: Record<string, unknown>) =>
+    api.patch(`/api/v1/workspaces/${wsId}/transfer-reasons/${id}`, data),
+  delete: (wsId: string, id: string) =>
+    api.delete(`/api/v1/workspaces/${wsId}/transfer-reasons/${id}`),
+};
+
+export const serviceReasonsApi = {
+  list: (wsId: string, params?: { active?: boolean }) =>
+    api.get(`/api/v1/workspaces/${wsId}/service-reasons`, { params }),
+  create: (wsId: string, data: Record<string, unknown>) =>
+    api.post(`/api/v1/workspaces/${wsId}/service-reasons`, data),
+  update: (wsId: string, id: string, data: Record<string, unknown>) =>
+    api.patch(`/api/v1/workspaces/${wsId}/service-reasons/${id}`, data),
+  delete: (wsId: string, id: string) =>
+    api.delete(`/api/v1/workspaces/${wsId}/service-reasons/${id}`),
+};
+
+export const snoozeApi = {
+  get: (wsId: string, convId: string) =>
+    api.get(`/api/v1/workspaces/${wsId}/conversations/${convId}/snooze`),
+  set: (wsId: string, convId: string, until: string, reason?: string) =>
+    api.post(`/api/v1/workspaces/${wsId}/conversations/${convId}/snooze`, { until, reason }),
+  clear: (wsId: string, convId: string) =>
+    api.delete(`/api/v1/workspaces/${wsId}/conversations/${convId}/snooze`),
+};
+
+export const viewsApi = {
+  list: (wsId: string) => api.get(`/api/v1/workspaces/${wsId}/views`),
+  create: (wsId: string, data: Record<string, unknown>) =>
+    api.post(`/api/v1/workspaces/${wsId}/views`, data),
+  update: (wsId: string, id: string, data: Record<string, unknown>) =>
+    api.patch(`/api/v1/workspaces/${wsId}/views/${id}`, data),
+  delete: (wsId: string, id: string) =>
+    api.delete(`/api/v1/workspaces/${wsId}/views/${id}`),
+};
+
+export const mentionsApi = {
+  list: (wsId: string, params?: { unread?: boolean; page?: number; page_size?: number }) =>
+    api.get(`/api/v1/workspaces/${wsId}/mentions`, { params }),
+  markRead: (wsId: string, mentionIds?: string[]) =>
+    api.post(`/api/v1/workspaces/${wsId}/mentions/read`, { mention_ids: mentionIds ?? null }),
 };
 
 // ─── Flows ────────────────────────────────────────────────────────────────────

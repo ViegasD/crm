@@ -9,14 +9,94 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.dependencies import require_workspace_member
 from app.core.request_meta import client_ip, user_agent
+from app.models.catalog import LabelCategory
 from app.models.conversation import Conversation, ConversationEvent, ConversationLabel, Label
 from app.models.enums import ConvEventType
 from app.models.workspace import User
-from app.schemas.label import LabelAssign, LabelCreate, LabelOut, LabelUpdate
+from app.schemas.label import (
+    LabelAssign,
+    LabelCategoryCreate,
+    LabelCategoryOut,
+    LabelCategoryUpdate,
+    LabelCreate,
+    LabelOut,
+    LabelUpdate,
+)
 from app.services.security_audit_service import log_security_event
 
 router = APIRouter(prefix="/workspaces/{workspace_id}/labels", tags=["labels"])
 
+
+# ── Label categories ─────────────────────────────────────────────────────────
+
+@router.get("/categories", response_model=list[LabelCategoryOut])
+async def list_label_categories(
+    workspace_id: UUID,
+    current_user: Annotated[User, Depends(require_workspace_member)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    result = await db.execute(
+        select(LabelCategory)
+        .where(LabelCategory.workspace_id == workspace_id)
+        .order_by(LabelCategory.position.asc(), LabelCategory.name.asc())
+    )
+    return result.scalars().all()
+
+
+@router.post("/categories", response_model=LabelCategoryOut, status_code=201)
+async def create_label_category(
+    workspace_id: UUID,
+    body: LabelCategoryCreate,
+    current_user: Annotated[User, Depends(require_workspace_member)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    cat = LabelCategory(workspace_id=workspace_id, **body.model_dump())
+    db.add(cat)
+    try:
+        await db.flush()
+        await db.refresh(cat)
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(status_code=409, detail="Category name already exists")
+    return cat
+
+
+@router.patch("/categories/{category_id}", response_model=LabelCategoryOut)
+async def update_label_category(
+    workspace_id: UUID,
+    category_id: UUID,
+    body: LabelCategoryUpdate,
+    current_user: Annotated[User, Depends(require_workspace_member)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    cat = await db.get(LabelCategory, category_id)
+    if not cat or cat.workspace_id != workspace_id:
+        raise HTTPException(status_code=404, detail="Category not found")
+    for field, value in body.model_dump(exclude_none=True).items():
+        setattr(cat, field, value)
+    try:
+        await db.flush()
+        await db.refresh(cat)
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(status_code=409, detail="Category name already exists")
+    return cat
+
+
+@router.delete("/categories/{category_id}", status_code=204)
+async def delete_label_category(
+    workspace_id: UUID,
+    category_id: UUID,
+    current_user: Annotated[User, Depends(require_workspace_member)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    cat = await db.get(LabelCategory, category_id)
+    if not cat or cat.workspace_id != workspace_id:
+        raise HTTPException(status_code=404, detail="Category not found")
+    await db.delete(cat)
+
+
+# ── Labels ───────────────────────────────────────────────────────────────────
 
 @router.post("", response_model=LabelOut, status_code=201)
 async def create_label(
@@ -26,7 +106,7 @@ async def create_label(
     current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    label = Label(workspace_id=workspace_id, name=body.name, color=body.color)
+    label = Label(workspace_id=workspace_id, **body.model_dump())
     db.add(label)
     try:
         await db.flush()
@@ -40,7 +120,7 @@ async def create_label(
         user_id=current_user.id,
         target_type="label",
         target_id=label.id,
-        new_value={"name": label.name, "color": label.color},
+        new_value={"name": label.name, "color": label.color, "category_id": str(label.category_id) if label.category_id else None},
         ip_address=client_ip(request),
         user_agent=user_agent(request),
     )
@@ -71,7 +151,7 @@ async def update_label(
     label = await db.get(Label, label_id)
     if not label or label.workspace_id != workspace_id:
         raise HTTPException(status_code=404, detail="Label not found")
-    old = {"name": label.name, "color": label.color}
+    old = {"name": label.name, "color": label.color, "category_id": str(label.category_id) if label.category_id else None}
     for field, value in body.model_dump(exclude_none=True).items():
         setattr(label, field, value)
     try:
@@ -87,7 +167,7 @@ async def update_label(
         target_type="label",
         target_id=label.id,
         old_value=old,
-        new_value={"name": label.name, "color": label.color},
+        new_value={"name": label.name, "color": label.color, "category_id": str(label.category_id) if label.category_id else None},
         ip_address=client_ip(request),
         user_agent=user_agent(request),
     )

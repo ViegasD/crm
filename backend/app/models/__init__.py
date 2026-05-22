@@ -15,6 +15,16 @@ from app.models.conversation import (  # noqa: F401
 )
 from app.models.audit import SecurityAuditLog  # noqa: F401
 from app.models.webhook import WebhookEvent  # noqa: F401
+from app.models.catalog import (  # noqa: F401
+    CannedResponseCategory,
+    ConversationSnooze,
+    ConversationView,
+    LabelCategory,
+    MentionInbox,
+    ServiceReason,
+    TransferReason,
+)
+from app.models.macros import Macro, MacroAction  # noqa: F401
 from app.models.sla import AgentCapacity, SlaEvent, SlaPolicy  # noqa: F401
 from app.models.flow import Flow, FlowExecution  # noqa: F401
 from app.models.bot import BotConfig, BotConfigCapability  # noqa: F401

@@ -193,6 +193,17 @@ async def persist_normalized_event(
         wamid=event.wamid,
     )
     if not is_duplicate:
+        # Auto-wake snooze when the customer sends a new inbound message
+        from sqlalchemy import delete as sa_delete
+
+        from app.models.catalog import ConversationSnooze
+
+        await db.execute(
+            sa_delete(ConversationSnooze).where(
+                ConversationSnooze.conversation_id == conversation.id
+            )
+        )
+
         from app.services.flow_executor import run_message_received_flows
 
         await run_message_received_flows(db, conversation, msg)
@@ -242,10 +253,12 @@ async def send_agent_message(
             payload={"message_id": str(msg.id)},
         ))
 
+        from app.models.catalog import MentionInbox
         from app.services.mention_service import resolve_mentions
         from app.websocket.manager import manager
 
         mentioned = await resolve_mentions(db, workspace_id, body.content)
+        snippet = (body.content or "")[:240]
         for user in mentioned:
             if user.id == agent_id:
                 continue
@@ -261,6 +274,14 @@ async def send_agent_message(
                     "mentioned_user_name": user.name,
                 },
             ))
+            db.add(MentionInbox(
+                workspace_id=workspace_id,
+                user_id=user.id,
+                conversation_id=conversation.id,
+                message_id=msg.id,
+                mentioned_by=agent_id,
+                snippet=snippet,
+            ))
             await manager.broadcast(
                 str(workspace_id),
                 {
@@ -268,6 +289,7 @@ async def send_agent_message(
                     "conversation_id": str(conversation.id),
                     "message_id": str(msg.id),
                     "mentioned_user_id": str(user.id),
+                    "snippet": snippet,
                 },
             )
         await db.flush()

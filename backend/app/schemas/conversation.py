@@ -40,12 +40,16 @@ class ConversationOut(BaseModel):
     resolved_at: datetime | None
     created_at: datetime
     updated_at: datetime
+    is_private: bool = False
+    service_reason_id: uuid.UUID | None = None
+    resolve_note: str | None = None
     contact_name: str | None = None
     contact_phone: str | None = None
     last_message: str | None = None
     last_message_at: datetime | None = None
     assignee_name: str | None = None
     labels: list[LabelInline] = []
+    snoozed_until: datetime | None = None
 
 
 class ConversationUpdate(BaseModel):
@@ -53,12 +57,16 @@ class ConversationUpdate(BaseModel):
     sector_id: uuid.UUID | None = None
     status: ConversationStatus | None = None
     priority: ConvPriority | None = None
+    is_private: bool | None = None
+    service_reason_id: uuid.UUID | None = None
+    resolve_note: str | None = None
 
 
 class ConversationTransfer(BaseModel):
     assignee_id: uuid.UUID | None = None
     sector_id: uuid.UUID | None = None
     note: str | None = None
+    transfer_reason_id: uuid.UUID | None = None
 
 
 class ConversationEventOut(BaseModel):
@@ -96,6 +104,12 @@ class ConversationListFilters(BaseModel):
     sector_id: uuid.UUID | None = None
     channel_account_id: uuid.UUID | None = None
     label_id: uuid.UUID | None = None
+    priority: ConvPriority | None = None
+    is_private: bool | None = None
+    snoozed: bool | None = None
+    mentions_for_user_id: uuid.UUID | None = None
+    search: str | None = None
+    view_id: uuid.UUID | None = None
     page: int = 1
     page_size: int = 30
 
@@ -115,3 +129,22 @@ class ConversationBulkTransfer(BaseModel):
 class ConversationBulkStatus(BaseModel):
     conversation_ids: list[uuid.UUID]
     status: ConversationStatus
+    resolve_note: str | None = None
+    service_reason_id: uuid.UUID | None = None
+
+
+class ConversationBulkAssign(BaseModel):
+    conversation_ids: list[uuid.UUID]
+    assignee_id: uuid.UUID
+
+
+class ConversationBulkAddParticipant(BaseModel):
+    conversation_ids: list[uuid.UUID]
+    user_id: uuid.UUID
+
+
+class ConversationByFilter(BaseModel):
+    """Apply a bulk action to every conversation matching a filter."""
+    filters: ConversationListFilters
+    action: str  # "label" | "transfer" | "status" | "assign" | "add_participant"
+    params: dict

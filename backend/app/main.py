@@ -3,7 +3,23 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.v1 import auth, canned_responses, channel_accounts, contacts, conversations, flows, labels, media, messages, sectors, sla, users, workspaces
+from app.api.v1 import (
+    auth,
+    canned_responses,
+    catalog,
+    channel_accounts,
+    contacts,
+    conversations,
+    flows,
+    labels,
+    macros,
+    media,
+    messages,
+    sectors,
+    sla,
+    users,
+    workspaces,
+)
 from app.core.redis import close_redis, get_redis
 from app.webhooks.whatsapp import evolution as evolution_webhook
 from app.webhooks.whatsapp import meta as meta_webhook
@@ -42,6 +58,8 @@ app.include_router(conversations.router, prefix="/api/v1")
 app.include_router(messages.router, prefix="/api/v1")
 app.include_router(labels.router, prefix="/api/v1")
 app.include_router(canned_responses.router, prefix="/api/v1")
+app.include_router(macros.router, prefix="/api/v1")
+app.include_router(catalog.router, prefix="/api/v1")
 app.include_router(flows.router, prefix="/api/v1")
 app.include_router(sla.router, prefix="/api/v1")
 
