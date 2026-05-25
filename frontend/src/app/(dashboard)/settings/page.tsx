@@ -10,6 +10,7 @@ import { MacrosTab } from "@/components/settings/macros-tab";
 import { ReasonsTab } from "@/components/settings/reasons-tab";
 import { WebhookEventsTab } from "@/components/settings/webhook-events-tab";
 import { WebhookOpsTab } from "@/components/settings/webhook-ops-tab";
+import { OperationsTab } from "@/components/settings/operations-tab";
 import { cn } from "@/lib/utils";
 
 const TABS = [
@@ -21,6 +22,7 @@ const TABS = [
   "Macros",
   "Reasons",
   "SLA",
+  "Operations",
   "Webhooks",
   "Webhook ops",
 ] as const;
@@ -60,6 +62,7 @@ export default function SettingsPage() {
         {activeTab === "Macros" && <MacrosTab />}
         {activeTab === "Reasons" && <ReasonsTab />}
         {activeTab === "SLA" && <SlaTab />}
+        {activeTab === "Operations" && <OperationsTab />}
         {activeTab === "Webhooks" && <WebhookEventsTab />}
         {activeTab === "Webhook ops" && <WebhookOpsTab />}
       </div>

@@ -67,6 +67,18 @@ async def get_or_create_conversation(
     if conv:
         return conv, False
 
+    from app.services.sla_service import reopen_recent_resolved_conversation
+
+    reopened = await reopen_recent_resolved_conversation(
+        db,
+        workspace_id,
+        channel_account.id,
+        contact.id,
+        channel_account.sector_id,
+    )
+    if reopened:
+        return reopened, False
+
     conv = Conversation(
         workspace_id=workspace_id,
         channel_account_id=channel_account.id,
@@ -204,6 +216,29 @@ async def persist_normalized_event(
             )
         )
 
+        if channel_account.auto_assignment and not conversation.assignee_id:
+            from app.services.sla_service import assign_conversation_if_needed
+
+            await assign_conversation_if_needed(db, conversation, method="inbound_auto")
+
+        try:
+            from app.services.external_webhooks import emit_event
+
+            await emit_event(
+                channel_account.workspace_id,
+                "message.received",
+                {
+                    "conversation_id": str(conversation.id),
+                    "message_id": str(msg.id),
+                    "channel_account_id": str(channel_account.id),
+                    "contact_id": str(contact.id),
+                    "provider": event.provider,
+                    "message_type": event.message_type,
+                },
+            )
+        except Exception:  # noqa: BLE001
+            pass
+
         from app.services.flow_executor import run_message_received_flows
 
         await run_message_received_flows(db, conversation, msg)
@@ -241,6 +276,13 @@ async def send_agent_message(
     # Mark first reply time if not set
     if not conversation.first_replied_at and not body.is_note:
         conversation.first_replied_at = datetime.now(timezone.utc)
+
+    try:
+        from app.services.presence_idle import mark_agent_active
+
+        await mark_agent_active(workspace_id, agent_id)
+    except Exception:  # noqa: BLE001
+        pass
 
     await db.flush()
     if body.is_note:

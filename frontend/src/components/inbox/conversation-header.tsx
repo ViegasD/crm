@@ -9,12 +9,15 @@ import {
   macrosApi,
   sectorsApi,
   serviceReasonsApi,
+  slaApi,
   snoozeApi,
+  stage9Api,
   transferReasonsApi,
   workspacesApi,
 } from "@/lib/api";
 import { useConversationStore } from "@/stores/conversation-store";
 import type { Conversation, Macro, ServiceReason, TransferReason, WorkspaceMember } from "@/types/conversation";
+import type { SlaPolicy } from "@/types/sla";
 import {
   AlarmClockOff,
   ArrowRightLeft,
@@ -23,6 +26,7 @@ import {
   ChevronDown,
   Lock,
   RotateCw,
+  ShieldCheck,
   Wand2,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
@@ -39,6 +43,7 @@ export function ConversationHeader({ workspaceId, conversation }: Props) {
   const [resolveOpen, setResolveOpen] = useState(false);
   const [reopenOpen, setReopenOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
+  const [slaOverrideOpen, setSlaOverrideOpen] = useState(false);
   const [macros, setMacros] = useState<Macro[]>([]);
   const [macroMenuOpen, setMacroMenuOpen] = useState(false);
   const [runningMacroId, setRunningMacroId] = useState<string | null>(null);
@@ -129,6 +134,9 @@ export function ConversationHeader({ workspaceId, conversation }: Props) {
           <Button variant="outline" size="sm" onClick={() => setSnoozeOpen(true)}>
             <BellOff className="h-3.5 w-3.5" /> Snooze
           </Button>
+          <Button variant="outline" size="sm" onClick={() => setSlaOverrideOpen(true)}>
+            <ShieldCheck className="h-3.5 w-3.5" /> SLA
+          </Button>
           <Button variant="outline" size="sm" onClick={togglePrivate}>
             <Lock className="h-3.5 w-3.5" />
             {conversation.isPrivate ? "Unmark" : "Private"}
@@ -198,7 +206,84 @@ export function ConversationHeader({ workspaceId, conversation }: Props) {
           setTransferOpen(false);
         }}
       />
+      <SlaOverrideModal
+        open={slaOverrideOpen}
+        onClose={() => setSlaOverrideOpen(false)}
+        workspaceId={workspaceId}
+        conversation={conversation}
+        onUpdated={(updated) => {
+          upsertConversation(updated);
+          setSlaOverrideOpen(false);
+        }}
+      />
     </div>
+  );
+}
+
+function SlaOverrideModal({
+  open,
+  onClose,
+  workspaceId,
+  conversation,
+  onUpdated,
+}: {
+  open: boolean;
+  onClose: () => void;
+  workspaceId: string;
+  conversation: Conversation;
+  onUpdated: (c: Conversation) => void;
+}) {
+  const [policies, setPolicies] = useState<SlaPolicy[]>([]);
+  const [policyId, setPolicyId] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    setPolicyId(conversation.slaPolicyOverrideId ?? "");
+    slaApi.listPolicies(workspaceId).then((r) => {
+      setPolicies((r.data ?? []).filter((policy: SlaPolicy) => policy.active));
+    });
+  }, [open, workspaceId, conversation.slaPolicyOverrideId]);
+
+  async function submit() {
+    setLoading(true);
+    try {
+      await stage9Api.setSlaOverride(workspaceId, conversation.id, policyId || null);
+      const refreshed = await conversationsApi.get(workspaceId, conversation.id);
+      onUpdated(refreshed.data as Conversation);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <Modal open={open} onClose={onClose} title="SLA override">
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1.5">
+          <Label>Policy</Label>
+          <select
+            value={policyId}
+            onChange={(e) => setPolicyId(e.target.value)}
+            className="h-9 rounded-md border border-border bg-white px-2 text-sm"
+          >
+            <option value="">Use automatic policy</option>
+            {policies.map((policy) => (
+              <option key={policy.id} value={policy.id}>
+                {policy.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" type="button" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button onClick={submit} loading={loading}>
+            Save
+          </Button>
+        </div>
+      </div>
+    </Modal>
   );
 }
 

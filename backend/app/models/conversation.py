@@ -61,6 +61,9 @@ class Conversation(Base, TimestampMixin):
         UUID(as_uuid=True), ForeignKey("service_reasons.id", ondelete="SET NULL"), nullable=True
     )
     resolve_note: Mapped[str | None] = mapped_column(String, nullable=True)
+    sla_policy_override_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("sla_policies.id", ondelete="SET NULL"), nullable=True
+    )
 
     messages: Mapped[list["Message"]] = relationship(back_populates="conversation", cascade="all, delete-orphan")
     events: Mapped[list["ConversationEvent"]] = relationship(

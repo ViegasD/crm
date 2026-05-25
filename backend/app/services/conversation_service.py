@@ -135,6 +135,16 @@ async def update_conversation(
     if "assignee_id" in body.model_fields_set:
         old_assignee = conv.assignee_id
         conv.assignee_id = body.assignee_id
+        from app.services.sla_service import record_manual_assignment
+
+        await record_manual_assignment(
+            db,
+            conv,
+            body.assignee_id,
+            actor_id,
+            "manual",
+            "conversation_update",
+        )
         event_type = ConvEventType.assigned if body.assignee_id else ConvEventType.unassigned
         db.add(ConversationEvent(
             workspace_id=workspace_id,
@@ -161,6 +171,9 @@ async def update_conversation(
         conv.status = body.status
         if body.status == ConversationStatus.resolved:
             conv.resolved_at = datetime.now(timezone.utc)
+            from app.services.sla_service import record_manual_assignment
+
+            await record_manual_assignment(db, conv, None, actor_id, "resolved", body.resolve_note)
             db.add(ConversationEvent(
                 workspace_id=workspace_id,
                 conversation_id=conv.id,
@@ -172,6 +185,23 @@ async def update_conversation(
                     "note": body.resolve_note,
                 },
             ))
+            # Fire CSAT dispatch + external webhook (best-effort, own session)
+            try:
+                from app.services.csat_service import dispatch_csat
+                from app.services.external_webhooks import emit_event
+
+                await dispatch_csat(workspace_id, conv.id)
+                await emit_event(
+                    workspace_id,
+                    "conversation.resolved",
+                    {
+                        "conversation_id": str(conv.id),
+                        "assignee_id": str(conv.assignee_id) if conv.assignee_id else None,
+                        "service_reason_id": str(body.service_reason_id) if body.service_reason_id else None,
+                    },
+                )
+            except Exception:  # noqa: BLE001
+                pass
         elif body.status in (ConversationStatus.open, ConversationStatus.in_progress) and conv.resolved_at:
             conv.resolved_at = None
             db.add(ConversationEvent(
@@ -204,6 +234,16 @@ async def transfer_conversation(
 
     if "assignee_id" in body.model_fields_set:
         conv.assignee_id = body.assignee_id
+        from app.services.sla_service import record_manual_assignment
+
+        await record_manual_assignment(
+            db,
+            conv,
+            body.assignee_id,
+            actor_id,
+            "transfer",
+            body.note,
+        )
     if "sector_id" in body.model_fields_set:
         conv.sector_id = body.sector_id
 

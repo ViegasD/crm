@@ -30,6 +30,28 @@ from app.models.catalog import (  # noqa: F401
     TransferReason,
 )
 from app.models.macros import Macro, MacroAction  # noqa: F401
-from app.models.sla import AgentCapacity, SlaEvent, SlaPolicy  # noqa: F401
+from app.models.sla import (  # noqa: F401
+    AgentCapacity,
+    AgentPauseReason,
+    AgentStatus,
+    AgentStatusLog,
+    AutoResolveRule,
+    BusinessHours,
+    ConversationAssignment,
+    RoutingRule,
+    SlaEscalationRule,
+    SlaEvent,
+    SlaPolicy,
+)
 from app.models.flow import Flow, FlowExecution  # noqa: F401
 from app.models.bot import BotConfig, BotConfigCapability  # noqa: F401
+from app.models.stage9_extras import (  # noqa: F401
+    BusinessHoliday,
+    ConversationLock,
+    CsatSurvey,
+    ExternalWebhookDelivery,
+    ExternalWebhookSubscription,
+    IdleRule,
+    NotificationChannel,
+    NotificationDelivery,
+)

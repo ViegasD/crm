@@ -3,8 +3,11 @@ import enum
 
 class UserStatus(str, enum.Enum):
     online = "online"
+    away = "away"
     offline = "offline"
     busy = "busy"
+    in_call = "in_call"
+    on_break = "on_break"
     invisible = "invisible"
 
 
@@ -111,6 +114,9 @@ class ConvEventType(str, enum.Enum):
     mention = "mention"
     participant_added = "participant_added"
     participant_removed = "participant_removed"
+    sla_at_risk = "sla_at_risk"
+    sla_violated = "sla_violated"
+    sla_escalated = "sla_escalated"
     bot_handed_off = "bot_handed_off"
     bot_took_over = "bot_took_over"
 
@@ -157,7 +163,9 @@ class CircuitState(str, enum.Enum):
 
 class SlaEventType(str, enum.Enum):
     first_response = "first_response"
+    next_response = "next_response"
     resolution = "resolution"
+    reopen_response = "reopen_response"
 
 
 class FlowTriggerType(str, enum.Enum):

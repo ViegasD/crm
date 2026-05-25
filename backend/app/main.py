@@ -18,6 +18,8 @@ from app.api.v1 import (
     sectors,
     sla,
     users,
+    public,
+    stage9_extras,
     webhook_events,
     webhook_ops,
     workspaces,
@@ -64,6 +66,8 @@ app.include_router(macros.router, prefix="/api/v1")
 app.include_router(catalog.router, prefix="/api/v1")
 app.include_router(webhook_events.router, prefix="/api/v1")
 app.include_router(webhook_ops.router, prefix="/api/v1")
+app.include_router(stage9_extras.router, prefix="/api/v1")
+app.include_router(public.router, prefix="/api/v1")
 app.include_router(flows.router, prefix="/api/v1")
 app.include_router(sla.router, prefix="/api/v1")
 

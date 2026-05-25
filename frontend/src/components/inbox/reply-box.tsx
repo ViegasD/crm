@@ -3,10 +3,11 @@ import { useRef, useState, useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/form";
-import { cannedResponsesApi, messagesApi, mediaApi } from "@/lib/api";
+import { cannedResponsesApi, messagesApi, mediaApi, stage9Api } from "@/lib/api";
+import { useAuthStore } from "@/stores/auth-store";
 import { useConversationStore } from "@/stores/conversation-store";
 import type { CannedResponse, Message } from "@/types/conversation";
-import { Send, Paperclip, StickyNote, MessageSquareText } from "lucide-react";
+import { Lock, Send, Paperclip, StickyNote, MessageSquareText } from "lucide-react";
 
 interface Props {
   workspaceId: string;
@@ -22,13 +23,51 @@ export function ReplyBox({ workspaceId, conversationId }: Props) {
   const [caretIndex, setCaretIndex] = useState(0);
   const [selectedResponseIndex, setSelectedResponseIndex] = useState(0);
   const [slashMenuDismissed, setSlashMenuDismissed] = useState(false);
+  const [lockHolder, setLockHolder] = useState<{ userId: string; name: string | null; expiresAt: string } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { appendMessage } = useConversationStore();
+  const { user } = useAuthStore();
+  const userId = user?.id;
 
   useEffect(() => {
     cannedResponsesApi.list(workspaceId).then((r) => setCannedResponses(r.data ?? [])).catch(() => setCannedResponses([]));
   }, [workspaceId]);
+
+  // Poll the lock status every 20s. If someone else holds the lock, we show a banner.
+  useEffect(() => {
+    if (!workspaceId || !conversationId) return;
+    let cancelled = false;
+    async function refresh() {
+      try {
+        const r = await stage9Api.getLock(workspaceId, conversationId);
+        if (cancelled) return;
+        const lock = r.data as { holderUserId: string; holderName: string | null; expiresAt: string } | null;
+        if (!lock || (userId && lock.holderUserId === userId)) {
+          setLockHolder(null);
+        } else {
+          setLockHolder({ userId: lock.holderUserId, name: lock.holderName, expiresAt: lock.expiresAt });
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+    refresh();
+    const t = window.setInterval(refresh, 20_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(t);
+    };
+  }, [workspaceId, conversationId, userId]);
+
+  // Acquire/renew lock while typing (debounced)
+  useEffect(() => {
+    if (!text || isNote) return;
+    const timer = window.setTimeout(() => {
+      stage9Api.acquireLock(workspaceId, conversationId, 120).catch(() => undefined);
+    }, 800);
+    return () => window.clearTimeout(timer);
+  }, [text, isNote, workspaceId, conversationId]);
 
   const slashState = useMemo(() => getSlashState(text, caretIndex), [text, caretIndex]);
   const filteredResponses = useMemo(() => {
@@ -102,6 +141,8 @@ export function ReplyBox({ workspaceId, conversationId }: Props) {
       setText("");
       setCaretIndex(0);
       setSlashMenuDismissed(false);
+      // Release the typing lock now that the message is out
+      stage9Api.releaseLock(workspaceId, conversationId).catch(() => undefined);
     } finally {
       setSending(false);
     }
@@ -163,6 +204,14 @@ export function ReplyBox({ workspaceId, conversationId }: Props) {
         isNote && "bg-amber-50 border-amber-200"
       )}
     >
+      {lockHolder && (
+        <div className="mb-1.5 flex items-center gap-2 rounded-md bg-amber-100 px-3 py-1.5 text-[11px] text-amber-900">
+          <Lock className="h-3 w-3" />
+          <span>
+            {lockHolder.name ?? "Another agent"} is replying right now. You can still send, but they might too.
+          </span>
+        </div>
+      )}
       {/* Mode toggle */}
       <div className="flex flex-wrap gap-2 mb-1.5">
         <button

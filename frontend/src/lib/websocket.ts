@@ -1,6 +1,15 @@
 // WebSocket client wrapper — handles connection, reconnection, and typed event dispatch
 
-export type WsEventType = "message.new" | "conversation.updated" | "pong";
+export type WsEventType =
+  | "message.new"
+  | "conversation.updated"
+  | "conversation.assigned"
+  | "agent.status.updated"
+  | "sla.updated"
+  | "sla.escalated"
+  | "supervisor.metrics.updated"
+  | "mention"
+  | "pong";
 
 export interface WsEvent {
   type: WsEventType;

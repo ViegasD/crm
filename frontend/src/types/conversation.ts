@@ -52,6 +52,7 @@ export interface Conversation {
   isPrivate?: boolean;
   serviceReasonId?: string | null;
   resolveNote?: string | null;
+  slaPolicyOverrideId?: string | null;
   contactName?: string;
   contactPhone?: string;
   lastMessage?: string;
