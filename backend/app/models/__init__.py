@@ -9,6 +9,7 @@ from app.models.conversation import (  # noqa: F401
     ConversationEvent,
     ConversationLabel,
     ConversationParticipant,
+    ConversationPolicy,
     Label,
     Message,
     MessageIdentity,

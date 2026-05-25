@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Annotated
 from uuid import UUID
 
@@ -8,8 +9,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.dependencies import require_workspace_member
 from app.models.contact import Contact, ContactEmail, ContactPhone
+from app.models.enums import ConversationStatus
 from app.models.workspace import User
 from app.schemas.contact import ContactCreate, ContactOut, ContactUpdate
+from app.services.timeline_service import get_contact_timeline
 
 router = APIRouter(prefix="/workspaces/{workspace_id}/contacts", tags=["contacts"])
 
@@ -101,3 +104,38 @@ async def delete_contact(
     if not contact or contact.workspace_id != workspace_id:
         raise HTTPException(status_code=404, detail="Contact not found")
     await db.delete(contact)
+
+
+@router.get("/{contact_id}/timeline", response_model=dict)
+async def contact_timeline(
+    workspace_id: UUID,
+    contact_id: UUID,
+    current_user: Annotated[User, Depends(require_workspace_member)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    channel_account_id: UUID | None = Query(None),
+    since: datetime | None = Query(None),
+    until: datetime | None = Query(None),
+    status: list[ConversationStatus] | None = Query(None),
+    active_conversation_id: UUID | None = Query(None),
+    limit_per_conversation: int = Query(200, ge=10, le=2000),
+):
+    """Return the contact's full timeline grouped by protocol/conversation.
+
+    Used by the inbox side panel's "Timeline" button to render the historical
+    drawer/modal across every conversation the contact ever had on every
+    channel, with messages + operational events interleaved by timestamp.
+    """
+    contact = await db.get(Contact, contact_id)
+    if not contact or contact.workspace_id != workspace_id:
+        raise HTTPException(status_code=404, detail="Contact not found")
+    return await get_contact_timeline(
+        db,
+        workspace_id=workspace_id,
+        contact_id=contact_id,
+        channel_account_id=channel_account_id,
+        since=since,
+        until=until,
+        statuses=status,
+        active_conversation_id=active_conversation_id,
+        limit_per_conversation=limit_per_conversation,
+    )

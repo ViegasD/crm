@@ -74,7 +74,12 @@ export default function InboxPage() {
         )}
       </div>
       {activeConversation && (
-        <ConversationSidePanel workspaceId={currentWorkspace.id} conversationId={activeConversation.id} />
+        <ConversationSidePanel
+          workspaceId={currentWorkspace.id}
+          conversationId={activeConversation.id}
+          contactId={activeConversation.contactId}
+          contactName={activeConversation.contactName}
+        />
       )}
     </div>
   );

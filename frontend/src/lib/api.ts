@@ -130,6 +130,39 @@ export const contactsApi = {
     api.patch(`/api/v1/workspaces/${wsId}/contacts/${contactId}`, data),
   delete: (wsId: string, contactId: string) =>
     api.delete(`/api/v1/workspaces/${wsId}/contacts/${contactId}`),
+  timeline: (
+    wsId: string,
+    contactId: string,
+    params?: {
+      channel_account_id?: string;
+      since?: string;
+      until?: string;
+      status?: string[];
+      active_conversation_id?: string;
+      limit_per_conversation?: number;
+    },
+  ) => api.get(`/api/v1/workspaces/${wsId}/contacts/${contactId}/timeline`, { params }),
+};
+
+// ─── Conversation reopen / new-protocol policies ─────────────────────────────
+export const conversationPoliciesApi = {
+  list: (wsId: string) =>
+    api.get(`/api/v1/workspaces/${wsId}/conversation-policies`),
+  effective: (wsId: string, sectorId?: string) =>
+    api.get(`/api/v1/workspaces/${wsId}/conversation-policies/effective`, {
+      params: sectorId ? { sector_id: sectorId } : undefined,
+    }),
+  upsert: (
+    wsId: string,
+    data: {
+      sector_id?: string | null;
+      reopen_mode: "window" | "always_reopen" | "always_new";
+      reopen_window_hours: number;
+      inherit_assignee_on_new: boolean;
+    },
+  ) => api.put(`/api/v1/workspaces/${wsId}/conversation-policies`, data),
+  delete: (wsId: string, policyId: string) =>
+    api.delete(`/api/v1/workspaces/${wsId}/conversation-policies/${policyId}`),
 };
 
 // ─── Conversations ────────────────────────────────────────────────────────────

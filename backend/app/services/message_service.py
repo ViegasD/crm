@@ -54,49 +54,33 @@ async def get_or_create_conversation(
     channel_account: ChannelAccount,
     contact: Contact,
 ) -> tuple[Conversation, bool]:
-    """Returns (conversation, created). Reuses open/pending conv for same contact+channel."""
-    result = await db.execute(
-        select(Conversation).where(
-            Conversation.workspace_id == workspace_id,
-            Conversation.channel_account_id == channel_account.id,
-            Conversation.contact_id == contact.id,
-            Conversation.status.in_([ConversationStatus.open, ConversationStatus.in_progress]),
-        )
-    )
-    conv = result.scalar_one_or_none()
-    if conv:
-        return conv, False
+    """Resolve which conversation an inbound message should belong to.
 
-    from app.services.sla_service import reopen_recent_resolved_conversation
+    Delegates to ``timeline_service.resolve_inbound_conversation`` which applies
+    the workspace/sector ``ConversationPolicy``:
 
-    reopened = await reopen_recent_resolved_conversation(
+    - existing open conversation → reuse it
+    - last resolved conversation within the reopen window (or always_reopen) → reopen + emit ``auto_reopened`` event
+    - otherwise → brand-new conversation/protocol + emit ``new_protocol_created`` event
+
+    Returns ``(conversation, created)`` for backward-compat with callers that
+    only care about whether the row was just inserted.
+    """
+    from app.services.timeline_service import resolve_inbound_conversation
+
+    resolution = await resolve_inbound_conversation(
         db,
-        workspace_id,
-        channel_account.id,
-        contact.id,
-        channel_account.sector_id,
-    )
-    if reopened:
-        return reopened, False
-
-    conv = Conversation(
         workspace_id=workspace_id,
-        channel_account_id=channel_account.id,
         contact_id=contact.id,
-        sector_id=channel_account.sector_id,
+        channel_account_id=channel_account.id,
+        sector_id_hint=channel_account.sector_id,
     )
-    db.add(conv)
-    await db.flush()
-
-    db.add(ConversationEvent(
-        workspace_id=workspace_id,
-        conversation_id=conv.id,
-        type=ConvEventType.opened,
-        actor_type="system",
-        payload={},
-    ))
-    await db.flush()
-    return conv, True
+    # Sector inheritance: if a brand-new conversation was created and the
+    # channel account has a default sector, attach it so SLA/routing still apply
+    if resolution.action == "new" and resolution.conversation.sector_id is None:
+        resolution.conversation.sector_id = channel_account.sector_id
+        await db.flush()
+    return resolution.conversation, resolution.action == "new"
 
 
 def build_idempotency_key(provider: str, channel_account_id: UUID, external_message_id: str) -> str:
@@ -157,6 +141,18 @@ async def persist_inbound_message(
         idempotency_key=idempotency_key,
         direction="inbound",
     ))
+
+    # Timeline marker
+    from app.services.timeline_service import log_message_event
+
+    await log_message_event(
+        db,
+        workspace_id=workspace_id,
+        conversation_id=conversation.id,
+        direction="inbound",
+        message_id=msg.id,
+        actor_type="contact",
+    )
 
     # Increment unread count
     conversation.unread_agent_count += 1
@@ -285,6 +281,19 @@ async def send_agent_message(
         pass
 
     await db.flush()
+    # Timeline marker for outbound (skip pure internal notes — they have their own event below)
+    if not body.is_note:
+        from app.services.timeline_service import log_message_event
+
+        await log_message_event(
+            db,
+            workspace_id=workspace_id,
+            conversation_id=conversation.id,
+            direction="outbound",
+            message_id=msg.id,
+            actor_id=agent_id,
+            actor_type="agent",
+        )
     if body.is_note:
         db.add(ConversationEvent(
             workspace_id=workspace_id,

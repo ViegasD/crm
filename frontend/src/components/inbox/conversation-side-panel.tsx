@@ -4,15 +4,30 @@ import { conversationsApi, workspacesApi } from "@/lib/api";
 import type { ConversationEvent, ConversationParticipant, WorkspaceMember } from "@/types/conversation";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
-import { Clock3, Plus, Trash2, Users } from "lucide-react";
+import { Clock3, FileText, GitBranch, Plus, Trash2, Users } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { ContactTimelineDrawer } from "./contact-timeline-drawer";
 
 interface Props {
   workspaceId: string;
   conversationId: string;
+  /**
+   * Contact id of the current conversation. When provided the side panel shows
+   * the "Timeline" button that opens the contact-wide timeline modal (every
+   * past protocol/conversation for the same contact).
+   */
+  contactId?: string;
+  contactName?: string;
 }
 
-export function ConversationSidePanel({ workspaceId, conversationId }: Props) {
+export function ConversationSidePanel({
+  workspaceId,
+  conversationId,
+  contactId,
+  contactName,
+}: Props) {
+  const [timelineOpen, setTimelineOpen] = useState(false);
+  const [logOpen, setLogOpen] = useState(true);
   const [events, setEvents] = useState<ConversationEvent[]>([]);
   const [participants, setParticipants] = useState<ConversationParticipant[]>([]);
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
@@ -96,12 +111,47 @@ export function ConversationSidePanel({ workspaceId, conversationId }: Props) {
           {participants.length === 0 && <p className="text-xs text-muted">No observers</p>}
         </div>
       </section>
-      <section className="min-h-0 flex-1 overflow-y-auto p-4">
-        <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-900">
-          <Clock3 className="h-4 w-4" /> Timeline
+      <section className="border-b border-border p-3">
+        <div className="grid grid-cols-2 gap-2">
+          {contactId && (
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={() => setTimelineOpen(true)}
+              className="w-full"
+            >
+              <GitBranch className="mr-1.5 h-3.5 w-3.5" /> Timeline
+            </Button>
+          )}
+          <Button
+            size="sm"
+            variant={logOpen ? "secondary" : "outline"}
+            onClick={() => setLogOpen((v) => !v)}
+            className="w-full"
+            aria-pressed={logOpen}
+          >
+            <FileText className="mr-1.5 h-3.5 w-3.5" /> Log
+          </Button>
         </div>
-        <Timeline events={events} members={members} />
       </section>
+      {logOpen && (
+        <section className="min-h-0 flex-1 overflow-y-auto p-4">
+          <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-900">
+            <Clock3 className="h-4 w-4" /> Log da conversa
+          </div>
+          <Timeline events={events} members={members} />
+        </section>
+      )}
+      {!logOpen && <div className="flex-1" />}
+      {timelineOpen && contactId && (
+        <ContactTimelineDrawer
+          workspaceId={workspaceId}
+          contactId={contactId}
+          contactName={contactName}
+          activeConversationId={conversationId}
+          onClose={() => setTimelineOpen(false)}
+        />
+      )}
     </aside>
   );
 }

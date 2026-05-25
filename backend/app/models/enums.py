@@ -119,6 +119,20 @@ class ConvEventType(str, enum.Enum):
     sla_escalated = "sla_escalated"
     bot_handed_off = "bot_handed_off"
     bot_took_over = "bot_took_over"
+    message_inbound = "message_inbound"
+    message_outbound = "message_outbound"
+    new_protocol_created = "new_protocol_created"
+    auto_resolved = "auto_resolved"
+    auto_reopened = "auto_reopened"
+    template_sent = "template_sent"
+
+
+class ReopenMode(str, enum.Enum):
+    """How to handle an inbound message after a conversation is resolved."""
+
+    window = "window"  # reopen if within reopen_window_hours; else create new
+    always_reopen = "always_reopen"  # Chatwoot-style: always reopen last conversation
+    always_new = "always_new"  # Opa-style: every resolution starts a new protocol
 
 
 class WebhookEventStatus(str, enum.Enum):

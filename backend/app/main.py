@@ -9,6 +9,7 @@ from app.api.v1 import (
     catalog,
     channel_accounts,
     contacts,
+    conversation_policies,
     conversations,
     flows,
     labels,
@@ -59,6 +60,7 @@ app.include_router(sectors.router, prefix="/api/v1")
 app.include_router(channel_accounts.router, prefix="/api/v1")
 app.include_router(contacts.router, prefix="/api/v1")
 app.include_router(conversations.router, prefix="/api/v1")
+app.include_router(conversation_policies.router, prefix="/api/v1")
 app.include_router(messages.router, prefix="/api/v1")
 app.include_router(labels.router, prefix="/api/v1")
 app.include_router(canned_responses.router, prefix="/api/v1")

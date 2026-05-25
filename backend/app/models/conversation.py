@@ -13,6 +13,7 @@ from app.models.enums import (
     ConversationStatus,
     MessageOrigin,
     MessageType,
+    ReopenMode,
     SenderType,
     SlaStatus,
     WhatsAppProvider,
@@ -204,6 +205,35 @@ class ConversationParticipant(Base, TimestampMixin):
     )
 
     conversation: Mapped["Conversation"] = relationship(back_populates="participants")
+
+
+class ConversationPolicy(Base, TimestampMixin):
+    """Per-workspace (or per-sector override) policy controlling how inbound
+    messages on an already-resolved conversation are handled: reopen the same
+    conversation/protocol, or start a brand-new protocol.
+
+    A row with sector_id=NULL is the workspace default. A row with sector_id set
+    overrides the workspace default for conversations belonging to that sector.
+    """
+
+    __tablename__ = "conversation_policies"
+    __table_args__ = (
+        UniqueConstraint("workspace_id", "sector_id", name="uq_conv_policy_ws_sector"),
+        Index("ix_conv_policy_ws", "workspace_id"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=gen_uuid)
+    workspace_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False
+    )
+    sector_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("sectors.id", ondelete="CASCADE"), nullable=True
+    )
+    reopen_mode: Mapped[ReopenMode] = mapped_column(default=ReopenMode.window, nullable=False)
+    reopen_window_hours: Mapped[int] = mapped_column(Integer, default=24, nullable=False)
+    # When a brand-new protocol is created from a reopen-policy decision, optionally
+    # auto-assign to the previous assignee instead of going back to the queue.
+    inherit_assignee_on_new: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
 
 class CannedResponse(Base, TimestampMixin):
