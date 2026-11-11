@@ -8,6 +8,7 @@ O [escopo vigente](../../SCOPE.md) inclui CRM comercial, entregas de marketing e
 2. [Revisão de código e realinhamento](../reports/crm2_code_review_e_realinhamento_2026-11-11.md) para reuso, lacunas, tarefas e evidências. A base auditada foi `f6a9a22ab79cf1b8cff9b4bb1c35ed516d8b13ff`, do [PR #1](https://github.com/ViegasD/crm/pull/1). Para trabalho novo, confirme o estado do PR, a branch comum e o commit atual com a equipe.
 3. Pasta **CRM2** no ClickUp para títulos, aceite, andamento, responsáveis e dependências atuais. Confira o título e o aceite junto com o código Dxx.x, pois o relatório histórico registrou alguns códigos com outras finalidades. A [resolução EGM](../reports/egm-mvp-comercial/goldfish_review_report.md) registra as decisões incorporadas ao desenho comercial.
 4. [Runbook de desenvolvimento](../../deploy/README.md) e [relatório histórico de validação](../reports/DEPLOYMENT_DEVELOPMENT_2026-11-11.md) para executar e interpretar as verificações. Peça à equipe as permissões e a configuração privada necessárias.
+5. [Estudo de produto e plano da nova interface](../planning/PLANO_EXECUCAO_INTERFACE_CRM2.md) para desenhar e implementar os fluxos das três frentes. Consulte também o [mapa de reaproveitamento](../planning/REFERENCIAS_UI_E_REUSO_CRM2.md) para conferir os contratos e componentes da base antiga.
 
 ## Primeira rodada
 
