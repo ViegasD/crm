@@ -1,13 +1,14 @@
-# CRM2 - Escopo atual
+# CRM2 — Escopo do MVP
 
-Atualizado em 11/11/2026. A decisao de 09/11/2026 prioriza **gestao de entregas de marketing e e-commerce**. CRM comercial fica em segundo plano. Este documento e a entrada atual de escopo; o extenso roadmap omnichannel anterior esta preservado como [historico](docs/archive/crm/SCOPE_LEGADO.md).
+O MVP inclui **CRM comercial, gestão de entregas de marketing e gestão de projetos de e-commerce**. O [desenho comercial](docs/planning/crm2_mvp_comercial.md) detalha os contratos dessa frente. A pasta CRM2 no ClickUp concentra tarefas, dependências e aceite vigentes.
 
-## Prioridade confirmada e detalhamento proposto
+## Frentes do MVP
 
-O cliente confirmou a prioridade de entregas. A organizacao abaixo vem do handoff e ainda precisa de validacao dos fluxos reais; nao representa funcionalidades integralmente aprovadas em contrato.
+As três frentes fazem parte do MVP. Os detalhes operacionais e o aceite ainda dependem da validação dos fluxos reais.
 
 | Frente proposta | Resultado esperado |
 | --- | --- |
+| CRM comercial | Contatos, captação de leads, oportunidades, funil, tarefas e indicadores comerciais. O WhatsApp segue a validação de fluxo e acesso. |
 | Clientes e servicos | Cadastro operacional, servicos associados, responsaveis e vinculos a projetos |
 | Marketing | Demandas, etapas/Kanban, responsaveis, prioridade, prazos, comentarios, anexos, revisao, ajustes e conclusao |
 | E-commerce | Projetos de implantacao/manutencao de lojas, etapas, checklists, pendencias e entregas |
@@ -28,15 +29,15 @@ Essas decisoes estao na lista MVP 00 do ClickUp. WhatsApp nao foi definitivament
 
 ## Posterior ao foco inicial
 
-CRM comercial completo, funis de vendas, IA, automacoes avancadas, financeiro/Asaas, vendedor compartilhado, revenda/white-label e distribuicao a terceiros nao devem ser assumidos como compromisso deste MVP.
+IA, automações avançadas, financeiro/Asaas, vendedor compartilhado, revenda/white-label e distribuição a terceiros ficam além do escopo aqui definido.
 
 ## Cronograma e aceite
 
-Inicio de planejamento escolhido pelo usuario: **16/11/2026**. Envelope provisorio: 20 dias uteis ate **14/12/2026**, excluindo fins de semana e 20/11. Feriados locais, escopo e acessos ainda precisam ser considerados. Nao e garantia contratual.
+As datas de 16/11 a 14/12/2026 registradas no planejamento são uma estimativa anterior. A ordem e o prazo para as três frentes devem ser conferidos no ClickUp com os responsáveis.
 
-O aceite proposto exige executar o fluxo cliente/servico, criar e atribuir demanda, mover etapas, comentar/anexar, revisar/concluir, executar projeto/checklist de e-commerce, conferir acesso por papel/workspace e validar indicadores. Fechamento exige evidencia tecnica e aceite manual quando aplicavel.
+O aceite cobre os fluxos da frente comercial definidos no desenho, além de executar o fluxo cliente/serviço, criar e atribuir uma demanda, mover etapas, comentar, anexar, revisar, concluir e executar um projeto de e-commerce com checklist. A homologação inclui acesso por papel/workspace e conferência dos indicadores.
 
-## Referencias atuais
+## Referências de planejamento
 
 - [Handoff e contexto de origem](docs/context/HANDOFF_COMPLETO.md).
 - [Realinhamento e exemplos WhatsApp de fabia](docs/planning/REALINHAMENTO_2026-11-11.md).
