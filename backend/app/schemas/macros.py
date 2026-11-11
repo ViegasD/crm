@@ -1,7 +1,8 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_serializer
+from app.services.media_access import safe_attachment_metadata
 
 from app.models.enums import CannedVisibility, MacroActionType
 
@@ -19,6 +20,13 @@ class MacroActionOut(BaseModel):
     action_type: MacroActionType
     params: dict
     position: int
+
+    @field_serializer("params")
+    def safe_params(self, params):
+        result = dict(params)
+        if "attachments" in result:
+            result["attachments"] = [safe_attachment_metadata(a) for a in result["attachments"]]
+        return result
 
 
 class MacroCreate(BaseModel):

@@ -44,4 +44,6 @@ Redeploying a previous application image is possible from the panel, but schema 
 
 The app is a shared development instance. Delivery-domain features have not yet been implemented. Role/media isolation gaps in the existing backlog still apply; use test data. Real WhatsApp sending, receiving, QR pairing or Meta coexistence needs a designated number and provider setup. No real number should be connected or messaged without its owner's authorization.
 
+AUD01/AUD02 source branches add authorization and media fixes; publishing a branch does not update the running instance. After integrating AUD02, apply migration `202611110002` before starting the updated API. Browser media URLs then point to `/api/v1/media/download` through the app gateway and recheck current permissions. Provider fetches use separate server-generated storage URLs (300 seconds); they still require the configured public storage endpoint. Historical already-issued storage URLs remain usable until their original expiry. Do not treat source test results as a deployment smoke result.
+
 Current WebSocket broadcasting is in-memory per API process; events emitted directly from a separate Celery worker do not automatically reach connected browsers. Worker-to-browser live updates need additional integration coverage and potentially a Redis pub/sub bridge before claiming full real-time behavior.

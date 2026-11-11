@@ -1,7 +1,8 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_serializer
+from app.services.media_access import safe_attachment_metadata
 
 from app.models.enums import CannedVisibility
 
@@ -55,6 +56,10 @@ class CannedResponseOut(BaseModel):
     active: bool
     created_at: datetime
     updated_at: datetime
+
+    @field_serializer("attachments")
+    def safe_attachments(self, attachments):
+        return [safe_attachment_metadata(a) for a in attachments]
 
 
 class CannedCategoryCreate(BaseModel):

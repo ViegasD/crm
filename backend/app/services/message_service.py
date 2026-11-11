@@ -383,6 +383,12 @@ async def send_agent_message(
     agent_id: UUID,
     body: SendMessageRequest,
 ) -> Message:
+    from app.services.media_access import bind_attachments
+
+    attachments = await bind_attachments(db, workspace_id, conversation.id, agent_id, body.attachments)
+    # Ignore all caller-provided URLs and metadata; only stored upload records
+    # can authorize outbound file access or populate the persisted attachment.
+    body = body.model_copy(update={"attachments": attachments})
     if body.is_note:
         origin = MessageOrigin.crm_agent
         msg_type = MessageType.internal_note
@@ -534,9 +540,11 @@ async def _send_outbound_whatsapp_message(adapter, to_phone: str, body: SendMess
             raise HTTPException(status_code=400, detail="Only one attachment per outbound message is supported")
 
         attachment = body.attachments[0]
-        media_url = attachment.get("url")
-        if not media_url:
-            raise HTTPException(status_code=400, detail="Attachment URL is required for outbound media")
+        from app.core.config import settings
+        from app.core.minio import generate_presigned_url
+        # Provider fetches cannot use a browser/user capability. This URL is
+        # generated from canonical metadata after bind_attachments, never input.
+        media_url = generate_presigned_url(settings.minio_bucket, attachment["key"], expires=300)
 
         media_type = str(body.type)
         if media_type not in {"image", "audio", "video", "file"}:

@@ -23,6 +23,7 @@ from app.schemas.canned_response import (
     CannedResponseUpdate,
 )
 from app.services.canned_response_service import build_render_context, render_template
+from app.services.media_access import prepare_template_attachments, require_template_scope, validate_template_destination
 from app.services.security_audit_service import log_security_event
 
 router = APIRouter(prefix="/workspaces/{workspace_id}/canned-responses", tags=["canned-responses"])
@@ -144,6 +145,7 @@ async def create_canned_response(
     current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
+    await validate_template_destination(db, workspace_id, current_user.id, body.visibility, body.sector_id)
     user_id = current_user.id if body.visibility == CannedVisibility.user else None
     # Conflict check inside scope
     conflict = await db.execute(
@@ -155,7 +157,7 @@ async def create_canned_response(
         raise HTTPException(status_code=409, detail="Shortcut already in use in this scope")
 
     data = body.model_dump()
-    data["attachments"] = [a if isinstance(a, dict) else a.model_dump() for a in body.attachments]
+    data["attachments"] = await prepare_template_attachments(db, workspace_id, current_user.id, body.attachments)
     response = CannedResponse(workspace_id=workspace_id, user_id=user_id, **data)
     db.add(response)
     await db.flush()
@@ -215,7 +217,7 @@ async def update_canned_response(
     current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    response = await db.get(CannedResponse, response_id)
+    response = await require_template_scope(db, CannedResponse, workspace_id, response_id, current_user.id)
     if not response or response.workspace_id != workspace_id:
         raise HTTPException(status_code=404, detail="Canned response not found")
     # Owner check for personal responses
@@ -225,9 +227,15 @@ async def update_canned_response(
     old = {"shortcut": response.shortcut, "title": response.title, "active": response.active}
     payload = body.model_dump(exclude_none=True)
     if "attachments" in payload and payload["attachments"] is not None:
-        payload["attachments"] = [
-            a if isinstance(a, dict) else a.model_dump() for a in payload["attachments"]
-        ]
+        payload["attachments"] = await prepare_template_attachments(db, workspace_id, current_user.id, payload["attachments"])
+    # Check retained files as well as supplied ones before scope widening or
+    # reactivation; the old template is still in its original scope here.
+    if "attachments" not in payload and payload.get("active", response.active):
+        payload["attachments"] = await prepare_template_attachments(db, workspace_id, current_user.id, response.attachments)
+    await validate_template_destination(db, workspace_id, current_user.id,
+        payload.get("visibility", response.visibility), payload.get("sector_id", response.sector_id))
+    if "visibility" in payload:
+        response.user_id = current_user.id if payload["visibility"] == CannedVisibility.user else None
     for field, value in payload.items():
         setattr(response, field, value)
     try:
@@ -258,7 +266,7 @@ async def delete_canned_response(
     current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    response = await db.get(CannedResponse, response_id)
+    response = await require_template_scope(db, CannedResponse, workspace_id, response_id, current_user.id)
     if not response or response.workspace_id != workspace_id:
         raise HTTPException(status_code=404, detail="Canned response not found")
     if response.visibility == CannedVisibility.user and response.user_id != current_user.id:
@@ -294,7 +302,7 @@ async def render_canned(
     current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    response = await db.get(CannedResponse, response_id)
+    response = await require_template_scope(db, CannedResponse, workspace_id, response_id, current_user.id)
     if not response or response.workspace_id != workspace_id:
         raise HTTPException(status_code=404, detail="Canned response not found")
     context = await build_render_context(

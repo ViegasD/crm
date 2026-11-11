@@ -29,7 +29,7 @@ def main():
     checks = []
     code = r'''
 import asyncio,json,sys,httpx
-from urllib.parse import urlsplit
+from urllib.parse import urljoin, urlsplit
 import websockets
 from app.core.minio import delete_object
 from app.workers.celery_app import celery_app
@@ -62,13 +62,14 @@ async def main(values):
         response=await client.post('/api/v1/media/upload',params={'workspace_id':workspace},files={'file':('deployment-smoke.pdf',content,'application/pdf')})
         assert response.status_code==200,response.status_code
         uploaded=response.json()
-        assert urlsplit(uploaded['url']).scheme=='https'
+        assert uploaded['url'].startswith('/api/v1/media/download?')
         async with httpx.AsyncClient(timeout=30) as storage:
-            downloaded=await storage.get(uploaded['url']);assert downloaded.status_code==200 and downloaded.content==content
+            downloaded=await storage.get(urljoin(values['url'],uploaded['url']));assert downloaded.status_code==200 and downloaded.content==content
+            assert downloaded.headers['cache-control']=='private, no-store'
         presigned=await client.get('/api/v1/media/presign',params={'key':uploaded['key']})
         assert presigned.status_code==200
         delete_object('crm-media',uploaded['key'])
-        checks += ['Upload/presign/public HTTPS download and cleanup']
+        checks += ['Owned upload/scoped download via app HTTPS and storage cleanup']
         async with websockets.connect(values['url'].replace('https://','wss://')+'/ws/'+workspace+'?token='+token) as ws:
             await ws.send('ping'); assert await asyncio.wait_for(ws.recv(),10)=='pong'
         checks += ['Authenticated public WebSocket ping/pong']

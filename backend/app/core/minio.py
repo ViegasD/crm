@@ -65,3 +65,23 @@ def generate_presigned_url(bucket: str, key: str, expires: int = 3600) -> str:
 
 def delete_object(bucket: str, key: str) -> None:
     get_minio_client().delete_object(Bucket=bucket, Key=key)
+
+
+def read_file(bucket: str, key: str, max_bytes: int) -> bytes:
+    from botocore.exceptions import ClientError
+    try:
+        response = get_minio_client().get_object(Bucket=bucket, Key=key)
+    except ClientError as exc:
+        if exc.response.get("Error", {}).get("Code") in {"NoSuchKey", "NoSuchBucket", "404"}:
+            raise KeyError(key) from None
+        raise
+    body = response["Body"]
+    try:
+        if int(response.get("ContentLength", 0)) > max_bytes:
+            raise ValueError("Media too large")
+        content = body.read(max_bytes + 1)
+        if len(content) > max_bytes:
+            raise ValueError("Media too large")
+        return content
+    finally:
+        body.close()

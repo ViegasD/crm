@@ -20,6 +20,7 @@ from app.schemas.macros import (
     MacroUpdate,
 )
 from app.services.macro_executor import run_macro
+from app.services.media_access import prepare_macro_actions, require_template_scope, validate_template_destination
 from app.services.security_audit_service import log_security_event
 
 router = APIRouter(prefix="/workspaces/{workspace_id}/macros", tags=["macros"])
@@ -43,6 +44,8 @@ async def create_macro(
     current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
+    await validate_template_destination(db, workspace_id, current_user.id, body.visibility, body.sector_id)
+    actions = await prepare_macro_actions(db, workspace_id, current_user.id, body.actions)
     user_id = current_user.id if body.visibility == CannedVisibility.user else None
     macro = Macro(
         workspace_id=workspace_id,
@@ -55,12 +58,12 @@ async def create_macro(
     )
     db.add(macro)
     await db.flush()
-    for action_in in body.actions:
+    for action_in in actions:
         db.add(MacroAction(
             macro_id=macro.id,
-            position=action_in.position,
-            action_type=action_in.action_type,
-            params=action_in.params,
+            position=action_in["position"],
+            action_type=action_in["action_type"],
+            params=action_in["params"],
         ))
     await db.flush()
     await db.refresh(macro, attribute_names=["actions"])
@@ -106,6 +109,7 @@ async def get_macro(
     current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
+    await require_template_scope(db, Macro, workspace_id, macro_id, current_user.id)
     q = (
         select(Macro)
         .where(Macro.id == macro_id, Macro.workspace_id == workspace_id)
@@ -126,7 +130,7 @@ async def update_macro(
     current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    macro = await db.get(Macro, macro_id)
+    macro = await require_template_scope(db, Macro, workspace_id, macro_id, current_user.id)
     if not macro or macro.workspace_id != workspace_id:
         raise HTTPException(status_code=404, detail="Macro not found")
     if macro.visibility == CannedVisibility.user and macro.user_id != current_user.id:
@@ -134,6 +138,17 @@ async def update_macro(
 
     payload = body.model_dump(exclude_none=True)
     actions = payload.pop("actions", None)
+    if actions is not None:
+        actions = await prepare_macro_actions(db, workspace_id, current_user.id, actions)
+    if actions is None and payload.get("active", macro.active):
+        retained = (await db.scalars(select(MacroAction).where(MacroAction.macro_id == macro.id))).all()
+        # Validating retained sources does not rewrite actions or their IDs.
+        await prepare_macro_actions(db, workspace_id, current_user.id, [
+            {"action_type": a.action_type, "position": a.position, "params": a.params} for a in retained])
+    await validate_template_destination(db, workspace_id, current_user.id,
+        payload.get("visibility", macro.visibility), payload.get("sector_id", macro.sector_id))
+    if "visibility" in payload:
+        macro.user_id = current_user.id if payload["visibility"] == CannedVisibility.user else None
     for field, value in payload.items():
         setattr(macro, field, value)
     if actions is not None:
@@ -174,7 +189,7 @@ async def delete_macro(
     current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    macro = await db.get(Macro, macro_id)
+    macro = await require_template_scope(db, Macro, workspace_id, macro_id, current_user.id)
     if not macro or macro.workspace_id != workspace_id:
         raise HTTPException(status_code=404, detail="Macro not found")
     if macro.visibility == CannedVisibility.user and macro.user_id != current_user.id:
@@ -199,6 +214,7 @@ async def run_macro_endpoint(
     current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
+    await require_template_scope(db, Macro, workspace_id, macro_id, current_user.id)
     q = (
         select(Macro)
         .where(Macro.id == macro_id, Macro.workspace_id == workspace_id)

@@ -4,7 +4,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from app.core.minio import generate_presigned_url
+from app.services.media_access import attachment_for_browser
 from app.models.enums import MessageOrigin, MessageType, SenderType
 
 
@@ -44,22 +44,12 @@ class SendMessageRequest(BaseModel):
     is_note: bool = False
 
 
-def serialize_message_out(message: Any) -> MessageOut:
+def serialize_message_out(message: Any, user_id=None) -> MessageOut:
     payload = MessageOut.model_validate(message).model_dump()
-    payload["attachments"] = [_serialize_attachment(attachment) for attachment in payload.get("attachments", [])]
+    payload["attachments"] = [attachment_for_browser(attachment, message, index, user_id) for index, attachment in enumerate(payload.get("attachments", []))]
     metadata = getattr(message, "metadata_", None) or {}
     payload["sender_name"] = metadata.get("sender_name")
     payload["provider_status"] = metadata.get("delivery_status")
     payload["provider_status_updated_at"] = metadata.get("delivery_status_updated_at")
     payload["provider_status_error"] = metadata.get("delivery_status_error")
     return MessageOut.model_validate(payload)
-
-
-def _serialize_attachment(attachment: dict) -> dict:
-    item = dict(attachment)
-    key = item.get("key")
-    bucket = item.get("bucket")
-    if key and bucket:
-        item["url"] = generate_presigned_url(bucket, key)
-        item["ready"] = True
-    return item

@@ -35,7 +35,7 @@ async def list_messages(
     q = q.order_by(Message.created_at.desc()).offset((page - 1) * page_size).limit(page_size)
     items = (await db.execute(q)).scalars().all()
     return {
-        "items": [serialize_message_out(item) for item in items],
+        "items": [serialize_message_out(item, current_user.id) for item in items],
         "total": total,
         "page": page,
         "page_size": page_size,
@@ -58,7 +58,7 @@ async def send_message(
             str(workspace_id),
             {"type": "message.new", "conversation_id": str(conversation_id), "message_id": str(msg.id)},
         )
-    return serialize_message_out(msg)
+    return serialize_message_out(msg, current_user.id)
 
 
 @router.post("/read", status_code=204)

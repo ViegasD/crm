@@ -140,8 +140,11 @@ All routes marked 🔒 require `Authorization: Bearer <access_token>`.
 
 | Method | Path | Auth | Query params | Description |
 |--------|------|------|--------------|-------------|
-| POST | `/api/v1/media/upload` | 🔒 | `workspace_id` | Upload file → MinIO (multipart/form-data, max 50 MB) |
-| GET | `/api/v1/media/presign` | 🔒 | `key` | Generate presigned download URL (1h TTL) |
+| POST | `/api/v1/media/upload` | 🔒 | `workspace_id` | Owned draft upload (multipart/form-data, max 25 MiB); returns `key` and a relative scoped download `url`. Unlinked drafts expire after 24h. |
+| GET | `/api/v1/media/presign` | 🔒 | `key` | Reauthorize owned/linked/template media; returns a relative app download URL with a 5-minute capability, not a storage URL. |
+| GET | `/api/v1/media/download` | Scoped capability | `token` | Verify capability expiry and current user/workspace/conversation/template access, then serve bytes with `Cache-Control: private, no-store`. |
+
+Media contract: clients send an uploaded `key` in message attachments; the server ignores caller-supplied URL, bucket, name and size in favor of registered metadata. Ordinary uploads bind to one conversation. Authorized saved canned/macro attachments remain reusable across conversations, subject to the current template scope. Message/timeline responses strip provider URLs, payloads and inline base64. Refresh expired previews through `/media/presign`; an existing browser download URL is not suitable for a provider send. See [AUD02 evidence and compatibility](../reports/AUD02_MEDIA_2026-11-11.md). These changes require migration `202611110002`; deployment is separate from code publication.
 
 ---
 

@@ -12,7 +12,7 @@ from uuid import UUID
 
 import httpx
 
-from app.core.minio import generate_presigned_url, upload_file
+from app.core.minio import upload_file
 from app.workers.celery_app import celery_app
 
 logger = logging.getLogger(__name__)
@@ -144,7 +144,7 @@ def _update_message_attachment(
                     {
                         "key": key,
                         "bucket": bucket,
-                        "url": generate_presigned_url(bucket, key),
+                        "url": None,
                         "ready": True,
                         "sizeBytes": size_bytes,
                     }

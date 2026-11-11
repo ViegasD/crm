@@ -277,6 +277,7 @@ async def get_contact_timeline(
         }
     """
     from app.core.conversation_access import conversation_access_clause
+    from app.services.media_access import attachment_for_browser
 
     q = select(Conversation).where(
         conversation_access_clause(workspace_id, actor_id),
@@ -327,13 +328,13 @@ async def get_contact_timeline(
                 "ts": m.created_at.isoformat() if m.created_at else None,
                 "id": str(m.id),
                 "direction": (
-                    "outbound" if m.origin == MessageOrigin.agent else "inbound"
+                    "outbound" if m.origin == MessageOrigin.crm_agent else "inbound"
                 ),
                 "sender_type": m.sender_type.value if m.sender_type else None,
                 "sender_id": str(m.sender_id) if m.sender_id else None,
                 "type": m.type.value if m.type else None,
                 "content": m.content,
-                "attachments": m.attachments,
+                "attachments": [attachment_for_browser(a, m, index, actor_id) for index, a in enumerate(m.attachments)],
             }
         )
     for e in events:

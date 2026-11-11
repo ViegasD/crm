@@ -41,8 +41,9 @@ class MigrationUpgradeTests(unittest.TestCase):
 
     def assert_current_schema(self):
         with self.engine.connect() as conn:
-            self.assertEqual(conn.execute(text("SELECT version_num FROM alembic_version")).scalars().all(), ["202611110001"])
+            self.assertEqual(conn.execute(text("SELECT version_num FROM alembic_version")).scalars().all(), ["202611110002"])
             conn.execute(text("SELECT 'sticker'::messagetype, 'dead_letter'::webhookeventstatus"))
+        self.assertIn("media_uploads", inspect(self.engine).get_table_names())
         columns = {c["name"] for c in inspect(self.engine).get_columns("webhook_events")}
         self.assertTrue({"raw_payload", "updated_at", "signature_hash", "attempts", "headers"} <= columns)
 
@@ -68,6 +69,15 @@ class MigrationUpgradeTests(unittest.TestCase):
             self.assertEqual(conn.execute(text("SELECT raw_payload FROM webhook_events WHERE id = :id"), {"id": new_id}).scalar_one(), {"new": True})
 
     def test_empty_database_upgrades_to_head(self):
+        command.upgrade(self.config, "head")
+        self.assert_current_schema()
+
+    def test_existing_merged_database_adds_media_registry(self):
+        command.upgrade(self.config, "202611110001")
+        # The legacy baseline may create current metadata. Remove only this new
+        # empty table to represent the schema deployed before the media change.
+        with self.engine.begin() as conn:
+            conn.execute(text("DROP TABLE IF EXISTS media_uploads"))
         command.upgrade(self.config, "head")
         self.assert_current_schema()
 

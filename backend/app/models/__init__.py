@@ -45,6 +45,7 @@ from app.models.sla import (  # noqa: F401
     SlaPolicy,
 )
 from app.models.flow import Flow, FlowExecution  # noqa: F401
+from app.models.media import MediaUpload  # noqa: F401
 from app.models.bot import BotConfig, BotConfigCapability  # noqa: F401
 from app.models.stage9_extras import (  # noqa: F401
     BusinessHoliday,
