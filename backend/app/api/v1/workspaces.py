@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user, require_workspace_member
+from app.core.dependencies import get_current_user, require_workspace_member, require_roles
 from app.models.workspace import User, UserWorkspaceMembership, Workspace
 from app.schemas.workspace import MembershipOut, MembershipUserInline, WorkspaceCreate, WorkspaceOut
 
@@ -80,9 +80,12 @@ async def list_members(
 async def remove_member(
     workspace_id: UUID,
     user_id: UUID,
-    current_user: Annotated[User, Depends(require_workspace_member)],
+    current_user: Annotated[User, Depends(require_roles("admin"))],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
+    # Serialize administrator removals within a workspace so two simultaneous
+    # requests cannot both remove what each believed was the penultimate admin.
+    await db.execute(select(Workspace.id).where(Workspace.id == workspace_id).with_for_update())
     result = await db.execute(
         select(UserWorkspaceMembership).where(
             UserWorkspaceMembership.workspace_id == workspace_id,
@@ -92,4 +95,11 @@ async def remove_member(
     membership = result.scalar_one_or_none()
     if not membership:
         raise HTTPException(status_code=404, detail="Member not found")
+    if membership.role == "admin":
+        admins = (await db.execute(select(UserWorkspaceMembership.id).where(
+            UserWorkspaceMembership.workspace_id == workspace_id,
+            UserWorkspaceMembership.role == "admin",
+        ))).scalars().all()
+        if len(admins) <= 1:
+            raise HTTPException(status_code=409, detail="Cannot remove the last workspace administrator")
     await db.delete(membership)

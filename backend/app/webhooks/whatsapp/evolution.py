@@ -216,6 +216,8 @@ async def receive_event(
         signature=signature,
     )
 
+    # Rollback expires ORM fields; retain IDs needed by failure reporting.
+    workspace_id, channel_id = account.workspace_id, account.id
     started = time.perf_counter()
     try:
         events = adapter.parse_webhook(headers, body)
@@ -233,15 +235,16 @@ async def receive_event(
                 instance_name,
                 body.get("event"),
             )
-        for event in events:
-            event.workspace_id = str(account.workspace_id)
-            event.channel_account_id = str(account.id)
-            msg = await persist_normalized_event(db, account, event)
-            if msg:
-                await manager.broadcast(
-                    str(account.workspace_id),
-                    {"type": "message.new", "conversation_id": str(msg.conversation_id), "message_id": str(msg.id)},
-                )
+        async with manager.committed_events(db):
+            for event in events:
+                event.workspace_id = str(workspace_id)
+                event.channel_account_id = str(channel_id)
+                msg = await persist_normalized_event(db, account, event)
+                if msg:
+                    await manager.broadcast(
+                        str(workspace_id),
+                        {"type": "message.new", "conversation_id": str(msg.conversation_id), "message_id": str(msg.id)},
+                    )
     except Exception as exc:  # noqa: BLE001
         latency = int((time.perf_counter() - started) * 1000)
         logger.exception("Evolution webhook processing failed")
@@ -257,7 +260,7 @@ async def receive_event(
             error_message=str(exc),
             latency_ms=latency,
         )
-        await record_circuit_failure(account.workspace_id, account.id, str(exc))
+        await record_circuit_failure(workspace_id, channel_id, str(exc))
         return {"status": "deferred"}
 
     latency = int((time.perf_counter() - started) * 1000)
@@ -270,5 +273,5 @@ async def receive_event(
         error_message=None,
         latency_ms=latency,
     )
-    await record_circuit_success(account.workspace_id, account.id)
+    await record_circuit_success(workspace_id, channel_id)
     return {"status": "ok"}

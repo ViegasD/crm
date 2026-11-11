@@ -9,6 +9,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
+from app.core.conversation_access import conversation_access_clause
+from app.models.conversation import Conversation
 from app.core.dependencies import require_workspace_member
 from app.core.request_meta import client_ip, user_agent
 from app.models.catalog import (
@@ -192,7 +194,7 @@ async def snooze_conversation(
     current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    await get_conversation_or_404(db, workspace_id, conversation_id)
+    await get_conversation_or_404(db, workspace_id, conversation_id, current_user.id)
     if body.until <= datetime.now(timezone.utc):
         raise HTTPException(status_code=400, detail="`until` must be in the future")
 
@@ -353,6 +355,7 @@ async def list_mentions(
 ):
     q = select(MentionInbox).where(
         MentionInbox.workspace_id == workspace_id,
+            MentionInbox.conversation_id.in_(select(Conversation.id).where(conversation_access_clause(workspace_id, current_user.id))),
         MentionInbox.user_id == current_user.id,
     )
     if unread is True:
@@ -364,6 +367,7 @@ async def list_mentions(
     unread_count_q = await db.execute(
         select(MentionInbox).where(
             MentionInbox.workspace_id == workspace_id,
+            MentionInbox.conversation_id.in_(select(Conversation.id).where(conversation_access_clause(workspace_id, current_user.id))),
             MentionInbox.user_id == current_user.id,
             MentionInbox.read_at.is_(None),
         )

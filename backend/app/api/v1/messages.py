@@ -29,7 +29,7 @@ async def list_messages(
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=200),
 ):
-    await get_conversation_or_404(db, workspace_id, conversation_id)
+    await get_conversation_or_404(db, workspace_id, conversation_id, current_user.id)
     q = select(Message).where(Message.conversation_id == conversation_id)
     total = (await db.execute(select(func.count()).select_from(q.subquery()))).scalar_one()
     q = q.order_by(Message.created_at.desc()).offset((page - 1) * page_size).limit(page_size)
@@ -50,13 +50,14 @@ async def send_message(
     current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    conv = await get_conversation_or_404(db, workspace_id, conversation_id)
-    msg = await send_agent_message(db, workspace_id, conv, current_user.id, body)
+    conv = await get_conversation_or_404(db, workspace_id, conversation_id, current_user.id)
     from app.websocket.manager import manager
-    await manager.broadcast(
-        str(workspace_id),
-        {"type": "message.new", "conversation_id": str(conversation_id), "message_id": str(msg.id)},
-    )
+    async with manager.committed_events(db):
+        msg = await send_agent_message(db, workspace_id, conv, current_user.id, body)
+        await manager.broadcast(
+            str(workspace_id),
+            {"type": "message.new", "conversation_id": str(conversation_id), "message_id": str(msg.id)},
+        )
     return serialize_message_out(msg)
 
 
@@ -67,7 +68,7 @@ async def mark_read(
     current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    await get_conversation_or_404(db, workspace_id, conversation_id)
+    await get_conversation_or_404(db, workspace_id, conversation_id, current_user.id)
     await db.execute(
         sa_update(Message)
         .where(

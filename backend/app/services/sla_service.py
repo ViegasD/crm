@@ -1135,11 +1135,12 @@ async def auto_resolve_inactive_conversations(db: AsyncSession) -> int:
     return total
 
 
-async def supervisor_overview(db: AsyncSession, workspace_id: UUID) -> dict:
+async def supervisor_overview(db: AsyncSession, workspace_id: UUID, actor_id: UUID) -> dict:
+    from app.core.conversation_access import conversation_access_clause
     conversations = (
         await db.execute(
             select(Conversation).where(
-                Conversation.workspace_id == workspace_id,
+                conversation_access_clause(workspace_id, actor_id),
                 Conversation.status != ConversationStatus.resolved,
             )
         )

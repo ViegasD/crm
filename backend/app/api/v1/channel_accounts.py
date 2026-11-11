@@ -6,11 +6,11 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.dependencies import require_workspace_member
+from app.core.dependencies import require_workspace_member, require_roles
 from app.core.encryption import encrypt_payload
 from app.models.channel import ChannelAccount, ChannelCredential
 from app.models.enums import WhatsAppProvider
-from app.models.workspace import User
+from app.models.workspace import Sector, User
 from app.schemas.channel import ChannelAccountCreate, ChannelAccountOut, ChannelAccountUpdate, CredentialUpsert
 
 router = APIRouter(prefix="/workspaces/{workspace_id}/channels", tags=["channels"])
@@ -41,9 +41,11 @@ def _apply_capabilities(account: ChannelAccount) -> None:
 async def create_channel(
     workspace_id: UUID,
     body: ChannelAccountCreate,
-    current_user: Annotated[User, Depends(require_workspace_member)],
+    current_user: Annotated[User, Depends(require_roles("admin"))],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
+    if body.sector_id is not None:
+        await _require_sector(db, workspace_id, body.sector_id)
     account = ChannelAccount(
         workspace_id=workspace_id,
         channel_type=body.channel_type,
@@ -92,22 +94,30 @@ async def update_channel(
     workspace_id: UUID,
     channel_id: UUID,
     body: ChannelAccountUpdate,
-    current_user: Annotated[User, Depends(require_workspace_member)],
+    current_user: Annotated[User, Depends(require_roles("admin"))],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     account = await db.get(ChannelAccount, channel_id)
     if not account or account.workspace_id != workspace_id:
         raise HTTPException(status_code=404, detail="Channel not found")
+    if body.sector_id is not None:
+        await _require_sector(db, workspace_id, body.sector_id)
     for field, val in body.model_dump(exclude_none=True).items():
         setattr(account, field, val)
     return account
+
+
+async def _require_sector(db: AsyncSession, workspace_id: UUID, sector_id: UUID):
+    sector = await db.get(Sector, sector_id)
+    if sector is None or sector.workspace_id != workspace_id:
+        raise HTTPException(status_code=404, detail="Sector not found")
 
 
 @router.delete("/{channel_id}", status_code=204)
 async def delete_channel(
     workspace_id: UUID,
     channel_id: UUID,
-    current_user: Annotated[User, Depends(require_workspace_member)],
+    current_user: Annotated[User, Depends(require_roles("admin"))],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     account = await db.get(ChannelAccount, channel_id)
@@ -121,7 +131,7 @@ async def upsert_credential(
     workspace_id: UUID,
     channel_id: UUID,
     body: CredentialUpsert,
-    current_user: Annotated[User, Depends(require_workspace_member)],
+    current_user: Annotated[User, Depends(require_roles("admin"))],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """Store (or replace) encrypted credentials for a channel account."""

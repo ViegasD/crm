@@ -147,6 +147,7 @@ async def contact_timeline(
         raise HTTPException(status_code=404, detail="Contact not found")
     return await get_contact_timeline(
         db,
+        actor_id=current_user.id,
         workspace_id=workspace_id,
         contact_id=contact_id,
         channel_account_id=channel_account_id,

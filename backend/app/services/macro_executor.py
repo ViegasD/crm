@@ -38,6 +38,7 @@ from app.services.conversation_service import (
     transfer_conversation,
     update_conversation,
 )
+from app.core.conversation_access import require_workspace_user
 from app.services.message_service import send_agent_message
 
 logger = logging.getLogger(__name__)
@@ -59,7 +60,7 @@ async def run_macro(
     actor: User,
 ) -> MacroExecutionResult:
     result = MacroExecutionResult()
-    conv = await get_conversation_or_404(db, workspace_id, conversation_id)
+    conv = await get_conversation_or_404(db, workspace_id, conversation_id, actor.id)
 
     for action in macro.actions:
         try:
@@ -176,6 +177,7 @@ async def _run_action(
         await update_conversation(db, workspace_id, conv.id, update, actor.id)
     elif action_type == MacroActionType.add_participant:
         user_id = UUID(params["user_id"])
+        await require_workspace_user(db, workspace_id, user_id)
         existing = await db.execute(
             select(ConversationParticipant).where(
                 ConversationParticipant.workspace_id == workspace_id,

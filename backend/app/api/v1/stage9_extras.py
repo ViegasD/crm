@@ -4,10 +4,11 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from sqlalchemy import select
+from sqlalchemy import String, cast, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
+from app.core.conversation_access import conversation_access_clause
 from app.core.dependencies import require_roles, require_workspace_member
 from app.core.encryption import encrypt_payload
 from app.core.request_meta import client_ip, user_agent
@@ -287,9 +288,13 @@ async def list_notifications(
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=100),
 ):
+    reference = NotificationDelivery.payload["conversation_id"].astext
+    visible = select(cast(Conversation.id, String)).where(conversation_access_clause(workspace_id, current_user.id))
+    allowed = or_(reference.is_(None), reference.in_(visible))
     q = select(NotificationDelivery).where(
         NotificationDelivery.workspace_id == workspace_id,
         NotificationDelivery.user_id == current_user.id,
+            allowed,
     )
     if unread is True:
         q = q.where(NotificationDelivery.read_at.is_(None))
@@ -299,6 +304,7 @@ async def list_notifications(
         select(NotificationDelivery).where(
             NotificationDelivery.workspace_id == workspace_id,
             NotificationDelivery.user_id == current_user.id,
+            allowed,
             NotificationDelivery.read_at.is_(None),
         )
     )
@@ -407,7 +413,7 @@ async def list_csat(
 ):
     from app.models.stage9_extras import CsatSurvey
 
-    q = select(CsatSurvey).where(CsatSurvey.workspace_id == workspace_id)
+    q = select(CsatSurvey).where(CsatSurvey.workspace_id == workspace_id, CsatSurvey.conversation_id.in_(select(Conversation.id).where(conversation_access_clause(workspace_id, current_user.id))))
     if only_responded:
         q = q.where(CsatSurvey.score.is_not(None))
     q = q.order_by(CsatSurvey.sent_at.desc()).offset((page - 1) * page_size).limit(page_size)
@@ -443,5 +449,5 @@ async def heatmap(
     db: Annotated[AsyncSession, Depends(get_db)],
     days: int = Query(7, ge=1, le=90),
 ):
-    data = await build_heatmap(db, workspace_id, days=days)
+    data = await build_heatmap(db, workspace_id, current_user.id, days=days)
     return HeatmapOut(days=data["days"], cells=data["cells"])

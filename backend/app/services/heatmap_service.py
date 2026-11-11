@@ -12,11 +12,13 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.conversation_access import conversation_access_clause
+from app.models.conversation import Conversation
 from app.models.sla import ConversationAssignment
 from app.models.workspace import User
 
 
-async def build_heatmap(db: AsyncSession, workspace_id: UUID, days: int = 7) -> dict:
+async def build_heatmap(db: AsyncSession, workspace_id: UUID, actor_id: UUID, days: int = 7) -> dict:
     since = datetime.now(timezone.utc) - timedelta(days=days)
     rows = (
         await db.execute(
@@ -24,6 +26,7 @@ async def build_heatmap(db: AsyncSession, workspace_id: UUID, days: int = 7) -> 
             .join(User, User.id == ConversationAssignment.user_id)
             .where(
                 ConversationAssignment.workspace_id == workspace_id,
+                ConversationAssignment.conversation_id.in_(select(Conversation.id).where(conversation_access_clause(workspace_id, actor_id))),
                 ConversationAssignment.assigned_at >= since,
             )
         )

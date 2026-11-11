@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user
+from app.core.dependencies import require_workspace_member
 from app.models.flow import Flow, FlowExecution
 from app.models.workspace import User
 from app.schemas.flow import FlowCreate, FlowExecutionOut, FlowOut, FlowUpdate
@@ -18,7 +18,7 @@ router = APIRouter(prefix="/workspaces/{workspace_id}/flows", tags=["flows"])
 async def create_flow(
     workspace_id: UUID,
     body: FlowCreate,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     flow = Flow(
@@ -37,7 +37,7 @@ async def create_flow(
 @router.get("", response_model=list[FlowOut])
 async def list_flows(
     workspace_id: UUID,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     result = await db.execute(select(Flow).where(Flow.workspace_id == workspace_id))
@@ -48,7 +48,7 @@ async def list_flows(
 async def get_flow(
     workspace_id: UUID,
     flow_id: UUID,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     flow = await db.get(Flow, flow_id)
@@ -62,7 +62,7 @@ async def update_flow(
     workspace_id: UUID,
     flow_id: UUID,
     body: FlowUpdate,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     flow = await db.get(Flow, flow_id)
@@ -80,7 +80,7 @@ async def update_flow(
 async def delete_flow(
     workspace_id: UUID,
     flow_id: UUID,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     flow = await db.get(Flow, flow_id)
@@ -93,7 +93,7 @@ async def delete_flow(
 async def activate_flow(
     workspace_id: UUID,
     flow_id: UUID,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     flow = await db.get(Flow, flow_id)
@@ -107,7 +107,7 @@ async def activate_flow(
 async def deactivate_flow(
     workspace_id: UUID,
     flow_id: UUID,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     flow = await db.get(Flow, flow_id)

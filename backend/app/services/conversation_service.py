@@ -5,6 +5,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.conversation_access import conversation_access_clause, require_conversation
 from app.models.catalog import ConversationSnooze, MentionInbox
 from app.models.contact import Contact, ContactPhone
 from app.models.conversation import Conversation, ConversationEvent, ConversationLabel, Message
@@ -13,12 +14,9 @@ from app.schemas.conversation import ConversationListFilters, ConversationTransf
 
 
 async def get_conversation_or_404(
-    db: AsyncSession, workspace_id: UUID, conversation_id: UUID
+    db: AsyncSession, workspace_id: UUID, conversation_id: UUID, actor_id: UUID
 ) -> Conversation:
-    conv = await db.get(Conversation, conversation_id)
-    if not conv or conv.workspace_id != workspace_id:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
-    return conv
+    return await require_conversation(db, workspace_id, conversation_id, actor_id)
 
 
 async def list_conversations(
@@ -99,20 +97,9 @@ async def list_conversations(
             )
         )
 
-    # Hide private conversations unless assignee/participant
-    if current_user is not None:
-        from app.models.conversation import ConversationParticipant
-
-        q = q.where(
-            (Conversation.is_private.is_(False))
-            | (Conversation.assignee_id == current_user.id)
-            | Conversation.id.in_(
-                select(ConversationParticipant.conversation_id).where(
-                    ConversationParticipant.workspace_id == workspace_id,
-                    ConversationParticipant.user_id == current_user.id,
-                )
-            )
-        )
+    if current_user is None:
+        raise HTTPException(status_code=403, detail="Access denied")
+    q = q.where(conversation_access_clause(workspace_id, current_user.id))
 
     count_q = select(func.count()).select_from(q.subquery())
     total = (await db.execute(count_q)).scalar_one()
@@ -130,7 +117,7 @@ async def update_conversation(
     body: ConversationUpdate,
     actor_id: UUID,
 ) -> Conversation:
-    conv = await get_conversation_or_404(db, workspace_id, conversation_id)
+    conv = await get_conversation_or_404(db, workspace_id, conversation_id, actor_id)
 
     if "assignee_id" in body.model_fields_set:
         old_assignee = conv.assignee_id
@@ -228,7 +215,7 @@ async def transfer_conversation(
     body: ConversationTransfer,
     actor_id: UUID,
 ) -> Conversation:
-    conv = await get_conversation_or_404(db, workspace_id, conversation_id)
+    conv = await get_conversation_or_404(db, workspace_id, conversation_id, actor_id)
     old_assignee = conv.assignee_id
     old_sector = conv.sector_id
 

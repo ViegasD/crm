@@ -6,6 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.core.database import get_db
+from app.websocket.manager import manager
+from app.core.conversation_access import require_conversations, require_workspace_user
 from app.core.dependencies import require_workspace_member
 from app.core.request_meta import client_ip, user_agent
 from app.models.catalog import ConversationSnooze, ConversationView, TransferReason
@@ -187,6 +189,146 @@ async def list_convs(
     }
 
 
+@router.post("/bulk/label", status_code=204)
+async def bulk_label(
+    workspace_id: UUID,
+    body: ConversationBulkLabel,
+    current_user: Annotated[User, Depends(require_workspace_member)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    await require_conversations(db, workspace_id, body.conversation_ids, current_user.id)
+    label = await db.get(Label, body.label_id)
+    if not label or label.workspace_id != workspace_id:
+        raise HTTPException(status_code=404, detail="Label not found")
+    for conv_id in body.conversation_ids:
+        conv = await db.get(Conversation, conv_id)
+        if not conv or conv.workspace_id != workspace_id:
+            continue
+        existing = await db.execute(
+            select(ConversationLabel).where(
+                ConversationLabel.workspace_id == workspace_id,
+                ConversationLabel.conversation_id == conv_id,
+                ConversationLabel.label_id == body.label_id,
+            )
+        )
+        if existing.scalar_one_or_none():
+            continue
+        db.add(
+            ConversationLabel(
+                workspace_id=workspace_id,
+                conversation_id=conv_id,
+                label_id=body.label_id,
+                assigned_by=current_user.id,
+            )
+        )
+        db.add(
+            ConversationEvent(
+                workspace_id=workspace_id,
+                conversation_id=conv_id,
+                type=ConvEventType.label_added,
+                actor_id=current_user.id,
+                actor_type="agent",
+                payload={"label_id": str(body.label_id), "label_name": label.name},
+            )
+        )
+
+
+@router.post("/bulk/transfer", status_code=204)
+async def bulk_transfer(
+    workspace_id: UUID,
+    body: ConversationBulkTransfer,
+    current_user: Annotated[User, Depends(require_workspace_member)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    await require_conversations(db, workspace_id, body.conversation_ids, current_user.id)
+    if body.assignee_id is None and body.sector_id is None:
+        raise HTTPException(status_code=400, detail="Either assignee_id or sector_id is required")
+    transfer = ConversationTransfer(
+        assignee_id=body.assignee_id, sector_id=body.sector_id, note=body.note
+    )
+    for conv_id in body.conversation_ids:
+        try:
+            await transfer_conversation(db, workspace_id, conv_id, transfer, current_user.id)
+        except HTTPException:
+            continue
+
+
+@router.post("/bulk/status", status_code=204)
+async def bulk_status(
+    workspace_id: UUID,
+    body: ConversationBulkStatus,
+    current_user: Annotated[User, Depends(require_workspace_member)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    await require_conversations(db, workspace_id, body.conversation_ids, current_user.id)
+    update = ConversationUpdate(
+        status=body.status,
+        service_reason_id=body.service_reason_id,
+        resolve_note=body.resolve_note,
+    )
+    for conv_id in body.conversation_ids:
+        try:
+            await update_conversation(db, workspace_id, conv_id, update, current_user.id)
+        except HTTPException:
+            continue
+
+
+@router.post("/bulk/assign", status_code=204)
+async def bulk_assign(
+    workspace_id: UUID,
+    body: ConversationBulkAssign,
+    current_user: Annotated[User, Depends(require_workspace_member)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    await require_conversations(db, workspace_id, body.conversation_ids, current_user.id)
+    update = ConversationUpdate(assignee_id=body.assignee_id)
+    for conv_id in body.conversation_ids:
+        try:
+            await update_conversation(db, workspace_id, conv_id, update, current_user.id)
+        except HTTPException:
+            continue
+
+
+@router.post("/bulk/add-participant", status_code=204)
+async def bulk_add_participant(
+    workspace_id: UUID,
+    body: ConversationBulkAddParticipant,
+    current_user: Annotated[User, Depends(require_workspace_member)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    await require_conversations(db, workspace_id, body.conversation_ids, current_user.id)
+    await require_workspace_user(db, workspace_id, body.user_id)
+    for conv_id in body.conversation_ids:
+        conv = await db.get(Conversation, conv_id)
+        if not conv or conv.workspace_id != workspace_id:
+            continue
+        existing = await db.execute(
+            select(ConversationParticipant).where(
+                ConversationParticipant.workspace_id == workspace_id,
+                ConversationParticipant.conversation_id == conv_id,
+                ConversationParticipant.user_id == body.user_id,
+            )
+        )
+        if existing.scalar_one_or_none():
+            continue
+        db.add(
+            ConversationParticipant(
+                workspace_id=workspace_id, conversation_id=conv_id, user_id=body.user_id
+            )
+        )
+        db.add(
+            ConversationEvent(
+                workspace_id=workspace_id,
+                conversation_id=conv_id,
+                type=ConvEventType.participant_added,
+                actor_id=current_user.id,
+                actor_type="agent",
+                payload={"user_id": str(body.user_id), "via": "bulk"},
+            )
+        )
+
+
+
 @router.get("/{conversation_id}", response_model=ConversationOut)
 async def get_conv(
     workspace_id: UUID,
@@ -194,7 +336,7 @@ async def get_conv(
     current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    conv = await get_conversation_or_404(db, workspace_id, conversation_id)
+    conv = await get_conversation_or_404(db, workspace_id, conversation_id, current_user.id)
     return await _conversation_out(db, conv)
 
 
@@ -206,8 +348,9 @@ async def update_conv(
     current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    conv = await update_conversation(db, workspace_id, conversation_id, body, current_user.id)
-    await _broadcast_update(workspace_id, conv)
+    async with manager.committed_events(db):
+        conv = await update_conversation(db, workspace_id, conversation_id, body, current_user.id)
+        await _broadcast_update(workspace_id, conv)
     return await _conversation_out(db, conv)
 
 
@@ -236,8 +379,9 @@ async def transfer_conv(
         if not reason or reason.workspace_id != workspace_id or not reason.active:
             raise HTTPException(status_code=400, detail="Invalid transfer reason")
 
-    conv = await transfer_conversation(db, workspace_id, conversation_id, body, current_user.id)
-    await _broadcast_update(workspace_id, conv)
+    async with manager.committed_events(db):
+        conv = await transfer_conversation(db, workspace_id, conversation_id, body, current_user.id)
+        await _broadcast_update(workspace_id, conv)
     await log_security_event(
         action="conversation_transferred",
         workspace_id=workspace_id,
@@ -262,7 +406,7 @@ async def list_events(
     current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    await get_conversation_or_404(db, workspace_id, conversation_id)
+    await get_conversation_or_404(db, workspace_id, conversation_id, current_user.id)
     result = await db.execute(
         select(ConversationEvent, User)
         .outerjoin(User, User.id == ConversationEvent.actor_id)
@@ -289,7 +433,7 @@ async def list_participants(
     current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    await get_conversation_or_404(db, workspace_id, conversation_id)
+    await get_conversation_or_404(db, workspace_id, conversation_id, current_user.id)
     result = await db.execute(
         select(ConversationParticipant, User)
         .join(User, User.id == ConversationParticipant.user_id)
@@ -318,7 +462,8 @@ async def add_participant(
     current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    await get_conversation_or_404(db, workspace_id, conversation_id)
+    await get_conversation_or_404(db, workspace_id, conversation_id, current_user.id)
+    await require_workspace_user(db, workspace_id, body.user_id)
     result = await db.execute(
         select(ConversationParticipant).where(
             ConversationParticipant.workspace_id == workspace_id,
@@ -367,7 +512,7 @@ async def remove_participant(
     current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    await get_conversation_or_404(db, workspace_id, conversation_id)
+    await get_conversation_or_404(db, workspace_id, conversation_id, current_user.id)
     result = await db.execute(
         select(ConversationParticipant).where(
             ConversationParticipant.workspace_id == workspace_id,
@@ -392,137 +537,6 @@ async def remove_participant(
 
 # ── Bulk actions ─────────────────────────────────────────────────────────────
 
-@router.post("/bulk/label", status_code=204)
-async def bulk_label(
-    workspace_id: UUID,
-    body: ConversationBulkLabel,
-    current_user: Annotated[User, Depends(require_workspace_member)],
-    db: Annotated[AsyncSession, Depends(get_db)],
-):
-    label = await db.get(Label, body.label_id)
-    if not label or label.workspace_id != workspace_id:
-        raise HTTPException(status_code=404, detail="Label not found")
-    for conv_id in body.conversation_ids:
-        conv = await db.get(Conversation, conv_id)
-        if not conv or conv.workspace_id != workspace_id:
-            continue
-        existing = await db.execute(
-            select(ConversationLabel).where(
-                ConversationLabel.workspace_id == workspace_id,
-                ConversationLabel.conversation_id == conv_id,
-                ConversationLabel.label_id == body.label_id,
-            )
-        )
-        if existing.scalar_one_or_none():
-            continue
-        db.add(
-            ConversationLabel(
-                workspace_id=workspace_id,
-                conversation_id=conv_id,
-                label_id=body.label_id,
-                assigned_by=current_user.id,
-            )
-        )
-        db.add(
-            ConversationEvent(
-                workspace_id=workspace_id,
-                conversation_id=conv_id,
-                type=ConvEventType.label_added,
-                actor_id=current_user.id,
-                actor_type="agent",
-                payload={"label_id": str(body.label_id), "label_name": label.name},
-            )
-        )
-
-
-@router.post("/bulk/transfer", status_code=204)
-async def bulk_transfer(
-    workspace_id: UUID,
-    body: ConversationBulkTransfer,
-    current_user: Annotated[User, Depends(require_workspace_member)],
-    db: Annotated[AsyncSession, Depends(get_db)],
-):
-    if body.assignee_id is None and body.sector_id is None:
-        raise HTTPException(status_code=400, detail="Either assignee_id or sector_id is required")
-    transfer = ConversationTransfer(
-        assignee_id=body.assignee_id, sector_id=body.sector_id, note=body.note
-    )
-    for conv_id in body.conversation_ids:
-        try:
-            await transfer_conversation(db, workspace_id, conv_id, transfer, current_user.id)
-        except HTTPException:
-            continue
-
-
-@router.post("/bulk/status", status_code=204)
-async def bulk_status(
-    workspace_id: UUID,
-    body: ConversationBulkStatus,
-    current_user: Annotated[User, Depends(require_workspace_member)],
-    db: Annotated[AsyncSession, Depends(get_db)],
-):
-    update = ConversationUpdate(
-        status=body.status,
-        service_reason_id=body.service_reason_id,
-        resolve_note=body.resolve_note,
-    )
-    for conv_id in body.conversation_ids:
-        try:
-            await update_conversation(db, workspace_id, conv_id, update, current_user.id)
-        except HTTPException:
-            continue
-
-
-@router.post("/bulk/assign", status_code=204)
-async def bulk_assign(
-    workspace_id: UUID,
-    body: ConversationBulkAssign,
-    current_user: Annotated[User, Depends(require_workspace_member)],
-    db: Annotated[AsyncSession, Depends(get_db)],
-):
-    update = ConversationUpdate(assignee_id=body.assignee_id)
-    for conv_id in body.conversation_ids:
-        try:
-            await update_conversation(db, workspace_id, conv_id, update, current_user.id)
-        except HTTPException:
-            continue
-
-
-@router.post("/bulk/add-participant", status_code=204)
-async def bulk_add_participant(
-    workspace_id: UUID,
-    body: ConversationBulkAddParticipant,
-    current_user: Annotated[User, Depends(require_workspace_member)],
-    db: Annotated[AsyncSession, Depends(get_db)],
-):
-    for conv_id in body.conversation_ids:
-        conv = await db.get(Conversation, conv_id)
-        if not conv or conv.workspace_id != workspace_id:
-            continue
-        existing = await db.execute(
-            select(ConversationParticipant).where(
-                ConversationParticipant.workspace_id == workspace_id,
-                ConversationParticipant.conversation_id == conv_id,
-                ConversationParticipant.user_id == body.user_id,
-            )
-        )
-        if existing.scalar_one_or_none():
-            continue
-        db.add(
-            ConversationParticipant(
-                workspace_id=workspace_id, conversation_id=conv_id, user_id=body.user_id
-            )
-        )
-        db.add(
-            ConversationEvent(
-                workspace_id=workspace_id,
-                conversation_id=conv_id,
-                type=ConvEventType.participant_added,
-                actor_id=current_user.id,
-                actor_type="agent",
-                payload={"user_id": str(body.user_id), "via": "bulk"},
-            )
-        )
 
 
 async def _broadcast_update(workspace_id: UUID, conv) -> None:

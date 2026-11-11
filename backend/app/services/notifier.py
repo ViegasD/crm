@@ -102,6 +102,7 @@ async def dispatch(
                         "event_type": event_type,
                         "title": title,
                         "user_id": str(user_id),
+                        "conversation_id": payload.get("conversation_id"),
                     },
                 )
 
@@ -123,6 +124,7 @@ async def _deliver(
                     "event_type": delivery.event_type,
                     "title": delivery.title,
                     "channel_id": str(channel.id),
+                    "conversation_id": payload.get("conversation_id"),
                 },
             )
             return True, None

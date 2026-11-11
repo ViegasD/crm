@@ -7,6 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
+from app.core.conversation_access import require_conversation
 from app.core.dependencies import require_workspace_member
 from app.core.request_meta import client_ip, user_agent
 from app.models.catalog import LabelCategory
@@ -208,7 +209,7 @@ async def assign_label(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     label = await db.get(Label, label_id)
-    conv = await db.get(Conversation, body.conversation_id)
+    conv = await require_conversation(db, workspace_id, body.conversation_id, current_user.id)
     if not label or label.workspace_id != workspace_id:
         raise HTTPException(status_code=404, detail="Label not found")
     if not conv or conv.workspace_id != workspace_id:
@@ -251,7 +252,7 @@ async def unassign_label(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     label = await db.get(Label, label_id)
-    conv = await db.get(Conversation, conversation_id)
+    conv = await require_conversation(db, workspace_id, conversation_id, current_user.id)
     if not label or label.workspace_id != workspace_id:
         raise HTTPException(status_code=404, detail="Label not found")
     if not conv or conv.workspace_id != workspace_id:

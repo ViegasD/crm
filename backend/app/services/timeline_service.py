@@ -241,6 +241,7 @@ async def resolve_inbound_conversation(
 async def get_contact_timeline(
     db: AsyncSession,
     *,
+    actor_id: UUID,
     workspace_id: UUID,
     contact_id: UUID,
     channel_account_id: UUID | None = None,
@@ -275,8 +276,10 @@ async def get_contact_timeline(
           ]
         }
     """
+    from app.core.conversation_access import conversation_access_clause
+
     q = select(Conversation).where(
-        Conversation.workspace_id == workspace_id,
+        conversation_access_clause(workspace_id, actor_id),
         Conversation.contact_id == contact_id,
     )
     if channel_account_id:

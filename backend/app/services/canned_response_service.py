@@ -17,6 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.contact import Contact, ContactEmail, ContactPhone
 from app.models.conversation import Conversation
 from app.models.workspace import User
+from app.core.conversation_access import require_conversation
 
 _PLACEHOLDER = re.compile(r"\{\{\s*([a-zA-Z0-9_.]+)\s*\}\}")
 _CONDITIONAL = re.compile(
@@ -51,9 +52,11 @@ async def build_render_context(
         ctx["agent.first_name"] = agent.name.split()[0] if agent.name else ""
     if not conversation_id:
         return ctx
-    conv = await db.get(Conversation, conversation_id)
-    if not conv or conv.workspace_id != workspace_id:
+    # Rendering is also a read of conversation/contact/assignee context.
+    # The ID arrives in a body, so the URL dependency cannot authorize it.
+    if agent is None:
         return ctx
+    conv = await require_conversation(db, workspace_id, conversation_id, agent.id)
     ctx["conversation.id"] = str(conv.id)
     ctx["conversation.protocol"] = str(conv.id)[:8].upper()
     ctx["conversation.status"] = conv.status.value if hasattr(conv.status, "value") else str(conv.status)

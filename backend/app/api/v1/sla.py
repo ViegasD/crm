@@ -6,6 +6,7 @@ from sqlalchemy import delete as sa_delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
+from app.core.conversation_access import conversation_access_clause, require_conversation
 from app.core.dependencies import require_workspace_member
 from app.models.conversation import Conversation
 from app.models.sla import (
@@ -379,7 +380,7 @@ async def assign_next(
     current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    conv = await db.get(Conversation, body.conversation_id)
+    conv = await require_conversation(db, workspace_id, body.conversation_id, current_user.id)
     if not conv or conv.workspace_id != workspace_id:
         raise HTTPException(status_code=404, detail="Conversation not found")
     if body.sector_id:
@@ -415,7 +416,10 @@ async def list_sla_events(
     db: Annotated[AsyncSession, Depends(get_db)],
     conversation_id: UUID | None = None,
 ):
-    q = select(SlaEvent).where(SlaEvent.workspace_id == workspace_id)
+    q = select(SlaEvent).where(
+        SlaEvent.workspace_id == workspace_id,
+        SlaEvent.conversation_id.in_(select(Conversation.id).where(conversation_access_clause(workspace_id, current_user.id))),
+    )
     if conversation_id:
         q = q.where(SlaEvent.conversation_id == conversation_id)
     result = await db.execute(q.order_by(SlaEvent.created_at.desc()).limit(200))
@@ -428,7 +432,7 @@ async def get_supervisor_overview(
     current_user: Annotated[User, Depends(require_workspace_member)],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    return await supervisor_overview(db, workspace_id)
+    return await supervisor_overview(db, workspace_id, current_user.id)
 
 
 # ── Pause reason update/delete (POST/GET already exist) ─────────────────────
