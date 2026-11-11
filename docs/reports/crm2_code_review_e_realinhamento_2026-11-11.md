@@ -1,5 +1,7 @@
 # CRM2 — code review do PR #1 e plano de realinhamento
 
+> Este relatório registra a revisão da frente comercial e o primeiro realinhamento do ClickUp. O [escopo vigente](../../SCOPE.md) inclui também entregas de marketing e projetos de e-commerce. Os códigos das tabelas de tarefas abaixo são históricos. Para atribuição e aceite, consulte os títulos e descrições atuais na pasta CRM2 do ClickUp.
+
 Data: 11/11/2026. Revisão auditada: `f6a9a22ab79cf1b8cff9b4bb1c35ed516d8b13ff`, head do [PR #1](https://github.com/ViegasD/crm/pull/1), contra `main` em `ca2616d51487d85f16b5ba21ba8b281e59246e17`.
 
 A revisão foi feita sobre o objeto Git publicado, com leitura estática da árvore e do diff.
@@ -9,7 +11,8 @@ A revisão foi feita sobre o objeto Git publicado, com leitura estática da árv
 - **Reaproveitar:** contatos, contas de canal, conversas, mensagens, eventos/timeline, notificações internas, Redis/Celery, migrações integradas e a base de deploy/smoke.
 - **Adaptar:** papéis e onboarding, autorização de conversas privadas, WebSocket, mídia, transferência, replay/deduplicação do WhatsApp, confirmação de envio, relatórios existentes e operação/backup.
 - **Implementar para o MVP:** lead/captação, etapas, oportunidades, eventos comerciais, tarefas/lembretes, Kanban paginado e métricas comerciais reconciliáveis.
-- **Fora do MVP:** marketing, e-commerce, finanças, comissões, migração integral do legado, histórico retroativo do WhatsApp, IA, campanhas e demais canais.
+- **Outras frentes do MVP:** entregas de marketing e projetos de e-commerce, tratados no escopo geral e nas listas MVP 03 e MVP 04.
+- **Fora do recorte comercial:** finanças, comissões, migração integral do legado, histórico retroativo do WhatsApp, IA, campanhas e demais canais.
 - **Candidato à retirada:** nenhum componente adicional está comprovado como seguro para remover. O PR é amplo e há dados/migrações/consumidores suficientes para exigir evidência de runtime antes de qualquer retirada.
 
 ## Achados prioritários do code review
@@ -51,12 +54,13 @@ A revisão foi feita sobre o objeto Git publicado, com leitura estática da árv
 | Métricas comerciais | Implementar/adaptar | Página de reports e métricas de SLA existem; router comercial não existe | Eventos M2/M3, timezone e mesma seleção total/detalhe | Núcleo de M4 | Estática |
 | Migrações | Reaproveitar com validação | `202611110001_merge_local_and_qa.py`; `test_migration_upgrade.py:1-92` | PostgreSQL descartável e preservação das linhagens conhecidas | Base para M1–M3 | Estática + 11 testes históricos; não executados nesta revisão |
 | Deploy, backup e monitoramento | Adaptar | `deploy/README.md:1-47`; relatório de deployment | Ambiente aprovado, destino externo e responsáveis | Bloqueia M5 | Estática + smoke histórico; restauração ausente |
-| Marketing/e-commerce/financeiro/IA/campanhas | Fora do MVP | Diagnóstico do legado e decisão do desenho | Nenhuma para o MVP comercial | Não bloqueiam M1–M5 | Decisão de escopo |
+| Entregas de marketing e projetos de e-commerce | Frentes próprias do MVP | Escopo geral e listas MVP 03/MVP 04 | Validação dos fluxos reais e fundação compartilhada | Aceite definido por frente | Decisão de escopo |
+| Financeiro, IA e campanhas | Fora do recorte comercial | Desenho comercial | Nenhuma para M1–M5 | Não bloqueiam os cinco blocos comerciais | Decisão de escopo |
 | Retirada de código | Sem candidato comprovado | PR altera 154 arquivos e integra migrações/consumidores | Inventário de runtime/dados antes de remover | Evita regressão por “limpeza” | Lacuna de prova |
 
-## Tarefas derivadas nos cinco blocos
+## Tarefas propostas nos cinco blocos comerciais — registro histórico
 
-As tarefas abaixo reaproveitam os 30 IDs existentes. Status, responsáveis e histórico devem ser preservados; o alinhamento muda nome, descrição, aceite, dependências e janela. Não há exclusão nem comentário.
+O realinhamento inicial reaproveitou os 30 IDs existentes. O ClickUp foi corrigido posteriormente para incluir as listas de marketing e e-commerce. As associações de códigos nesta tabela registram a proposta inicial.
 
 ### M1 · Fundação, acesso e isolamento · 16–18/11
 
@@ -120,7 +124,7 @@ As tarefas abaixo reaproveitam os 30 IDs existentes. Status, responsáveis e his
 - **Não comprovado:** WhatsApp com dois números reais, replay multi-conta, autorização por objeto privado, mídia entre workspaces, worker→browser autorizado, backup automatizado, restauração, alerta e rollback.
 - **Revisão independente:** o inventário factual foi concluído. A leitura Goldfish enviou achados parciais sobre autorização, mídia, replay, confirmação e transporte. O revisor foi interrompido antes do relatório final.
 
-## Resultado aplicado no ClickUp
+## Resultado inicial aplicado no ClickUp — registro histórico
 
 Pasta CRM2 no ClickUp, conferida e atualizada pela API oficial após a conclusão da matriz e do plano acima.
 

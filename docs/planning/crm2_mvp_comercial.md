@@ -6,7 +6,7 @@
 
 ## Overview
 
-O CRM2 será entregue primeiro para a operação comercial interna da agência. Administradores configuram o acesso e o funil. Operadores cadastram leads, acompanham negócios e tarefas e atendem conversas individuais de WhatsApp. A equipe consegue conferir os indicadores a partir dos registros que os compõem. O MVP usa o workspace como unidade de isolamento e de configuração da empresa, com verificação de separação de dados desde a primeira entrega.
+Este documento detalha a frente de CRM comercial do [MVP do CRM2](../../SCOPE.md), que inclui também entregas de marketing e projetos de e-commerce. Administradores configuram o acesso e o funil. Operadores cadastram leads, acompanham negócios e tarefas e atendem conversas individuais de WhatsApp. A equipe consegue conferir os indicadores a partir dos registros que os compõem. O MVP usa o workspace como unidade de isolamento e de configuração da empresa, com verificação de separação de dados desde a primeira entrega.
 
 O plano segue os cinco blocos da proposta comercial, com estimativa de 20 dias úteis após aprovação do escopo e disponibilização dos acessos. A janela provisória é de 16/11 a 14/12/2026. A elegibilidade e a disponibilidade dos números oficiais precisam ser verificadas desde a fundação.
 
@@ -30,7 +30,7 @@ O MVP deve permitir acompanhar cada negócio desde o lead até o desfecho e cons
 
 ## Non-Goals
 
-- Financeiro completo, gestão de contratos, cobranças, integração com Asaas, projetos de marketing e e-commerce.
+- Financeiro completo, gestão de contratos, cobranças e integração com Asaas.
 - Implantação comercial em outras empresas, portal de revenda, gestão de carteira de empresas e vendedor compartilhado entre empresas. O MVP tem uma agência em produção e testa o isolamento entre workspaces.
 - Migração integral de dados e importação retroativa de conversas. Uma eventual carga inicial selecionada precisa de decisão própria.
 - Chatbots de IA, automações avançadas, campanhas em massa e grupos de WhatsApp.
@@ -227,11 +227,11 @@ O plano técnico consolidado foi aprovado nesta conversa. A preparação para em
 
 ## Alternatives Considered
 
-### Priorizar entregas de marketing e e-commerce
+### Priorizar somente entregas de marketing e e-commerce
 
 - **Benefício.** Reaproveitaria a organização do backlog descrita no handoff.
 - **Limite.** Colocaria em segundo plano o funil, o atendimento comercial e a conferência dos números de vendas.
-- **Decisão.** O autor escolheu o MVP comercial da proposta. O backlog vigente será conferido no ClickUp antes do realinhamento.
+- **Escopo confirmado.** A frente comercial convive com as duas frentes de entrega no MVP. A ordem de execução e as dependências entre elas ficam no ClickUp.
 
 ### Reconstruir o CRM do zero
 
@@ -428,7 +428,7 @@ Em cada bloco que muda a aplicação web, executar em `frontend/` `npm run type-
 
 ### Realinhamento no ClickUp
 
-A revisão do código publicado precedeu o realinhamento do ClickUp. O [relatório da revisão e realinhamento](../reports/crm2_code_review_e_realinhamento_2026-11-11.md) registra a matriz, a ordem dos cinco blocos e o resultado aplicado. Consulte a pasta CRM2 no ClickUp para o andamento atual.
+A revisão do código publicado precedeu o realinhamento do ClickUp. O [relatório da revisão e realinhamento](../reports/crm2_code_review_e_realinhamento_2026-11-11.md) preserva a matriz da revisão comercial e o retrato da atualização inicial. A pasta CRM2 no ClickUp contém a fila vigente das três frentes.
 
 **Evidência da base consultada.** Branch `codex/delivery-first-integration`, revisão `f6a9a22`. Referências na árvore consultada: `docs/reports/DEPLOYMENT_DEVELOPMENT_2026-11-11.md`, `deploy/README.md`, `backend/tests/test_migration_upgrade.py` e `docs/planning/clickup/CLICKUP_REWORK_RESULT_2026-11-11.json`. O documento é um plano. Os testes novos e a homologação descritos acima ainda não foram executados.
 

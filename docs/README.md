@@ -1,6 +1,6 @@
 # Documentacao
 
-Comece por [Como retomar o CRM2](context/CONTINUIDADE_CRM2.md), a partir do [README do projeto](../README.md). O [desenho comercial](planning/crm2_mvp_comercial.md) define o escopo vigente.
+Comece por [Como retomar o CRM2](context/CONTINUIDADE_CRM2.md). O [escopo do MVP](../SCOPE.md) reúne CRM comercial, entregas de marketing e projetos de e-commerce. O [desenho comercial](planning/crm2_mvp_comercial.md) detalha a frente comercial.
 
 Instancia compartilhada: [relatorio de deploy, acesso e validacao](reports/DEPLOYMENT_DEVELOPMENT_2026-11-11.md); [runbook EasyPanel](../deploy/README.md).
 

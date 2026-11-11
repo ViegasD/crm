@@ -1,6 +1,6 @@
 # CRM2
 
-Comece por [Como retomar o CRM2](docs/context/CONTINUIDADE_CRM2.md). Esse documento aponta para o desenho vigente, a revisão da base e a fila de trabalho. As referências datadas de marketing e e-commerce servem como histórico.
+Comece por [Como retomar o CRM2](docs/context/CONTINUIDADE_CRM2.md). O [escopo do MVP](SCOPE.md) inclui CRM comercial, entregas de marketing e projetos de e-commerce. Consulte o ClickUp para o trabalho vigente de cada frente.
 
 ## Revisores Goldfish do EGM
 
