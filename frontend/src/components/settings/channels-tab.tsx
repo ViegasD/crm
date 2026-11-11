@@ -109,8 +109,11 @@ function CreateChannelModal({ open, onClose, workspaceId, onCreated }: {
   const [metaPhoneId, setMetaPhoneId] = useState("");
   const [metaWabaId, setMetaWabaId] = useState("");
 
+  const isEvolution = provider === "evolution_baileys" || provider === "evolution_cloud";
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!workspaceId) { setError("Workspace not loaded yet, please wait"); return; }
     if (!name) { setError("Name required"); return; }
     setLoading(true);
     try {
@@ -118,13 +121,13 @@ function CreateChannelModal({ open, onClose, workspaceId, onCreated }: {
         display_name: name,
         channel_type: channelType,
         provider,
-        phone_number_id: provider === "meta_cloud" ? metaPhoneId : undefined,
-        waba_id: provider === "meta_cloud" ? metaWabaId : undefined,
-        external_account_id: provider.startsWith("evolution") ? evoInstance : undefined,
+        external_account_id: isEvolution ? evoInstance : undefined,
+        phone_number_id: !isEvolution ? metaPhoneId : undefined,
+        waba_id: !isEvolution ? metaWabaId : undefined,
       });
       const ch = r.data as ChannelAccount;
       // Upsert credentials
-      const creds = provider.startsWith("evolution")
+      const creds = isEvolution
         ? {
             evolution_base_url: evoUrl,
             evolution_api_key: evoKey,
@@ -132,7 +135,7 @@ function CreateChannelModal({ open, onClose, workspaceId, onCreated }: {
             webhook_secret: evoWebhookSecret,
           }
         : { access_token: metaToken, app_secret: metaAppSecret };
-      await channelsApi.upsertCredential(workspaceId, ch.id, provider.startsWith("evolution") ? "evolution" : "meta_cloud", creds);
+      await channelsApi.upsertCredential(workspaceId, ch.id, isEvolution ? "evolution" : "meta_cloud", creds);
       onCreated(ch);
       onClose();
       setName(""); setEvoUrl(""); setEvoKey(""); setEvoInstance(""); setEvoWebhookSecret("");
@@ -161,14 +164,14 @@ function CreateChannelModal({ open, onClose, workspaceId, onCreated }: {
           <div className="flex flex-col gap-1.5">
             <Label>Provider</Label>
             <Select value={provider} onChange={(e) => setProvider(e.target.value)}>
-              <option value="evolution_baileys">Evolution API - Baileys</option>
-              <option value="evolution_cloud">Evolution API - Cloud</option>
+              <option value="evolution_baileys">Evolution API (Baileys)</option>
+              <option value="evolution_cloud">Evolution API (Cloud)</option>
               <option value="meta_cloud">Meta Cloud API</option>
             </Select>
           </div>
         </div>
 
-        {provider.startsWith("evolution") && (
+        {isEvolution && (
           <>
             <div className="flex flex-col gap-1.5">
               <Label>Evolution URL</Label>

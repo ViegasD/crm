@@ -1,6 +1,8 @@
 # API Endpoint Map
 
-Base URL: `http://localhost:8000`  
+> Partial historical endpoint map, relocated on 2026-11-11. The integrated application also includes Stage 3/4/9 routes absent from this list. Use the running backend's `/docs` or `/openapi.json` for its current contract. See [repository structure](STRUCTURE.md) and [current implementation status](../../ESCOPO_STATUS_CRM2.md).
+
+Base URL: `http://localhost:8001`  
 All REST routes are prefixed with `/api/v1`.  
 All routes marked 🔒 require `Authorization: Bearer <access_token>`.
 

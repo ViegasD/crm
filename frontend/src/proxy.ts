@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const PROTECTED = ["/inbox", "/contacts", "/flows", "/settings", "/reports"];
+const PROTECTED = ["/inbox", "/contacts", "/flows", "/settings", "/reports", "/mentions", "/supervisor"];
 const PUBLIC = ["/login", "/register"];
 
 export function proxy(request: NextRequest) {
@@ -30,5 +30,15 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/inbox/:path*", "/contacts/:path*", "/flows/:path*", "/settings/:path*", "/reports/:path*", "/login", "/register"],
+  matcher: [
+    "/inbox/:path*",
+    "/contacts/:path*",
+    "/flows/:path*",
+    "/settings/:path*",
+    "/reports/:path*",
+    "/mentions/:path*",
+    "/supervisor/:path*",
+    "/login",
+    "/register",
+  ],
 };

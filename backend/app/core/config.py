@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     debug: bool = False
     access_token_expire_minutes: int = 60 * 24  # 24h
     refresh_token_expire_days: int = 30
+    cors_allowed_origins: str = "http://localhost:3000,http://127.0.0.1:3000,http://26.55.176.3:3000"
 
     # Database
     database_url: str = "postgresql+asyncpg://crm:crm@localhost:5432/crm"
@@ -19,6 +20,7 @@ class Settings(BaseSettings):
 
     # MinIO
     minio_endpoint: str = "localhost:9000"
+    minio_public_endpoint: str | None = None
     minio_access_key: str = "minioadmin"
     minio_secret_key: str = "minioadmin"
     minio_use_ssl: bool = False

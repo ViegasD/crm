@@ -44,9 +44,13 @@ async def record_webhook_event(
                 workspace_id=workspace_id,
                 channel_account_id=channel_account_id,
                 provider=provider,
+                raw_payload=payload,
                 signature_hash=_hash_signature(signature),
-                headers={k: v for k, v in headers.items() if k.lower() != "authorization"},
-                payload=payload,
+                headers={
+                    str(key).lower(): value
+                    for key, value in headers.items()
+                    if str(key).lower() in {"content-type", "user-agent"}
+                },
                 status=WebhookEventStatus.received,
             )
             db.add(event)
@@ -70,7 +74,6 @@ async def mark_event_status(
             if not event:
                 return
             event.status = status
-            event.attempts += 1
             event.error_message = error_message
             if status in (
                 WebhookEventStatus.processed,
@@ -90,13 +93,5 @@ async def find_replayable(
     db: AsyncSession, provider: str, signature: str
 ) -> WebhookEvent | None:
     """Return a previous processed event for the same provider/signature."""
-    sig_hash = _hash_signature(signature)
-    if not sig_hash:
-        return None
-    result = await db.execute(
-        select(WebhookEvent).where(
-            WebhookEvent.provider == provider,
-            WebhookEvent.signature_hash == sig_hash,
-        )
-    )
-    return result.scalar_one_or_none()
+    _hash_signature(signature)
+    return None

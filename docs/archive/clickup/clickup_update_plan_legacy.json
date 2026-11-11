@@ -1,0 +1,52 @@
+{
+  "updates": [
+    {
+      "listId": "901327298400",
+      "taskName": "Tabela webhook_events - ingestão durável",
+      "status": "Closed",
+      "comment": "Implemented durable webhook_events persistence, replay worker support, and validated local migration state."
+    },
+    {
+      "listId": "901327298403",
+      "taskName": "Mensagens pré-escritas (canned responses)",
+      "status": "Closed",
+      "comment": "Added canned_responses API and migration, and validated the local table exists after Alembic upgrade."
+    },
+    {
+      "listId": "901327298400",
+      "taskName": "Inbox WebSocket - entrega em tempo real",
+      "status": "Closed",
+      "comment": "Confirmed backend ws route, per-workspace room manager, frontend websocket client, and message broadcasts on local validated endpoints."
+    },
+    {
+      "listId": "901327298400",
+      "taskName": "NormalizedEvent + abstração de provider",
+      "status": "Closed",
+      "comment": "Confirmed shared NormalizedEvent abstraction and provider parsing flow wired through inbound message handling and webhook replay."
+    },
+    {
+      "listId": "901327298400",
+      "taskName": "WhatsApp - MetaCloudAdapter",
+      "status": "Closed",
+      "comment": "Adapter class implemented with capabilities, send_text, send_media, mark_as_read, signature verification, and webhook parsing."
+    },
+    {
+      "listId": "901327298400",
+      "taskName": "WhatsApp - EvolutionBaileysAdapter",
+      "status": "Closed",
+      "comment": "Evolution adapter implemented with baileys mode capabilities, webhook parsing, signature verification, and send primitives."
+    },
+    {
+      "listId": "901327298400",
+      "taskName": "WhatsApp - EvolutionCloudAdapter",
+      "status": "Closed",
+      "comment": "Evolution adapter supports cloud mode capabilities over the same implementation surface and is wired into webhook and replay handling."
+    },
+    {
+      "listId": "901327298400",
+      "taskName": "Tabelas: channel_accounts, channel_credentials, conversations, messages, message_identities",
+      "status": "Closed",
+      "comment": "Schema and models are present and validated locally through current workspace endpoints, with Alembic migrations now in place in the repo."
+    }
+  ]
+}

@@ -43,6 +43,7 @@ class ConversationOut(BaseModel):
     is_private: bool = False
     service_reason_id: uuid.UUID | None = None
     resolve_note: str | None = None
+    sla_policy_override_id: uuid.UUID | None = None
     contact_name: str | None = None
     contact_phone: str | None = None
     last_message: str | None = None

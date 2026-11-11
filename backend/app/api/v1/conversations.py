@@ -47,6 +47,29 @@ from app.services.security_audit_service import log_security_event
 router = APIRouter(prefix="/workspaces/{workspace_id}/conversations", tags=["conversations"])
 
 
+MEDIA_PREVIEW_LABELS = {
+    "image": "Photo",
+    "video": "Video",
+    "audio": "Audio",
+    "sticker": "Sticker",
+    "file": "File",
+    "internal_note": "Internal note",
+}
+
+
+def _format_last_message_preview(message: Message | None) -> str | None:
+    if message is None:
+        return None
+
+    content = (message.content or "").strip()
+    if content:
+        if message.type.value in MEDIA_PREVIEW_LABELS and message.type.value != "internal_note":
+            return f"{MEDIA_PREVIEW_LABELS[message.type.value]}: {content}"
+        return content
+
+    return MEDIA_PREVIEW_LABELS.get(message.type.value)
+
+
 async def _conversation_out(db: AsyncSession, conv: Conversation) -> ConversationOut:
     contact = await db.get(Contact, conv.contact_id)
     phone_result = await db.execute(
@@ -82,16 +105,31 @@ async def _conversation_out(db: AsyncSession, conv: Conversation) -> Conversatio
         select(ConversationSnooze).where(ConversationSnooze.conversation_id == conv.id)
     )).scalar_one_or_none()
 
-    return ConversationOut.model_validate(conv).model_copy(
-        update={
-            "contact_name": contact.name if contact else None,
-            "contact_phone": phone.phone if phone else None,
-            "last_message": last_message.content if last_message else None,
-            "last_message_at": last_message.created_at if last_message else None,
-            "assignee_name": assignee_name,
-            "labels": labels,
-            "snoozed_until": snooze.until if snooze else None,
-        }
+    return ConversationOut(
+        id=conv.id,
+        workspace_id=conv.workspace_id,
+        channel_account_id=conv.channel_account_id,
+        contact_id=conv.contact_id,
+        assignee_id=conv.assignee_id,
+        sector_id=conv.sector_id,
+        status=conv.status,
+        sla_status=conv.sla_status,
+        priority=conv.priority,
+        unread_agent_count=conv.unread_agent_count,
+        first_replied_at=conv.first_replied_at,
+        resolved_at=conv.resolved_at,
+        created_at=conv.created_at,
+        updated_at=conv.updated_at,
+        is_private=conv.is_private,
+        service_reason_id=conv.service_reason_id,
+        resolve_note=conv.resolve_note,
+        contact_name=contact.name if contact else None,
+        contact_phone=phone.phone if phone else None,
+        last_message=_format_last_message_preview(last_message),
+        last_message_at=last_message.created_at if last_message else None,
+        assignee_name=assignee_name,
+        labels=labels,
+        snoozed_until=snooze.until if snooze else None,
     )
 
 

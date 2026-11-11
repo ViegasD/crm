@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/layout";
 import { useAuthStore } from "@/stores/auth-store";
@@ -9,8 +9,14 @@ import type { Workspace } from "@/types/workspace";
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { accessToken, setUser, setWorkspaces, setCurrentWorkspace, currentWorkspace } = useAuthStore();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     if (!accessToken) {
       router.replace("/login");
       return;
@@ -21,10 +27,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       const workspaces = r.data as Workspace[];
       setWorkspaces(workspaces);
       if (!currentWorkspace && workspaces.length > 0) setCurrentWorkspace(workspaces[0]);
-    });
-  }, [accessToken]); // eslint-disable-line react-hooks/exhaustive-deps
+    }).catch((err) => console.error("[layout] workspacesApi.list failed:", err));
+  }, [mounted, accessToken]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!accessToken) return null;
+  if (!mounted || !accessToken) return null;
 
   return (
     <div className="flex h-screen overflow-hidden bg-surface-2">

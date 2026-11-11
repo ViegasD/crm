@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+import logging
 from datetime import datetime, timezone
 
 import httpx
@@ -11,6 +12,24 @@ from app.channels.base import (
     WhatsAppProviderAdapter,
 )
 from app.core.config import settings
+
+
+logger = logging.getLogger(__name__)
+
+
+def _format_group_name(remote_jid: str) -> str:
+    return f"Group {remote_jid.split('@')[0]}"
+
+
+def _extract_group_name(msg: dict, remote_jid: str) -> str:
+    group_name = (
+        msg.get("groupName")
+        or msg.get("groupSubject")
+        or msg.get("subject")
+        or msg.get("chatName")
+        or (msg.get("message") or {}).get("groupInviteMessage", {}).get("groupName")
+    )
+    return group_name or _format_group_name(remote_jid)
 
 
 class EvolutionAdapter(WhatsAppProviderAdapter):
@@ -113,6 +132,29 @@ class EvolutionAdapter(WhatsAppProviderAdapter):
                 timeout=10,
             )
 
+    async def fetch_group_names(self, group_jids: list[str]) -> dict[str, str]:
+        wanted = {group_jid for group_jid in group_jids if group_jid.endswith("@g.us")}
+        if not wanted:
+            return {}
+
+        resolved: dict[str, str] = {}
+        async with httpx.AsyncClient(timeout=10) as client:
+            for jid in wanted:
+                try:
+                    r = await client.get(
+                        f"{self.base_url}/group/findGroupInfos/{self.instance_name}",
+                        params={"groupJid": jid},
+                        headers=self._headers,
+                    )
+                    r.raise_for_status()
+                    data = r.json()
+                    subject = (data.get("subject") or "").strip()
+                    if subject:
+                        resolved[jid] = subject
+                except Exception:  # noqa: BLE001
+                    logger.debug("Could not fetch group info for %s", jid)
+        return resolved
+
     def verify_webhook_signature(self, headers: dict, raw_body: bytes) -> bool:
         if not self.webhook_secret:
             return False
@@ -143,9 +185,12 @@ class EvolutionAdapter(WhatsAppProviderAdapter):
             from_me = key.get("fromMe", False)
             remote_jid = key.get("remoteJid", "")
             msg_id = key.get("id", "")
+            is_group = remote_jid.endswith("@g.us")
+            sender_name = msg.get("pushName") or msg.get("senderName")
 
-            # Strip @s.whatsapp.net suffix
-            contact_phone = remote_jid.split("@")[0]
+            # Groups should be keyed by the group JID, not by the participant.
+            contact_phone = remote_jid if is_group else remote_jid.split("@")[0]
+            contact_name = _extract_group_name(msg, remote_jid) if is_group else sender_name
 
             message_content = msg.get("message", {})
             text: str | None = None
@@ -159,6 +204,9 @@ class EvolutionAdapter(WhatsAppProviderAdapter):
             elif "imageMessage" in message_content:
                 msg_type = "image"
                 attachments = [{"provider_payload": message_content["imageMessage"]}]
+            elif "stickerMessage" in message_content:
+                msg_type = "sticker"
+                attachments = [{"provider_payload": message_content["stickerMessage"]}]
             elif "audioMessage" in message_content:
                 msg_type = "audio"
                 attachments = [{"provider_payload": message_content["audioMessage"]}]
@@ -168,6 +216,18 @@ class EvolutionAdapter(WhatsAppProviderAdapter):
             elif "documentMessage" in message_content:
                 msg_type = "file"
                 attachments = [{"provider_payload": message_content["documentMessage"]}]
+
+            if msg_type != "text":
+                payload = attachments[0].get("provider_payload", {}) if attachments else {}
+                logger.info(
+                    "Evolution media webhook parsed instance=%s message_id=%s type=%s from_me=%s has_url=%s mimetype=%s",
+                    self.instance_name,
+                    msg_id,
+                    msg_type,
+                    from_me,
+                    bool(payload.get("url")),
+                    payload.get("mimetype") or payload.get("mimeType"),
+                )
 
             ts_raw = msg.get("messageTimestamp", 0)
             ts = datetime.fromtimestamp(int(ts_raw), tz=timezone.utc).isoformat()
@@ -187,7 +247,9 @@ class EvolutionAdapter(WhatsAppProviderAdapter):
                 text=text,
                 timestamp=ts,
                 origin=origin,
-                contact_name=msg.get("pushName") or msg.get("senderName"),
+                contact_name=contact_name,
+                sender_name=sender_name,
+                is_group=is_group,
                 attachments=attachments,
                 raw=msg,
             ))

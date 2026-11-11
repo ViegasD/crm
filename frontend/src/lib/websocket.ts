@@ -1,6 +1,16 @@
 // WebSocket client wrapper — handles connection, reconnection, and typed event dispatch
 
-export type WsEventType = "message.new" | "conversation.updated" | "pong";
+export type WsEventType =
+  | "message.new"
+  | "message.updated"
+  | "conversation.updated"
+  | "conversation.assigned"
+  | "agent.status.updated"
+  | "sla.updated"
+  | "sla.escalated"
+  | "supervisor.metrics.updated"
+  | "mention"
+  | "pong";
 
 export interface WsEvent {
   type: WsEventType;
@@ -24,8 +34,16 @@ export class WorkspaceSocket {
   }
 
   connect(): void {
-    const base = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000")
-      .replace(/^http/, "ws");
+    if (typeof window !== "undefined") {
+      this.token = localStorage.getItem("access_token") ?? this.token;
+    }
+    if (!this.token) {
+      return;
+    }
+
+    const base =
+      process.env.NEXT_PUBLIC_WS_URL ??
+      (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001").replace(/^http/, "ws");
     const url = `${base}/ws/${this.workspaceId}?token=${encodeURIComponent(this.token)}`;
 
     this.ws = new WebSocket(url);

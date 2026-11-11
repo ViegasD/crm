@@ -4,6 +4,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
+from app.core.minio import generate_presigned_url
 from app.models.enums import MessageOrigin, MessageType, SenderType
 
 
@@ -23,11 +24,15 @@ class MessageOut(BaseModel):
     conversation_id: uuid.UUID
     sender_type: SenderType
     sender_id: uuid.UUID
+    sender_name: str | None = None
     origin: MessageOrigin
     content: str | None
     type: MessageType
     attachments: list[dict]
     is_read: bool
+    provider_status: str | None = None
+    provider_status_updated_at: datetime | None = None
+    provider_status_error: str | None = None
     created_at: datetime
 
 
@@ -37,3 +42,24 @@ class SendMessageRequest(BaseModel):
     attachments: list[dict] = []
     # For internal notes
     is_note: bool = False
+
+
+def serialize_message_out(message: Any) -> MessageOut:
+    payload = MessageOut.model_validate(message).model_dump()
+    payload["attachments"] = [_serialize_attachment(attachment) for attachment in payload.get("attachments", [])]
+    metadata = getattr(message, "metadata_", None) or {}
+    payload["sender_name"] = metadata.get("sender_name")
+    payload["provider_status"] = metadata.get("delivery_status")
+    payload["provider_status_updated_at"] = metadata.get("delivery_status_updated_at")
+    payload["provider_status_error"] = metadata.get("delivery_status_error")
+    return MessageOut.model_validate(payload)
+
+
+def _serialize_attachment(attachment: dict) -> dict:
+    item = dict(attachment)
+    key = item.get("key")
+    bucket = item.get("bucket")
+    if key and bucket:
+        item["url"] = generate_presigned_url(bucket, key)
+        item["ready"] = True
+    return item

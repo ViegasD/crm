@@ -1,0 +1,230 @@
+﻿# ClickUp Feature Import — CRM2 Scope
+# Structure: 22 Lists (P1/P2/P3 | Stage N — name) → Tasks, created inside a target Folder
+# ClickUp does not support nested folders — lists are created directly inside the CRM2 folder.
+#
+# Usage: .\scripts\clickup_import.ps1 -ApiToken "pk_xxx" -FolderId "901318283724"
+#    or set CLICKUP_API_TOKEN / CLICKUP_FOLDER_ID in scripts/.env
+#
+# How to find your Folder ID from the URL:
+#   https://app.clickup.com/{teamId}/v/f/{FolderId}
+
+param(
+    [string]$ApiToken,
+    [string]$FolderId
+)
+
+. (Join-Path $PSScriptRoot "clickup_common.ps1")
+
+$config = Resolve-ClickUpConfig -ApiToken $ApiToken -FolderId $FolderId
+$headers = $config.Headers
+$FolderId = $config.FolderId
+
+if (-not $FolderId) {
+    throw "ClickUp folder id not provided. Set CLICKUP_FOLDER_ID in scripts/.env or pass -FolderId."
+}
+
+function New-List($folderId, $name) {
+    $b = @{ name = $name } | ConvertTo-Json
+    $r = Invoke-RestMethod -Method Post -Uri "https://api.clickup.com/api/v2/folder/$folderId/list" -Headers $headers -Body $b
+    Write-Host "  LIST: $name ($($r.id))"
+    return $r.id
+}
+
+function New-Task($listId, $name, $description) {
+    $b = @{ name = $name; markdown_description = $description } | ConvertTo-Json -Depth 5
+    Invoke-RestMethod -Method Post -Uri "https://api.clickup.com/api/v2/list/$listId/task" -Headers $headers -Body $b | Out-Null
+    Write-Host "    TASK: $name"
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# P1 — CORE (FUNDAÇÃO)  stages 1, 2, 3, 4, 5, 9
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Stage 1
+$l = New-List $FolderId "P1 | Stage 1 — Auth + Workspace + Setorização"
+New-Task $l "Tabelas: users, workspaces, user_workspace_memberships" "users: id, email, password_hash, name. workspaces: id, name, slug. user_workspace_memberships: user_id, workspace_id, role. Migrations Alembic. workspace_id indexado em todas as tabelas."
+New-Task $l "Registro e login — JWT" "POST /api/v1/auth/register e /api/v1/auth/login. JWT gerado no backend (python-jose). Token retornado como Bearer. Sem NextAuth."
+New-Task $l "Tabelas: sectors, sector_members, roles enum" "sectors: workspace_id, name. roles: admin | supervisor | agent. sector_members: user_id, sector_id, role. Migrations Alembic."
+New-Task $l "Middleware de autenticação e autorização" "Dependência FastAPI que extrai e valida JWT em todas as rotas protegidas. Injeta current_user + workspace_id. 401 token inválido, 403 permissão negada."
+New-Task $l "CRUD de workspaces, setores e membros" "GET/POST/PUT/DELETE /workspaces, /sectors, /members. Apenas admin gerencia setores e membros do workspace."
+
+# Stage 2
+$l = New-List $FolderId "P1 | Stage 2 — Canal WhatsApp + Inbox Unificado"
+New-Task $l "Tabelas: channel_accounts, channel_credentials, conversations, messages, message_identities" "Schema completo com migrations. channel_accounts: workspace_id, channel_type, provider, display_name. message_identities: idempotência por external_message_id."
+New-Task $l "Tabela webhook_events — ingestão durável" "Persistir webhook_events ANTES de retornar 200 ao provider. Status: received | processing | processed | failed. Replay de events received há < 1h se fila Redis cair."
+New-Task $l "WhatsApp — MetaCloudAdapter" "send_text, send_media, send_template, send_interactive, mark_as_read, parse_webhook, normalize_status, get_capabilities. Validação HMAC-SHA256 obrigatória."
+New-Task $l "WhatsApp — EvolutionBaileysAdapter" "Modo jurídico auditável: webhook ativo monitorado, reconciliação Celery 15min, history sync na reconexão, registro em audit_gaps, audit_health_status."
+New-Task $l "WhatsApp — EvolutionCloudAdapter" "Backend oficial Meta via middleware Evolution. Mesmas regras de compliance da Meta Cloud API direta."
+New-Task $l "NormalizedEvent + abstração de provider" "Agente vê apenas 'WhatsApp — Número X'. Provider é detalhe de infra. Formato interno: event_type, channel, provider, direction, message_type, text, timestamp."
+New-Task $l "Inbox WebSocket — entrega em tempo real" "FastAPI WebSocket /ws/{workspace_id}. Publicar nova mensagem, atualização de status. Frontend subscreve por workspace_id."
+New-Task $l "Contatos — tabelas e migrations" "contacts: workspace_id, name, status (active|inactive|blocked), type (cliente|lead|parceiro), external_id, is_priority. contact_phones, contact_emails, contact_notes, contact_custom_attributes, contact_organization_links. Migrations Alembic."
+New-Task $l "CRUD de contatos" "GET /contacts (filtros: status, type, etiqueta, canal, texto livre), GET /contacts/{id}, POST, PUT, DELETE. Busca por nome/email/telefone. Mesclagem de duplicatas via POST /contacts/merge."
+New-Task $l "Campos customizados por workspace" "Admin configura atributos livres (tipo text|number|date|select). contact_custom_attributes: contact_id, attribute_key, attribute_value JSONB. Renderizados no perfil do contato."
+New-Task $l "Perfil de contato — UI" "Painel esquerdo: dados cadastrais + campos customizados. Painel direito: cards de métricas (atendimentos recentes, em andamento, encerrados, CSAT, motivo mais usado, canal mais usado). Histórico paginado de conversas. Contatos vinculados (organização)."
+New-Task $l "Mídia — upload endpoint e validação" "POST /api/v1/media/upload (multipart/form-data). Allowlist: jpg/png/gif/webp/mp3/ogg/m4a/mp4/webm/pdf/doc/docx/xls/xlsx/csv/txt. Máx. 25 MB. Rejeitar fora da allowlist com 422 antes de atingir MinIO. Upload para bucket ws-{workspace_id}/messages/."
+New-Task $l "Mídia — presigned URL para download" "GET /api/v1/media/{media_object_id}/presign. Valida workspace_id + permissão antes de assinar. TTL 1h (24h para exports). Previne IDOR por key guessing. Frontend nunca acessa MinIO com credenciais permanentes."
+New-Task $l "Mídia — worker Celery para webhooks" "Ao receber mídia via webhook: salvar mensagem imediatamente com attachments=[]. Worker baixa URL temporária do provider → re-upload MinIO → atualiza attachments via WebSocket. Bucket: ws-{workspace_id}/messages/{conversation_id}/{message_id}/."
+
+# Stage 3
+$l = New-List $FolderId "P1 | Stage 3 — Ações de Conversa Básicas"
+New-Task $l "Mensagens pré-escritas (canned responses)" "Tabela canned_responses: workspace_id, sector_id (nullable), shortcut, body com {{nome}}, {{protocolo}}. GET /canned-responses?q=. Inserção com atalho / no campo de texto."
+New-Task $l "Etiquetagem de conversas" "Tabelas labels e conversation_labels. Tags coloridas. Filtro por etiqueta no inbox. POST /conversations/{id}/labels. DELETE para remover."
+New-Task $l "Transferência entre agentes/setores" "POST /conversations/{id}/transfer. Parâmetros: target_agent_id ou target_sector_id. Evento conversation_events type=transfer. Notificar destino via WebSocket."
+New-Task $l "Participantes / observadores" "Tabela conversation_participants: conversation_id, user_id, role (assignee|observer). Notificar observadores de novas mensagens via WebSocket."
+New-Task $l "Linha do tempo de ações (audit trail visível)" "Tabela conversation_events: type, actor_id, timestamp, payload JSONB. Tipos: opened, message_sent, transferred, assigned, closed, label_added, note_added. Exibida no inbox."
+
+# Stage 4
+$l = New-List $FolderId "P1 | Stage 4 — Segurança de Webhooks"
+New-Task $l "Validação HMAC-SHA256 por provider" "Middleware separado por provider. Meta: X-Hub-Signature-256. Evolution: HMAC ou Bearer. Gupshup: header customizado. Não reutilizar lógica entre providers."
+New-Task $l "Comparação timing-safe e rejeição de replay" "hmac.compare_digest() (constant-time). Rejeitar timestamp > 5 min. Retornar 403 sem detalhar motivo no body."
+New-Task $l "webhook_secret criptografado por channel_account" "Cada channel_account tem webhook_secret único em channel_credentials (criptografado). Rotação de secret via token duplo temporário sem downtime."
+New-Task $l "Log de tentativas inválidas em security_audit_logs" "Registrar: ip_address, provider, payload truncado, motivo (assinatura_invalida | replay_detectado | timestamp_expirado). Tabela append-only."
+
+# Stage 5
+$l = New-List $FolderId "P1 | Stage 5 — Flow Builder"
+New-Task $l "Modelo de dados do grafo (FlowGraph / FlowNode / FlowEdge)" "JSONB em flows.nodes_data. Campos: version (detecta state stale), nodes[], edges[]. source_handle: default | optionId | true | false | caseId | max_attempts | valid."
+New-Task $l "Nós básicos: trigger, message, end" "trigger: message_received, keyword_match, conversation_created, manual. message: texto/mídia. end: deactivate_contact opcional."
+New-Task $l "Nós de entrada: question, input_validated, menu" "question: aguarda resposta + LLM valida relevância + salva variável. input_validated: email/phone/number/date, saídas valid/max_attempts. menu: opções numeradas + fuzzy LLM."
+New-Task $l "Nós de lógica: condition, switch, set_variable, wait, subflow" "condition: true/false + use_ai_eval semântico. switch: N branches + default. set_variable: interpolação {var}. wait: pausa N min/h. subflow: invoca outro fluxo como sub-rotina."
+New-Task $l "Nós de ação: bot, action, tag, assign_agent, http_request, note" "bot: entrega ao loop agêntico de bot_config com handoff_condition. action: tool do sistema. tag/assign_agent/note. http_request: SSRF-protegido, não liberar no 1º release."
+New-Task $l "Executor de fluxos — motor de execução" "Retomar flow_execution pelo current_node_id. Estado: Redis (hot, TTL 7d) + flow_executions DB (durável). Máx. 20 saltos/mensagem anti-loop."
+New-Task $l "Canvas ReactFlow — UI do flow builder" "Editor visual @xyflow/react: paleta de nós, handles tipados, zoom/pan/minimap. Salvar grafo via PUT /flows/{id}."
+New-Task $l "Templates pré-prontos de fluxo" "6 templates: Menu principal, Qualificação de lead, Atendimento com bot, Agendamento de consulta, Suporte técnico, Pesquisa de satisfação."
+
+# Stage 9
+$l = New-List $FolderId "P1 | Stage 9 — Gestão de Capacidade + Políticas de SLA"
+New-Task $l "Tabelas agent_capacity e conversation_assignments" "agent_capacity: user_id, workspace_id, max_conversations. conversation_assignments: conversation_id, agent_id, assigned_at, released_at."
+New-Task $l "Atribuição atômica de conversas" "UPDATE conversations SET assignee_id = :agent WHERE id = :conv AND assignee_id IS NULL RETURNING id. Decrementa contador na mesma transação. Previne over-assignment concorrente."
+New-Task $l "Pausa e redistribuição ao atingir limite" "Parar atribuições ao atingir max_conversations. Fila de redistribuição: ao liberar capacidade, puxar próxima conversa da fila do setor."
+New-Task $l "Ocupação em tempo real para supervisores" "Evento capacity_update via WebSocket: agent_id, active_count, max_count, status (available|busy|full)."
+New-Task $l "Tabelas sla_policies e sla_events" "sla_policies: sector_id, first_response_minutes, resolution_minutes. sla_events: conversation_id, policy_id, type (first_response|resolution), breached_at."
+New-Task $l "Cálculo de status SLA por Celery" "Celery beat job a cada 5 min. Status por conversa: dentro_sla | em_risco (> 80% do tempo) | violado. Persistido em conversations.sla_status."
+New-Task $l "Escalonamento automático ao estourar SLA" "Ao violar: notificação WebSocket ao supervisor + criação de sla_event type=violated. Reatribuição automática configurável por política."
+
+# ─────────────────────────────────────────────────────────────────────────────
+# P2 — PRODUTO (DIFERENCIAL)  stages 6, 7, 8, 10, 12, 13, 20, 21
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Stage 6
+$l = New-List $FolderId "P2 | Stage 6 — Integração AI — Bot Autônomo"
+New-Task $l "LiteLLM router — OpenAI, Anthropic, Google" "gpt-4o, gpt-4o-mini, gpt-4.1 (OpenAI); claude-3-5-sonnet, claude-3-haiku (Anthropic); gemini-1.5-pro, gemini-1.5-flash (Google). Troca de provider = mudar campo model. Fallback automático via fallbacks=[]."
+New-Task $l "Tabela bot_configs — entidade workspace-scoped" "CRUD: workspace_id, name, model, temperature, system_prompt, handoff_condition (bot_decides|keyword|timeout), handoff_keyword, timeout_minutes. Reutilizável em múltiplos fluxos."
+New-Task $l "Armazenamento criptografado de API keys" "Chaves de AI provider em channel_credentials criptografadas (Fernet + CREDENTIAL_ENCRYPTION_KEY). Nunca expostas em logs, respostas ou webhooks."
+New-Task $l "Loop agêntico do bot_config" "LLM call → parse tool_calls → executar capabilities → next LLM call (máx. N rounds). Registrar cada round em tool_executions. Condição de handoff finaliza o loop."
+New-Task $l "bot_config_capabilities — validação antes de executar" "Tabela bot_config_capabilities: bot_config_id, capability_name. Validar disponibilidade antes de cada tool call. CRUD de capabilities por bot_config."
+New-Task $l "Nó bot integrado ao executor de fluxos" "flow executor delega ao loop agêntico do bot_config e aguarda handoff. Ao retornar, injeta variáveis coletadas em flow_execution.variables e segue pelo edge de saída."
+
+# Stage 7
+$l = New-List $FolderId "P2 | Stage 7 — Copilot de IA para Agentes"
+New-Task $l "Sugestão de resposta (SSE streaming)" "POST /api/v1/copilot/suggest. Contexto: últimas N mensagens. Streaming via SSE. Agente aceita, edita ou descarta — sem execução de tools."
+New-Task $l "Ajuste de tom" "POST /api/v1/copilot/rewrite. Parâmetros: text, tone (formal|informal|empatico|direto). LLM reescreve mantendo conteúdo original."
+New-Task $l "Tradução inline" "POST /api/v1/copilot/translate. Parâmetros: text, target_language. Traduz mensagem recebida ou rascunho do agente."
+New-Task $l "Resumo da conversa para handoff" "POST /api/v1/copilot/summarize. Resumo executivo: problema, ações, próximo passo. Salvo como nota interna se confirmado pelo agente."
+New-Task $l "Rastreamento de uso (source=copilot)" "Inserir llm_usage_record com source='copilot' após cada chamada. workspace_id, model, prompt_tokens, completion_tokens, billed_cost_brl."
+
+# Stage 8
+$l = New-List $FolderId "P2 | Stage 8 — Auditoria + Logs"
+New-Task $l "audit_logs — snapshots imutáveis de conversa" "Append-only (sem DELETE/UPDATE). Colunas: conversation_id, event_type, snapshot JSONB, actor_id, created_at. Snapshot copia estado completo em momentos-chave."
+New-Task $l "Log de execução de fluxo por nó" "Tabela flow_execution_logs: flow_execution_id, node_id, node_type, input JSONB, output JSONB, tool_name, duration_ms. Vinculado a flow_executions."
+New-Task $l "security_audit_logs — ações administrativas" "Append-only. Colunas: user_id, action, target_type, target_id, old_value JSONB, new_value JSONB, ip_address, user_agent, created_at."
+New-Task $l "Exportação jurídica (evidence_zip)" "Celery job: PDF transcript + manifest.json + checksums.sha256 + mídias originais em ZIP. MinIO bucket exports/. TTL 7 dias. Log em security_audit_logs com hash SHA-256."
+New-Task $l "Exportação operacional (CSV / XLSX / JSON / PDF)" "Geração assíncrona para volumes grandes. Link download temporário (TTL 24h) por e-mail. Permissão verificada no backend: agente=bloqueado, supervisor=setor, admin=tudo."
+
+# Stage 10
+$l = New-List $FolderId "P2 | Stage 10 — Dashboard Analítico Básico"
+New-Task $l "Métricas core de conversas" "Volume total, abertos, encerrados, tempo médio de primeira resposta (TMP), tempo médio de resolução (TMR). Filtrável por período, canal, setor."
+New-Task $l "Visão por agente" "TMP, TMR, SLA cumprido vs violado, ocupação atual por agente. Período filtrável."
+New-Task $l "Ranking de agentes" "Tabela ordenada por atendimentos_encerrados DESC. Desempate: satisfacao DESC, tma ASC. Filtros: período, setor. Exportável CSV."
+New-Task $l "Drill-down por agente — painéis detalhados" "Gráfico atendimentos (iniciados/encerrados/transferidos por dia), gráfico de tempo (TE/TA), CSAT por dia da semana, tempo por status (donut), registros de pausa, motivos de atendimento, etiquetas."
+New-Task $l "Filtros globais por período, canal e setor" "Filtros: 7d/30d/personalizado, por canal e por setor. Persistidos na URL para compartilhamento direto de relatório."
+
+# Stage 12
+$l = New-List $FolderId "P2 | Stage 12 — Demais Canais"
+New-Task $l "Instagram — adapter Meta Webhooks" "DMs e comentários via Meta Webhooks. Normalização para NormalizedEvent. Validação HMAC-SHA256 obrigatória."
+New-Task $l "Facebook Messenger — adapter Meta Webhooks" "Mensagens Messenger + comentários de página. Mesmo endpoint webhook Meta, diferenciador por page_id."
+New-Task $l "Email — canal SMTP/IMAP" "Google OAuth (Gmail) e Microsoft OAuth (Outlook/365). Threading por In-Reply-To. Inbox unificado com outros canais."
+New-Task $l "Telegram — adapter Bot API" "Adapter Telegram Bot API para DMs via bot. Webhook ou polling. getFile para download de mídia recebida."
+New-Task $l "UI de configuração de canais" "Painel: adicionar canal, escolher provider, inserir credenciais (criptografadas). Testar conexão antes de ativar."
+
+# Stage 13
+$l = New-List $FolderId "P2 | Stage 13 — Categorização + Pastas"
+New-Task $l "Pastas manuais (conversation_folders)" "workspace_id, name, color, created_by. CRUD para admin/supervisor. Mover conversa via POST /conversations/{id}/folder."
+New-Task $l "Contagem de não lidas por pasta" "COUNT conversas na pasta com last_message_at > last_seen_at do usuário. Atualizar em tempo real via WebSocket."
+New-Task $l "Regras automáticas de categorização" "Tabela folder_rules: folder_id, condition_type (label|status|channel|sector), condition_value. Engine aplica regras ao criar/atualizar conversa."
+New-Task $l "Filtros salvos (pastas dinâmicas)" "Salvar combinação de filtros como pasta dinâmica. Resultado calculado em query-time — não armazena lista estática de conversas."
+
+# Stage 20
+$l = New-List $FolderId "P2 | Stage 20 — Help Center (Base de Conhecimento)"
+New-Task $l "Tabelas help_articles, help_categories, help_article_embeddings" "help_categories: workspace_id, name, slug, parent_id (hierarquia). help_articles: title, content_md, category_id, slug, published, author_id. help_article_embeddings: article_id, embedding VECTOR(1536). Migrations Alembic."
+New-Task $l "Editor de artigos e publicação" "Editor Markdown/WYSIWYG no painel admin. CRUD de artigos e categorias. Publicar/despublicar. Upload de mídia inline via /media/upload. Pré-visualização do portal antes de publicar."
+New-Task $l "Portal público e busca semântica (RAG)" "Portal em subdomínio customizado (help.workspace.com). Busca semântica: query → embedding → pgvector similarity → artigos relevantes. LLM sintetiza resposta a partir dos chunks recuperados."
+New-Task $l "Copilot sugere artigos relevantes" "POST /copilot/suggest-articles: LLM analisa contexto da conversa e retorna artigos relevantes. Agente pode linkar artigo diretamente na conversa com um clique."
+New-Task $l "Métricas do Help Center" "Artigos mais acessados (views por dia). Buscas sem resultado (gap de conteúdo). Taxa de resolução sem abertura de conversa."
+
+# Stage 21
+$l = New-List $FolderId "P2 | Stage 21 — Live Chat (Widget Web)"
+New-Task $l "Snippet JS embeddable" "Snippet <script> gerado por workspace com identificação do canal. CDN-hosted. Inicialização: window.CRMWidget.init({ workspaceId, channelId }). Comunicação via WebSocket com o backend."
+New-Task $l "Identificação de visitante" "window.CRMWidget.identify({ name, email, metadata }). Persistência por cookie/localStorage. Histórico de conversa por visitante identificado (match por e-mail ou visitor_id)."
+New-Task $l "Fila de espera e roteamento" "Exibir posição na fila ao visitante. Roteamento para agente disponível ou bot conforme regras do setor. Mensagem de boas-vindas configurável."
+New-Task $l "Personalização visual" "Cor primária, posição (canto inferior direito/esquerdo), ícone, mensagem de boas-vindas. Configurável no painel admin. Aplicado em tempo real sem republicar snippet."
+
+# ─────────────────────────────────────────────────────────────────────────────
+# P3 — CRESCIMENTO (EXPANSÃO)  stages 11, 14, 15, 16, 17, 18, 19, 22
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Stage 11
+$l = New-List $FolderId "P3 | Stage 11 — Billing & Planos"
+New-Task $l "Tabelas plans e workspace_subscriptions" "plans: name (Free/Starter/Pro/Enterprise), max_users, max_bot_configs, max_flows, max_channel_accounts, base_price_brl. workspace_subscriptions: plan_id, status, trial_ends_at, billing_cycle_day."
+New-Task $l "Enforcement de limites — HTTP 402" "Verificar max_* dentro da transação de criação. HTTP 402 com error='plan_limit_reached'. Frontend exibe modal de upgrade. Sem race condition."
+New-Task $l "llm_usage_records — rastreamento de uso LLM" "Inserir após cada litellm.completion(): workspace_id, bot_config_id, conversation_id, model, source (live|test|copilot|api), prompt_tokens, completion_tokens, raw_cost_usd, exchange_rate, billed_cost_brl."
+New-Task $l "Integração Stripe — subscriptions + usage invoicing" "stripe.Subscription para taxa base. Usage-based invoicing para LLM. Webhook POST /webhooks/stripe: invoice.paid, invoice.payment_failed, subscription.updated/deleted. Validação por Stripe-Signature."
+New-Task $l "Tab de consumo (Configurações → Billing)" "Cards: consumo total + delta vs período anterior. Gráfico barras diário empilhado por source (test=azul, live=verde). Sidebar: consumo mês corrente (polling 60s). Aba faturas com link PDF."
+New-Task $l "Trial expiry e dunning" "Trial sem cartão → cancelled + read-only. Dunning: D+0 past_due, D+3 retry, D+7 retry+email, D+14 cancelled. Read-only: inbox visível, nenhuma mensagem processada."
+New-Task $l "NF-e / Nota Fiscal" "Campos tax_id (CNPJ 14 dígitos, validado) e legal_name em workspace_subscriptions. Emissão via Nuvem Fiscal ou eNotas (integration_type='nfe_provider') após invoice.paid. PDF armazenado no MinIO bucket invoices/{workspace_id}/. URL salva em billing_invoices.nfe_url. Free tier sem NF-e."
+
+# Stage 14
+$l = New-List $FolderId "P3 | Stage 14 — Dashboard Analítico Avançado"
+New-Task $l "CSAT — pesquisa automática pós-atendimento" "Enviar pesquisa NPS/CSAT (1–5) ao encerrar conversa. Tabela csat_surveys. Índice médio por agente/setor/período. Filtro: avaliado pelo cliente vs avaliado por IA."
+New-Task $l "Relatórios de SLA" "% conversas dentro do prazo por setor e período. Drill-down por agente. Gráfico de tendência. Exportável CSV."
+New-Task $l "Índice de insatisfação e conversão" "Insatisfação: CSAT < 3 ou palavras-chave negativas (IA). Conversão: % com evento de conversão configurado por fluxo. Tráfego: volume por canal/hora/dia da semana."
+
+# Stage 15
+$l = New-List $FolderId "P3 | Stage 15 — Campanhas de Disparo em Massa"
+New-Task $l "Segmentação de contatos" "Filtros: etiqueta, canal, setor, atributo customizado. Preview de audiência (COUNT) antes do envio. Salvar segmentação como público reutilizável."
+New-Task $l "Agendamento e envio com rate limiting" "Celery beat para agendadas. Rate limiting por provider e por número. Validar supports_campaigns antes de enfileirar."
+New-Task $l "Templates aprovados WhatsApp — compliance Meta" "Validar template aprovado (categoria MARKETING ou UTILITY). Bloquear Evolution/Baileys por padrão — habilitação explícita pelo admin registrada em security_audit_logs."
+New-Task $l "Relatório de campanha em tempo real" "Métricas por campanha: total enviadas, entregues, lidas, respondidas, falhas. Drill-down por contato. Atualização em tempo real durante envio."
+
+# Stage 16
+$l = New-List $FolderId "P3 | Stage 16 — Macros"
+New-Task $l "CRUD de macros (global e pessoal)" "Tabela macros: workspace_id, created_by, name, scope (global|personal). Tabela macro_actions: macro_id, order, action_type, action_params JSONB. Ações: send_message, apply_label, transfer, close, assign_agent, add_note."
+New-Task $l "Execução de macro com um clique" "GET /macros para listar disponíveis, POST /conversations/{id}/execute-macro. Execução atômica de todas as ações em ordem. Registrar cada ação em conversation_events."
+
+# Stage 17
+$l = New-List $FolderId "P3 | Stage 17 — White-label / Custom Branding"
+New-Task $l "Logo e paleta de cores por workspace" "Tabela workspace_branding: logo_url, primary_color, secondary_color, font_family. Upload via /media/upload. CSS variables injetadas no frontend por workspace."
+New-Task $l "Domínio customizado via CNAME" "Campo custom_domain em workspace_branding. Validação DNS (TXT de propriedade). TLS automático (Let's Encrypt). Roteamento por hostname no backend."
+New-Task $l "E-mails transacionais com branding do cliente" "Substituir remetente, logo e cores da plataforma pelos do workspace em todos os e-mails transacionais: boas-vindas, reset senha, SLA, exportações."
+
+# Stage 18
+$l = New-List $FolderId "P3 | Stage 18 — SSO / SAML"
+New-Task $l "Integração SAML 2.0 no FastAPI" "python-saml ou authlib. Endpoints: GET /auth/saml/login, POST /auth/saml/callback. JWT retornado igual ao fluxo normal. Sem autenticação no Next.js — auth exclusivo do FastAPI."
+New-Task $l "Configuração de IdP por workspace" "Tabela sso_configs: provider (google|okta|azure_ad|custom), entity_id, sso_url, certificate. CRUD admin only. Opção de forçar SSO (desabilitar login por senha)."
+New-Task $l "JIT provisioning de usuários" "Criar user + membership no primeiro login SSO se e-mail não existe. Role padrão configurável por workspace. Atualizar name/email se mudou no IdP."
+
+# Stage 19
+$l = New-List $FolderId "P3 | Stage 19 — Permissões Granulares (Roles Avançados)"
+New-Task $l "Matriz de permissões por role" "Tabela permissions: role, resource (conversations|contacts|flows|reports|exports|settings|members), action (view|create|edit|delete|export), allowed BOOLEAN. Seed com defaults por role."
+New-Task $l "Enforcement granular nas rotas API" "Dependência FastAPI check_permission(resource, action) em lugar de só verificar role string. Permite customizar: agente vê relatórios mas não exporta; supervisor edita SLA mas não deleta usuários."
+New-Task $l "UI de gerenciamento de permissões" "Painel admin: matriz visual role × ação com toggle por célula. Preview das permissões efetivas de um usuário antes de confirmar."
+New-Task $l "Log de alterações de permissão" "Toda mudança em permissions registrada em security_audit_logs: admin_id, role, resource, action, old_value, new_value, ip_address."
+
+# Stage 22
+$l = New-List $FolderId "P3 | Stage 22 — Integrações de Terceiros"
+New-Task $l "Infraestrutura de integrações (integration_configs)" "Tabela integration_configs: workspace_id, integration_type (slack|notion|linear|shopify|nfe_provider), credentials JSONB criptografado, enabled, settings JSONB. CRUD via admin. Base reutilizável para todas as integrações."
+New-Task $l "Slack — notificações de atendimento" "Enviar mensagem no canal Slack ao criar nova conversa, ao ser mencionado em nota interna, ao violar SLA. OAuth Slack por workspace. Webhook de saída configurável por evento e canal Slack."
+New-Task $l "Notion — exportação de conversa" "Ação no inbox: exportar resumo de conversa como página Notion. OAuth Notion por workspace. Admin seleciona database destino. Registrado em security_audit_logs."
+New-Task $l "Linear — criação de issue" "Ação no inbox: criar issue no Linear diretamente da conversa. OAuth Linear. Sincronizar status do issue como evento na linha do tempo da conversa."
+New-Task $l "Shopify — dados do cliente no inbox" "Exibir pedidos, status e histórico de compra do contato no painel lateral do inbox. OAuth Shopify por workspace. Busca por e-mail ou telefone do contato."
+
+Write-Host "`n✓ Done! 22 lists (SCOPE.md dev stages 1–22, P1/P2/P3 prefixed) created inside CRM2 folder."

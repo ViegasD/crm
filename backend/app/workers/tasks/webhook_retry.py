@@ -1,7 +1,7 @@
 """Periodic Celery tasks for webhook_events retry, retention and alerting."""
-import asyncio
 import logging
 
+from app.workers.async_runner import run_async
 from app.workers.celery_app import celery_app
 
 logger = logging.getLogger(__name__)
@@ -9,13 +9,7 @@ logger = logging.getLogger(__name__)
 
 def _run(coro):
     """Run an async function from a sync Celery task safely."""
-    try:
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
-            return asyncio.run_coroutine_threadsafe(coro, loop).result()
-    except RuntimeError:
-        pass
-    return asyncio.run(coro)
+    return run_async(coro)
 
 
 @celery_app.task(name="webhook.retry_pending")
@@ -91,7 +85,7 @@ def alert_check(window_minutes: int = 5, threshold: float = 0.05) -> int:
     when ratio > threshold (default 5%). Logs once per window/channel."""
     from datetime import datetime, timedelta, timezone
 
-    from sqlalchemy import func, select
+    from sqlalchemy import case, func, select
 
     from app.core.database import AsyncSessionLocal
     from app.models.enums import WebhookEventStatus
@@ -110,9 +104,13 @@ def alert_check(window_minutes: int = 5, threshold: float = 0.05) -> int:
                     WebhookEvent.workspace_id,
                     func.count().label("total"),
                     func.sum(
-                        func.case(
-                            (WebhookEvent.status == WebhookEventStatus.failed, 1),
-                            (WebhookEvent.status == WebhookEventStatus.dead_letter, 1),
+                        case(
+                            (
+                                WebhookEvent.status.in_(
+                                    [WebhookEventStatus.failed, WebhookEventStatus.dead_letter]
+                                ),
+                                1,
+                            ),
                             else_=0,
                         )
                     ).label("failed"),

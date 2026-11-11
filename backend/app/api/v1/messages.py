@@ -10,7 +10,7 @@ from app.core.dependencies import require_workspace_member
 from app.models.conversation import Message, MessageIdentity
 from app.models.enums import SenderType
 from app.models.workspace import User
-from app.schemas.message import MessageOut, SendMessageRequest
+from app.schemas.message import MessageOut, SendMessageRequest, serialize_message_out
 from app.services.conversation_service import get_conversation_or_404
 from app.services.message_service import send_agent_message
 
@@ -35,7 +35,7 @@ async def list_messages(
     q = q.order_by(Message.created_at.desc()).offset((page - 1) * page_size).limit(page_size)
     items = (await db.execute(q)).scalars().all()
     return {
-        "items": [MessageOut.model_validate(item) for item in items],
+        "items": [serialize_message_out(item) for item in items],
         "total": total,
         "page": page,
         "page_size": page_size,
@@ -57,7 +57,7 @@ async def send_message(
         str(workspace_id),
         {"type": "message.new", "conversation_id": str(conversation_id), "message_id": str(msg.id)},
     )
-    return msg
+    return serialize_message_out(msg)
 
 
 @router.post("/read", status_code=204)

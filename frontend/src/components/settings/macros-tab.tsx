@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "@/stores/auth-store";
 import { cannedResponsesApi, labelsApi, macrosApi, sectorsApi, workspacesApi } from "@/lib/api";
 import type {
@@ -345,8 +345,6 @@ function ActionRow({
   onMoveDown: () => void;
   onRemove: () => void;
 }) {
-  const params = action.params as Record<string, string>;
-
   return (
     <div className="rounded-lg border border-border bg-surface-2 p-3">
       <div className="mb-2 flex items-center gap-2">

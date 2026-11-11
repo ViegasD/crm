@@ -1,0 +1,117 @@
+﻿[
+    {
+        "from":  "SCOPE.md",
+        "to":  "docs/archive/crm/SCOPE_LEGADO.md",
+        "sha256":  "074668049C97C9B3AF599F0F2BE872C54F74770F966EB65877F3C16DBD35C9A8"
+    },
+    {
+        "from":  "ESCOPO_STATUS_CRM2.md",
+        "to":  "docs/archive/crm/ESCOPO_STATUS_2026-05-21.md",
+        "sha256":  "81299E90574CABED3C1D99B2E067208C0B8568E9DCD014C4524BE36CA330908F"
+    },
+    {
+        "from":  "STRUCTURE.md",
+        "to":  "docs/archive/crm/STRUCTURE_PLANEJADA.md",
+        "sha256":  "5676F1B0ED67BA7A1FAE247F96727689CB7375304268BCDDA61A0B57D0A68D6A"
+    },
+    {
+        "from":  "API.md",
+        "to":  "docs/reference/API.md",
+        "sha256":  "7DD65A111309219A16F18FA957530165B8D3C89E38D123277893BD9BC12C6D29"
+    },
+    {
+        "from":  "docs/HANDOFF_COMPLETO.md",
+        "to":  "docs/context/HANDOFF_COMPLETO.md",
+        "sha256":  "8F6B08B4C000EAD7AFB3DF1D63D1188F2883A0E9B22D84E6C0E4C31C843E4859"
+    },
+    {
+        "from":  "docs/REALINHAMENTO_2026-11-11.md",
+        "to":  "docs/planning/REALINHAMENTO_2026-11-11.md",
+        "sha256":  "C33D78C7BAAC993A6B3AD62FFC7A95A3FF444969FE0F1A50D792D3C43FD0D14A"
+    },
+    {
+        "from":  "docs/AUDITORIA_DIRECIONAMENTO_2026-11-11.md",
+        "to":  "docs/reports/AUDITORIA_DIRECIONAMENTO_2026-11-11.md",
+        "sha256":  "E3E17C2216F1FB5939D3550FC394235A01120586844BBEE1B4399782A3C6D565"
+    },
+    {
+        "from":  "docs/INTEGRACAO_VALIDACAO_2026-11-11.md",
+        "to":  "docs/reports/INTEGRACAO_VALIDACAO_2026-11-11.md",
+        "sha256":  "318D16D8C878753F80ACBAFAAF282516F4DA8CDFAF9ED088460DBCF922C31DE3"
+    },
+    {
+        "from":  "docs/CLICKUP_DELIVERY_PLAN_2026-11-11.json",
+        "to":  "docs/planning/clickup/CLICKUP_DELIVERY_PLAN_2026-11-11.json",
+        "sha256":  "C172AEFD49EAD323E2B3903DB185D33A276EF848067586E416E094B7E9172A0C"
+    },
+    {
+        "from":  "docs/CLICKUP_REWORK_RESULT_2026-11-11.json",
+        "to":  "docs/planning/clickup/CLICKUP_REWORK_RESULT_2026-11-11.json",
+        "sha256":  "F164837CA45381700E0A58C89CACB76404A041E22876E6D12B3EB58BB8322D57"
+    },
+    {
+        "from":  "docs/CLICKUP_SCHEDULE_2026-11-11.json",
+        "to":  "docs/planning/clickup/CLICKUP_SCHEDULE_2026-11-11.json",
+        "sha256":  "19F1914DA0FA012A8791FA4CB397E718AABBDE64C06BBC1A5B9392CAD4F3C324"
+    },
+    {
+        "from":  "docs/CLICKUP_SNAPSHOT_2026-11-11.json",
+        "to":  "docs/archive/clickup/CLICKUP_SNAPSHOT_2026-11-11.json",
+        "sha256":  "B7C6923C0FD552587C7623D88178221BE2AF03C7C404794BB238EFCFED6E09B8"
+    },
+    {
+        "from":  "docs/CLICKUP_LEGACY_DELETION_2026-11-11.json",
+        "to":  "docs/archive/clickup/CLICKUP_LEGACY_DELETION_2026-11-11.json",
+        "sha256":  "86A5D9EB26B401116F504CC5702A294EE59EDD6347E06561C54F8DD50A6CEF08"
+    },
+    {
+        "from":  "scripts/clickup_import.ps1",
+        "to":  "docs/archive/clickup/clickup_import.ps1.txt",
+        "sha256":  "5CBECA058259F2CB90A342F036471518C721211C7852295DEED0C76E0E9A979E"
+    },
+    {
+        "from":  "scripts/clickup_close_done.ps1",
+        "to":  "docs/archive/clickup/clickup_close_done.ps1.txt",
+        "sha256":  "BEDB751D762491AC190E375FC6F4784AD625AF6039203BB62F993C56D727FA19"
+    },
+    {
+        "from":  "scripts/clickup_update_plan.json",
+        "to":  "docs/archive/clickup/clickup_update_plan_legacy.json",
+        "sha256":  "151FEFFB1A254B3A9EEBEDBB5201604C00565E21F27159300F37111943B4265A"
+    },
+    {
+        "from":  "seed.py",
+        "to":  "docs/archive/tools/seed-root.py.txt",
+        "sha256":  "C8FA9B33E702FFF46D6DC9D5934C58364A14354AAC1A739F13CCC6EBECEE62C3"
+    },
+    {
+        "from":  "backend/backfill_group_names.py",
+        "to":  "backend/tools/backfill_group_names.py",
+        "sha256":  "5219BE7828DA9EF1BA0569EC5343226FBF628901A34FB3073BE3767D0CE2A3A9"
+    },
+    {
+        "from":  "backend/inspect_stickers.py",
+        "to":  "backend/tools/inspect_stickers.py",
+        "sha256":  "46C2E2EE956A4C253DE34DAA8CBDD4455740EC848ACBB8A6C34D89CEE0BFD8AC"
+    },
+    {
+        "from":  "frontend/type-check-output.txt",
+        "to":  "var/reports/frontend/type-check-output.txt",
+        "sha256":  "E1AF1DA84A989418B8D34204CE969BA16A19345F97B3075BE09AD5783566F44F"
+    },
+    {
+        "from":  "docs/Proposta.pdf",
+        "to":  "docs/sources/Proposta.pdf",
+        "sha256":  "441761415D0814C04980728210BF43684A390AE44AF784C8F997FE295A1CE64C"
+    },
+    {
+        "from":  "docs/Conversa do WhatsApp com +55 62 9172-5382.zip",
+        "to":  "docs/sources/Conversa do WhatsApp com +55 62 9172-5382.zip",
+        "sha256":  "D7C9E90478DE40A26F24320828173C6EAE22797206DAB6DC70AEC39438435FE1"
+    },
+    {
+        "from":  "docs/Conversa do WhatsApp com Ruan Moreira.zip",
+        "to":  "docs/sources/Conversa do WhatsApp com Ruan Moreira.zip",
+        "sha256":  "91A117AE4F9B300F3FBD72F4AD69DEE3503D62BC71CF81D07BFD99CF74825833"
+    }
+]

@@ -1,4 +1,5 @@
 import axios, { type AxiosError } from "axios";
+import { clearAuthState, syncAuthTokens } from "@/stores/auth-store";
 
 function toCamelCase(key: string) {
   return key.replace(/_([a-z0-9])/g, (_, char: string) => char.toUpperCase());
@@ -22,7 +23,7 @@ function camelizeKeys<T>(value: T): T {
 }
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000",
+  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001",
 });
 
 api.interceptors.request.use((config) => {
@@ -47,16 +48,14 @@ api.interceptors.response.use(
       if (refresh) {
         try {
           const { data } = await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/api/v1/auth/refresh`,
+            `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001"}/api/v1/auth/refresh`,
             { refresh_token: refresh }
           );
-          localStorage.setItem("access_token", data.access_token);
-          localStorage.setItem("refresh_token", data.refresh_token);
+          syncAuthTokens(data.access_token, data.refresh_token);
           original.headers!["Authorization"] = `Bearer ${data.access_token}`;
           return api(original);
         } catch {
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
+          clearAuthState();
           window.location.href = "/login";
         }
       }
@@ -130,6 +129,39 @@ export const contactsApi = {
     api.patch(`/api/v1/workspaces/${wsId}/contacts/${contactId}`, data),
   delete: (wsId: string, contactId: string) =>
     api.delete(`/api/v1/workspaces/${wsId}/contacts/${contactId}`),
+  timeline: (
+    wsId: string,
+    contactId: string,
+    params?: {
+      channel_account_id?: string;
+      since?: string;
+      until?: string;
+      status?: string[];
+      active_conversation_id?: string;
+      limit_per_conversation?: number;
+    },
+  ) => api.get(`/api/v1/workspaces/${wsId}/contacts/${contactId}/timeline`, { params }),
+};
+
+// ─── Conversation reopen / new-protocol policies ─────────────────────────────
+export const conversationPoliciesApi = {
+  list: (wsId: string) =>
+    api.get(`/api/v1/workspaces/${wsId}/conversation-policies`),
+  effective: (wsId: string, sectorId?: string) =>
+    api.get(`/api/v1/workspaces/${wsId}/conversation-policies/effective`, {
+      params: sectorId ? { sector_id: sectorId } : undefined,
+    }),
+  upsert: (
+    wsId: string,
+    data: {
+      sector_id?: string | null;
+      reopen_mode: "window" | "always_reopen" | "always_new";
+      reopen_window_hours: number;
+      inherit_assignee_on_new: boolean;
+    },
+  ) => api.put(`/api/v1/workspaces/${wsId}/conversation-policies`, data),
+  delete: (wsId: string, policyId: string) =>
+    api.delete(`/api/v1/workspaces/${wsId}/conversation-policies/${policyId}`),
 };
 
 // ─── Conversations ────────────────────────────────────────────────────────────
@@ -382,6 +414,93 @@ export const slaApi = {
     api.post(`/api/v1/workspaces/${wsId}/sla/assign-next`, data),
   evaluate: (wsId: string) => api.post(`/api/v1/workspaces/${wsId}/sla/evaluate`),
   supervisorOverview: (wsId: string) => api.get(`/api/v1/workspaces/${wsId}/sla/supervisor/overview`),
+  // pause reasons CRUD (extended)
+  updatePauseReason: (wsId: string, id: string, data: Record<string, unknown>) =>
+    api.patch(`/api/v1/workspaces/${wsId}/sla/pause-reasons/${id}`, data),
+  deletePauseReason: (wsId: string, id: string) =>
+    api.delete(`/api/v1/workspaces/${wsId}/sla/pause-reasons/${id}`),
+  // auto-resolve rules
+  listAutoResolveRules: (wsId: string) =>
+    api.get(`/api/v1/workspaces/${wsId}/sla/auto-resolve-rules`),
+  createAutoResolveRule: (wsId: string, data: Record<string, unknown>) =>
+    api.post(`/api/v1/workspaces/${wsId}/sla/auto-resolve-rules`, data),
+  updateAutoResolveRule: (wsId: string, id: string, data: Record<string, unknown>) =>
+    api.patch(`/api/v1/workspaces/${wsId}/sla/auto-resolve-rules/${id}`, data),
+  deleteAutoResolveRule: (wsId: string, id: string) =>
+    api.delete(`/api/v1/workspaces/${wsId}/sla/auto-resolve-rules/${id}`),
+  // business hours grid (bulk replace)
+  replaceBusinessHours: (
+    wsId: string,
+    rows: Array<Record<string, unknown>>,
+    sectorId?: string | null,
+  ) =>
+    api.put(`/api/v1/workspaces/${wsId}/sla/business-hours`, rows, {
+      params: sectorId ? { sector_id: sectorId } : undefined,
+    }),
+  // escalation chain
+  listEscalations: (wsId: string, policyId: string) =>
+    api.get(`/api/v1/workspaces/${wsId}/sla/policies/${policyId}/escalations`),
+  replaceEscalations: (wsId: string, policyId: string, rules: Array<Record<string, unknown>>) =>
+    api.put(`/api/v1/workspaces/${wsId}/sla/policies/${policyId}/escalations`, rules),
+};
+
+// ─── Stage 9 extras: holidays, locks, idle, notifications, outbound, csat, heatmap ─
+export const stage9Api = {
+  // business holidays
+  listHolidays: (wsId: string) =>
+    api.get(`/api/v1/workspaces/${wsId}/business-holidays`),
+  createHoliday: (wsId: string, data: Record<string, unknown>) =>
+    api.post(`/api/v1/workspaces/${wsId}/business-holidays`, data),
+  deleteHoliday: (wsId: string, id: string) =>
+    api.delete(`/api/v1/workspaces/${wsId}/business-holidays/${id}`),
+  // sla override on conversation
+  setSlaOverride: (wsId: string, convId: string, policyId: string | null) =>
+    api.put(`/api/v1/workspaces/${wsId}/conversations/${convId}/sla-override`, {
+      sla_policy_override_id: policyId,
+    }),
+  // conversation lock
+  getLock: (wsId: string, convId: string) =>
+    api.get(`/api/v1/workspaces/${wsId}/conversations/${convId}/lock`),
+  acquireLock: (wsId: string, convId: string, ttlSeconds = 90) =>
+    api.post(`/api/v1/workspaces/${wsId}/conversations/${convId}/lock`, {
+      ttl_seconds: ttlSeconds,
+    }),
+  releaseLock: (wsId: string, convId: string) =>
+    api.delete(`/api/v1/workspaces/${wsId}/conversations/${convId}/lock`),
+  // idle rule
+  getIdleRule: (wsId: string) => api.get(`/api/v1/workspaces/${wsId}/idle-rule`),
+  upsertIdleRule: (wsId: string, data: Record<string, unknown>) =>
+    api.put(`/api/v1/workspaces/${wsId}/idle-rule`, data),
+  // notifications
+  listNotificationChannels: (wsId: string) =>
+    api.get(`/api/v1/workspaces/${wsId}/notification-channels`),
+  createNotificationChannel: (wsId: string, data: Record<string, unknown>) =>
+    api.post(`/api/v1/workspaces/${wsId}/notification-channels`, data),
+  updateNotificationChannel: (wsId: string, id: string, data: Record<string, unknown>) =>
+    api.patch(`/api/v1/workspaces/${wsId}/notification-channels/${id}`, data),
+  deleteNotificationChannel: (wsId: string, id: string) =>
+    api.delete(`/api/v1/workspaces/${wsId}/notification-channels/${id}`),
+  // per-user notification inbox
+  listNotifications: (wsId: string, params?: { unread?: boolean; page?: number }) =>
+    api.get(`/api/v1/workspaces/${wsId}/notifications`, { params }),
+  markNotificationsRead: (wsId: string, ids?: string[]) =>
+    api.post(`/api/v1/workspaces/${wsId}/notifications/read`, { ids: ids ?? null }),
+  // outbound API webhooks
+  listApiWebhooks: (wsId: string) => api.get(`/api/v1/workspaces/${wsId}/api-webhooks`),
+  createApiWebhook: (wsId: string, data: Record<string, unknown>) =>
+    api.post(`/api/v1/workspaces/${wsId}/api-webhooks`, data),
+  deleteApiWebhook: (wsId: string, id: string) =>
+    api.delete(`/api/v1/workspaces/${wsId}/api-webhooks/${id}`),
+  listApiWebhookDeliveries: (wsId: string, subId: string, limit = 50) =>
+    api.get(`/api/v1/workspaces/${wsId}/api-webhooks/${subId}/deliveries`, {
+      params: { limit },
+    }),
+  // CSAT
+  listCsat: (wsId: string, params?: { only_responded?: boolean; page?: number }) =>
+    api.get(`/api/v1/workspaces/${wsId}/csat`, { params }),
+  // heatmap
+  heatmap: (wsId: string, days = 7) =>
+    api.get(`/api/v1/workspaces/${wsId}/supervisor/heatmap`, { params: { days } }),
 };
 
 // ─── Media ────────────────────────────────────────────────────────────────────
@@ -395,5 +514,6 @@ export const mediaApi = {
       { headers: { "Content-Type": "multipart/form-data" } }
     );
   },
-  presign: (key: string) => api.get<{ url: string }>("/api/v1/media/presign", { params: { key } }),
+  presign: (key: string) =>
+    api.get<{ url: string }>(`/api/v1/media/presign?key=${encodeURIComponent(key)}`),
 };

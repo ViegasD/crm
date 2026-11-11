@@ -30,7 +30,7 @@ services:
   backend:
     build: ./backend
     ports:
-      - "8000:8000"
+      - "8001:8000"
     env_file:
       - ./backend/.env
     depends_on:
@@ -43,6 +43,15 @@ services:
   celery_worker:
     build: ./backend
     command: celery -A app.workers.celery_app worker --loglevel=info
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - postgres
+      - redis
+
+  celery_beat:
+    build: ./backend
+    command: celery -A app.workers.celery_app beat --loglevel=info
     env_file:
       - ./backend/.env
     depends_on:
@@ -81,7 +90,7 @@ services:
       CACHE_REDIS_ENABLED: "true"
       CACHE_REDIS_URI: redis://redis:6379/1
       CACHE_REDIS_PREFIX_KEY: evolution
-      CACHE_REDIS_SAVE_INSTANCES: "false"
+      CACHE_REDIS_SAVE_INSTANCES: "true"
       CACHE_REDIS_TTL: "604800"
       DEL_INSTANCE: "false"
       WEBHOOK_GLOBAL_ENABLED: "false"

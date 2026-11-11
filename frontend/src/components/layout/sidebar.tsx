@@ -3,17 +3,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { AtSign, BarChart2, GitBranch, LogOut, MessageSquare, Settings, Users } from "lucide-react";
+import { Activity, AtSign, BarChart2, GitBranch, LogOut, MessageSquare, Settings, Users } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
 import { Avatar } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import { mentionsApi } from "@/lib/api";
+import { PresenceDropdown } from "@/components/layout/presence-dropdown";
 
 const navItems = [
   { href: "/inbox", icon: MessageSquare, label: "Inbox" },
   { href: "/mentions", icon: AtSign, label: "Mentions" },
   { href: "/contacts", icon: Users, label: "Contacts" },
   { href: "/flows", icon: GitBranch, label: "Flows" },
+  { href: "/supervisor", icon: Activity, label: "Supervisor" },
   { href: "/reports", icon: BarChart2, label: "Reports" },
   { href: "/settings", icon: Settings, label: "Settings" },
 ];
@@ -23,22 +25,22 @@ export function Sidebar() {
   const { user, currentWorkspace, logout } = useAuthStore();
   const router = useRouter();
   const [unreadMentions, setUnreadMentions] = useState(0);
+  const workspaceId = currentWorkspace?.id;
 
   useEffect(() => {
-    if (!currentWorkspace) return;
-    let timer: number | undefined;
+    if (!workspaceId) return;
     const refresh = () => {
       mentionsApi
-        .list(currentWorkspace.id, { unread: true, page_size: 1 })
+        .list(workspaceId, { unread: true, page_size: 1 })
         .then((r) => setUnreadMentions(r.data?.unreadCount ?? 0))
         .catch(() => undefined);
     };
     refresh();
-    timer = window.setInterval(refresh, 60_000);
+    const timer = window.setInterval(refresh, 60_000);
     return () => {
-      if (timer) window.clearInterval(timer);
+      window.clearInterval(timer);
     };
-  }, [currentWorkspace?.id]);
+  }, [workspaceId]);
 
   function handleLogout() {
     logout();
@@ -82,6 +84,7 @@ export function Sidebar() {
       </nav>
 
       <div className="mt-2 flex flex-col items-center gap-2">
+        <PresenceDropdown />
         <Avatar name={user?.name} src={user?.avatarUrl} size="sm" className="cursor-pointer" />
         <button onClick={handleLogout} className="text-sidebar-text hover:text-white" title="Logout">
           <LogOut className="h-4 w-4" />

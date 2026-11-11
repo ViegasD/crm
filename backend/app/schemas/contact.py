@@ -18,6 +18,22 @@ class ContactEmailIn(BaseModel):
     is_primary: bool = False
 
 
+class ContactPhoneOut(BaseModel):
+    model_config = {"from_attributes": True}
+
+    phone: str
+    label: str | None = None
+    is_primary: bool
+
+
+class ContactEmailOut(BaseModel):
+    model_config = {"from_attributes": True}
+
+    email: EmailStr
+    label: str | None = None
+    is_primary: bool
+
+
 class ContactCreate(BaseModel):
     name: str
     type: ContactType = ContactType.person
@@ -49,4 +65,6 @@ class ContactOut(BaseModel):
     company: str | None
     integration_id: str | None
     document: str | None
+    phones: list[ContactPhoneOut] = []
+    emails: list[ContactEmailOut] = []
     created_at: datetime
