@@ -1,0 +1,904 @@
+{
+  "date": "2026-11-11",
+  "folderId": "901318283724",
+  "confirmedSplit": {
+    "Fabio": {
+      "clickupUserId": 78664464,
+      "scope": "backend, API, produto com agencia, deploy"
+    },
+    "Thiago": {
+      "clickupUserId": 296458349,
+      "scope": "frontend completo e integracao UI"
+    }
+  },
+  "baseline": "f6a9a22ab79cf1b8cff9b4bb1c35ed516d8b13ff",
+  "latestContextRevision": "aaf08dfd503a85205cccc4b12e5dfdf06ec449b4",
+  "datesProvisional": true,
+  "scheduleNote": "Janela alvo de 20 dias uteis, 16/11 a 14/12; escopo acrescido exige reestimativa em AUD08/UI01. Datas nao sao garantia. Nov20 excluido. UI visual/prototipo pode avancar enquanto backend e corrigido; integracao funcional depende de AUD08.",
+  "tasks": [
+    {
+      "code": "D00.1",
+      "existing": true,
+      "list": "MVP 00 | Diretriz e validacao de escopo",
+      "name": "Validar fluxo real de marketing e e-commerce",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-16",
+      "due": "2026-11-18",
+      "dependsOn": [],
+      "deliverable": "Backend/produto/operacao: Fabio responde pela entrega e pelo contrato consumido pelo frontend."
+    },
+    {
+      "code": "D00.2",
+      "existing": true,
+      "list": "MVP 00 | Diretriz e validacao de escopo",
+      "name": "Definir revisao interna, aprovacao e acesso do cliente",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-16",
+      "due": "2026-11-18",
+      "dependsOn": [],
+      "deliverable": "Backend/produto/operacao: Fabio responde pela entrega e pelo contrato consumido pelo frontend."
+    },
+    {
+      "code": "D00.3",
+      "existing": true,
+      "list": "MVP 00 | Diretriz e validacao de escopo",
+      "name": "Definir recorrencia, prazos, anexos e notificacoes",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-16",
+      "due": "2026-11-18",
+      "dependsOn": [],
+      "deliverable": "Backend/produto/operacao: Fabio responde pela entrega e pelo contrato consumido pelo frontend."
+    },
+    {
+      "code": "D00.4",
+      "existing": true,
+      "list": "MVP 00 | Diretriz e validacao de escopo",
+      "name": "Decidir papel do WhatsApp no MVP",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-16",
+      "due": "2026-11-18",
+      "dependsOn": [],
+      "deliverable": "Backend/produto/operacao: Fabio responde pela entrega e pelo contrato consumido pelo frontend."
+    },
+    {
+      "code": "D00.5",
+      "existing": true,
+      "list": "MVP 00 | Diretriz e validacao de escopo",
+      "name": "Alinhar escopo, proposta e criterios de aceite",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-16",
+      "due": "2026-11-18",
+      "dependsOn": [],
+      "deliverable": "Preservar o status anterior; fechamento historico nao aprova automaticamente o novo frontend nem garante o prazo ampliado."
+    },
+    {
+      "code": "D01.1",
+      "existing": true,
+      "list": "MVP 01 | Fundacao e seguranca",
+      "name": "Integrar e validar checkout com branches remotas",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-16",
+      "due": "2026-11-17",
+      "dependsOn": [],
+      "deliverable": "Backend/produto/operacao: Fabio responde pela entrega e pelo contrato consumido pelo frontend."
+    },
+    {
+      "code": "D01.2",
+      "existing": true,
+      "list": "MVP 01 | Fundacao e seguranca",
+      "name": "Aplicar papeis e isolamento em operacoes administrativas",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-16",
+      "due": "2026-11-19",
+      "dependsOn": [
+        "AUD01",
+        "AUD03"
+      ],
+      "deliverable": "Backend/produto/operacao: Fabio responde pela entrega e pelo contrato consumido pelo frontend."
+    },
+    {
+      "code": "D01.3",
+      "existing": true,
+      "list": "MVP 01 | Fundacao e seguranca",
+      "name": "Corrigir autorizacao de upload e download de midia",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-16",
+      "due": "2026-11-19",
+      "dependsOn": [
+        "AUD02"
+      ],
+      "deliverable": "Backend/produto/operacao: Fabio responde pela entrega e pelo contrato consumido pelo frontend."
+    },
+    {
+      "code": "D01.4",
+      "existing": true,
+      "list": "MVP 01 | Fundacao e seguranca",
+      "name": "Concluir onboarding e gerenciamento de equipe",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-19",
+      "due": "2026-11-23",
+      "dependsOn": [],
+      "deliverable": "Backend: provisionamento, desativacao e revogacao de operadores; contrato para UI03. Nao assumir que excluir membro equivale a desativar usuario."
+    },
+    {
+      "code": "D01.5",
+      "existing": true,
+      "list": "MVP 01 | Fundacao e seguranca",
+      "name": "Validar migrations em banco vazio e banco existente",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-16",
+      "due": "2026-11-18",
+      "dependsOn": [],
+      "deliverable": "Backend/produto/operacao: Fabio responde pela entrega e pelo contrato consumido pelo frontend."
+    },
+    {
+      "code": "D02.1",
+      "existing": true,
+      "list": "MVP 02 | Clientes e servicos",
+      "name": "Modelar clientes, servicos e vinculos operacionais",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-26",
+      "due": "2026-11-27",
+      "dependsOn": [
+        "AUD08"
+      ],
+      "deliverable": "Fabio entrega modelos, migrations e API de clientes/servicos para Thiago consumir na D02.2."
+    },
+    {
+      "code": "D02.2",
+      "existing": true,
+      "list": "MVP 02 | Clientes e servicos",
+      "name": "Entregar cadastro e consulta de clientes e servicos",
+      "owner": "Thiago",
+      "reviewer": "Fabio",
+      "start": "2026-11-30",
+      "due": "2026-12-01",
+      "dependsOn": [
+        "D02.1",
+        "UI02"
+      ],
+      "deliverable": "Frontend: interface integrada e verificavel; Fabio entrega contratos/backend relacionados."
+    },
+    {
+      "code": "D02.3",
+      "existing": true,
+      "list": "MVP 02 | Clientes e servicos",
+      "name": "Definir e executar carga inicial de clientes",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-30",
+      "due": "2026-12-01",
+      "dependsOn": [
+        "D02.1"
+      ],
+      "deliverable": "Backend/produto/operacao: Fabio responde pela entrega e pelo contrato consumido pelo frontend."
+    },
+    {
+      "code": "D03.1",
+      "existing": true,
+      "list": "MVP 03 | Entregas de marketing",
+      "name": "Modelar demandas, etapas e regras de transicao",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-26",
+      "due": "2026-11-27",
+      "dependsOn": [
+        "AUD08",
+        "D00.1"
+      ],
+      "deliverable": "Fabio entrega modelos, migrations e endpoints de demandas, etapas, comentarios, anexos e historico para D03.2/D03.3; o dominio ainda nao existe."
+    },
+    {
+      "code": "D03.2",
+      "existing": true,
+      "list": "MVP 03 | Entregas de marketing",
+      "name": "Entregar criacao, atribuicao e Kanban de demandas",
+      "owner": "Thiago",
+      "reviewer": "Fabio",
+      "start": "2026-11-30",
+      "due": "2026-12-02",
+      "dependsOn": [
+        "D03.1",
+        "UI02"
+      ],
+      "deliverable": "Frontend: interface integrada e verificavel; Fabio entrega contratos/backend relacionados."
+    },
+    {
+      "code": "D03.3",
+      "existing": true,
+      "list": "MVP 03 | Entregas de marketing",
+      "name": "Adicionar comentarios, anexos e historico de demanda",
+      "owner": "Thiago",
+      "reviewer": "Fabio",
+      "start": "2026-12-03",
+      "due": "2026-12-03",
+      "dependsOn": [
+        "D03.1",
+        "UI02"
+      ],
+      "deliverable": "Frontend: interface integrada e verificavel; Fabio entrega contratos/backend relacionados."
+    },
+    {
+      "code": "D03.4",
+      "existing": true,
+      "list": "MVP 03 | Entregas de marketing",
+      "name": "Entregar revisao, ajustes, aprovacao e conclusao",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-30",
+      "due": "2026-12-02",
+      "dependsOn": [
+        "D03.1",
+        "D00.2"
+      ],
+      "deliverable": "Fabio implementa transicoes e autorizacao da revisao/aprovacao; Thiago implementa a interface na UI10."
+    },
+    {
+      "code": "D03.5",
+      "existing": true,
+      "list": "MVP 03 | Entregas de marketing",
+      "name": "Validar recorrencia e alertas operacionais de marketing",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-12-03",
+      "due": "2026-12-04",
+      "dependsOn": [
+        "D03.1",
+        "D00.3"
+      ],
+      "deliverable": "Backend/produto/operacao: Fabio responde pela entrega e pelo contrato consumido pelo frontend."
+    },
+    {
+      "code": "D04.1",
+      "existing": true,
+      "list": "MVP 04 | Projetos de e-commerce",
+      "name": "Modelar projetos, marcos e checklists de e-commerce",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-30",
+      "due": "2026-12-02",
+      "dependsOn": [
+        "AUD08",
+        "D00.1"
+      ],
+      "deliverable": "Fabio entrega modelos, migrations e API de projetos, marcos, checklist, evidencias e entrega; Thiago consome na D04.2/D04.3."
+    },
+    {
+      "code": "D04.2",
+      "existing": true,
+      "list": "MVP 04 | Projetos de e-commerce",
+      "name": "Entregar painel de projeto e execucao de checklist",
+      "owner": "Thiago",
+      "reviewer": "Fabio",
+      "start": "2026-12-03",
+      "due": "2026-12-04",
+      "dependsOn": [
+        "D04.1",
+        "UI02"
+      ],
+      "deliverable": "Frontend: interface integrada e verificavel; Fabio entrega contratos/backend relacionados."
+    },
+    {
+      "code": "D04.3",
+      "existing": true,
+      "list": "MVP 04 | Projetos de e-commerce",
+      "name": "Vincular evidencias, revisao e entrega do projeto",
+      "owner": "Thiago",
+      "reviewer": "Fabio",
+      "start": "2026-12-07",
+      "due": "2026-12-08",
+      "dependsOn": [
+        "D04.1",
+        "UI02",
+        "D04.2"
+      ],
+      "deliverable": "Frontend: interface integrada e verificavel; Fabio entrega contratos/backend relacionados."
+    },
+    {
+      "code": "D04.4",
+      "existing": true,
+      "list": "MVP 04 | Projetos de e-commerce",
+      "name": "Homologar um projeto real de e-commerce",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-12-09",
+      "due": "2026-12-10",
+      "dependsOn": [
+        "D04.2",
+        "D04.3"
+      ],
+      "deliverable": "Backend/produto/operacao: Fabio responde pela entrega e pelo contrato consumido pelo frontend."
+    },
+    {
+      "code": "D05.1",
+      "existing": true,
+      "list": "MVP 05 | Painel, homologacao e producao",
+      "name": "Entregar indicadores operacionais de entregas",
+      "owner": "Thiago",
+      "reviewer": "Fabio",
+      "start": "2026-12-08",
+      "due": "2026-12-09",
+      "dependsOn": [
+        "API01",
+        "UI02"
+      ],
+      "deliverable": "Thiago entrega painel de indicadores de entregas; API e reconciliacao ficam na API01 com Fabio. Substituir placeholder /reports sem inventar numeros."
+    },
+    {
+      "code": "D05.2",
+      "existing": true,
+      "list": "MVP 05 | Painel, homologacao e producao",
+      "name": "Executar QA integrado e isolamento por papel/workspace",
+      "owner": "Thiago",
+      "reviewer": "Fabio",
+      "start": "2026-12-10",
+      "due": "2026-12-11",
+      "dependsOn": [
+        "UI03",
+        "UI04",
+        "UI05",
+        "UI06",
+        "UI07",
+        "UI09",
+        "UI10",
+        "D03.2",
+        "D03.3",
+        "D04.2",
+        "D04.3",
+        "D05.1",
+        "UI08"
+      ],
+      "deliverable": "Thiago lidera QA frontend e desktop/mobile; Fabio fornece resultados backend AUD08 e corrige falhas da sua camada. Registrar type-check, lint, build --webpack, testes de comportamento e roteiro real desktop/mobile separadamente."
+    },
+    {
+      "code": "D05.3",
+      "existing": true,
+      "list": "MVP 05 | Painel, homologacao e producao",
+      "name": "Preparar deploy, backup, armazenamento e monitoramento",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-26",
+      "due": "2026-12-11",
+      "dependsOn": [
+        "AUD08"
+      ],
+      "deliverable": "Fabio opera EasyPanel e valida backup externo/restauracao/alerta/rollback; desenvolvimento compartilhado ja publicado nao comprova producao."
+    },
+    {
+      "code": "D05.4",
+      "existing": true,
+      "list": "MVP 05 | Painel, homologacao e producao",
+      "name": "Homologar MVP com agencia e registrar aceite",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-12-14",
+      "due": "2026-12-14",
+      "dependsOn": [
+        "D05.2",
+        "D05.3",
+        "D04.4"
+      ],
+      "deliverable": "Backend/produto/operacao: Fabio responde pela entrega e pelo contrato consumido pelo frontend."
+    },
+    {
+      "code": "D06.1",
+      "existing": true,
+      "list": "MVP 06 | WhatsApp condicionado ao fluxo",
+      "name": "Mapear reuso WhatsApp de fabia para CRM2",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-16",
+      "due": "2026-11-18",
+      "dependsOn": [],
+      "deliverable": "Backend/produto/operacao: Fabio responde pela entrega e pelo contrato consumido pelo frontend."
+    },
+    {
+      "code": "D06.2",
+      "existing": true,
+      "list": "MVP 06 | WhatsApp condicionado ao fluxo",
+      "name": "Validar envio, webhooks e isolamento por numero",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-26",
+      "due": "2026-11-27",
+      "dependsOn": [
+        "AUD08",
+        "D00.4"
+      ],
+      "deliverable": "Backend/produto/operacao: Fabio responde pela entrega e pelo contrato consumido pelo frontend."
+    },
+    {
+      "code": "D06.3",
+      "existing": true,
+      "list": "MVP 06 | WhatsApp condicionado ao fluxo",
+      "name": "Implementar regras de entrega, erros e midia necessarias",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-30",
+      "due": "2026-12-02",
+      "dependsOn": [
+        "D06.2"
+      ],
+      "deliverable": "Backend/produto/operacao: Fabio responde pela entrega e pelo contrato consumido pelo frontend."
+    },
+    {
+      "code": "D06.4",
+      "existing": true,
+      "list": "MVP 06 | WhatsApp condicionado ao fluxo",
+      "name": "Validar coexistencia e historico se aprovados",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-12-03",
+      "due": "2026-12-04",
+      "dependsOn": [
+        "D06.3"
+      ],
+      "deliverable": "Backend/produto/operacao: Fabio responde pela entrega e pelo contrato consumido pelo frontend."
+    },
+    {
+      "code": "AUD01",
+      "existing": false,
+      "list": "MVP 07 | Auditoria, estabilidade e contratos",
+      "name": "Unificar autorizacao privada, papeis e revogacao",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-16",
+      "due": "2026-11-18",
+      "dependsOn": [],
+      "acceptance": [
+        "Mesmo resultado autorizado em lista, detalhe, mensagem, timeline, bulk, participantes e WS.",
+        "Usuario externo/removido nao entra nem continua recebendo eventos; admin e ultimo admin protegidos.",
+        "Regressoes HTTP e WS com dois workspaces e conversa privada, incluindo sessoes abertas."
+      ],
+      "files": [
+        "backend/app/core/dependencies.py",
+        "backend/app/services/conversation_service.py",
+        "backend/app/api/v1/conversations.py",
+        "backend/app/api/v1/messages.py",
+        "backend/app/websocket/handlers.py"
+      ]
+    },
+    {
+      "code": "AUD02",
+      "existing": false,
+      "list": "MVP 07 | Auditoria, estabilidade e contratos",
+      "name": "Proteger ownership, vinculo e acesso de midia",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-16",
+      "due": "2026-11-19",
+      "dependsOn": [],
+      "acceptance": [
+        "Registrar ownership e workspace; validar vinculo de anexo com conversa autorizada, incluindo arquivos antigos.",
+        "Upload/presign/download e reutilizacao de key nao cruzam escopo; TTL e limite de revogacao documentados e testados.",
+        "Bloquear traversal e arquivos invalidos; nao tratar prefixo de key como autorizacao completa."
+      ],
+      "files": [
+        "backend/app/api/v1/media.py",
+        "backend/app/services/message_service.py",
+        "backend/app/core/minio.py"
+      ]
+    },
+    {
+      "code": "AUD03",
+      "existing": false,
+      "list": "MVP 07 | Auditoria, estabilidade e contratos",
+      "name": "Corrigir timeline, busca e destinatarios de transferencia",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-16",
+      "due": "2026-11-18",
+      "dependsOn": [],
+      "acceptance": [
+        "Timeline com mensagens inbound/outbound usa enum valido e nao retorna 500.",
+        "Busca por nome/telefone, totais e paginacao reconciliados.",
+        "Assignee/setor/motivos pertencem ao workspace e respeitam acesso; testes de referencias externas."
+      ],
+      "files": [
+        "backend/app/services/timeline_service.py",
+        "backend/app/services/conversation_service.py",
+        "backend/app/api/v1/conversations.py"
+      ]
+    },
+    {
+      "code": "AUD04",
+      "existing": false,
+      "list": "MVP 07 | Auditoria, estabilidade e contratos",
+      "name": "Unificar webhook, conta por item, dedupe e replay duravel",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-19",
+      "due": "2026-11-23",
+      "dependsOn": [
+        "AUD01"
+      ],
+      "acceptance": [
+        "POST multi-conta, retry e caminho legado resolvem conta de cada item antes de efeitos.",
+        "Falha de persistencia nao confirma evento perdido; reentrega e concorrencia nao duplicam efeitos.",
+        "Claim/retry atomicos e testes com dois numeros sinteticos, payloads repetidos e falhas."
+      ],
+      "files": [
+        "backend/app/webhooks/whatsapp/meta.py",
+        "backend/app/services/webhook_event_service.py",
+        "backend/app/workers/tasks/webhook.py",
+        "backend/app/workers/tasks/webhook_retry.py"
+      ]
+    },
+    {
+      "code": "AUD05",
+      "existing": false,
+      "list": "MVP 07 | Auditoria, estabilidade e contratos",
+      "name": "Persistir correlacao de envio e recibos idempotentes",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-19",
+      "due": "2026-11-24",
+      "dependsOn": [
+        "AUD01"
+      ],
+      "acceptance": [
+        "Identidade local e estado pendente duraveis antes do envio externo.",
+        "Timeout, resposta perdida, retry e recibo tardio/fora de ordem produzem estados explicitos sem duplicacao silenciosa.",
+        "Contrato pending/confirmed/failed e janela/modelos documentados para UI05; sem mensagens reais."
+      ],
+      "files": [
+        "backend/app/services/message_service.py",
+        "backend/app/models/conversation.py"
+      ]
+    },
+    {
+      "code": "AUD06",
+      "existing": false,
+      "list": "MVP 07 | Auditoria, estabilidade e contratos",
+      "name": "Entregar transporte worker para browser com isolamento",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-19",
+      "due": "2026-11-24",
+      "dependsOn": [
+        "AUD01"
+      ],
+      "acceptance": [
+        "Evento originado no Celery atravessa Redis e chega ao browser/API em processos diferentes.",
+        "Distribuicao filtra workspace e permissao da conversa; send_to nao vaza para toda a sala.",
+        "Testar usuario removido, reconnect e duas salas; ping WSS isolado nao vale como aceite."
+      ],
+      "files": [
+        "backend/app/websocket/manager.py",
+        "backend/app/websocket/handlers.py",
+        "backend/app/core/redis.py",
+        "backend/app/workers/tasks"
+      ]
+    },
+    {
+      "code": "AUD07",
+      "existing": false,
+      "list": "MVP 07 | Auditoria, estabilidade e contratos",
+      "name": "Corrigir contratos de autenticacao e Flows existentes",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-16",
+      "due": "2026-11-18",
+      "dependsOn": [],
+      "acceptance": [
+        "JWT assinado com subject invalido retorna 401, sem 500.",
+        "Graph/nodes_data, edges e active/isActive possuem contrato unico e round-trip testado.",
+        "Fluxo sem executor permanece draft e ativacao retorna erro honesto; validar workspace/conta. Nao construir automacao avancada."
+      ],
+      "files": [
+        "backend/app/core/dependencies.py",
+        "backend/app/api/v1/flows.py",
+        "backend/app/schemas/flow.py"
+      ]
+    },
+    {
+      "code": "AUD08",
+      "existing": false,
+      "list": "MVP 07 | Auditoria, estabilidade e contratos",
+      "name": "Validar baseline corrigida e liberar integracao funcional",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-11-24",
+      "due": "2026-11-25",
+      "dependsOn": [
+        "AUD01",
+        "AUD02",
+        "AUD03",
+        "AUD04",
+        "AUD05",
+        "AUD06",
+        "AUD07",
+        "D01.4",
+        "D01.5"
+      ],
+      "acceptance": [
+        "Regressoes em PostgreSQL descartavel, migrations de linhagens conhecidas e testes das falhas auditadas passam com log/commit.",
+        "Registrar resultado inicial de test_product_audit: 10 testes passaram, 1 falhou por label nulo no round-trip; corrigir expectativa/contrato e rerodar, sem declarar suite verde antes.",
+        "Smoke real da API, storage, worker e WS; limites manuais e WhatsApp nao pareado explicitados. Contratos OpenAPI e exemplos sanitizados entregues a Thiago."
+      ],
+      "files": [
+        "backend/tests/test_product_audit.py",
+        "backend/tests/test_migration_upgrade.py",
+        "deploy/smoke_development.py"
+      ]
+    },
+    {
+      "code": "API01",
+      "existing": false,
+      "list": "MVP 05 | Painel, homologacao e producao",
+      "name": "Implementar API e reconciliacao dos indicadores de entregas",
+      "owner": "Fabio",
+      "reviewer": "Thiago",
+      "start": "2026-12-03",
+      "due": "2026-12-07",
+      "dependsOn": [
+        "D03.1",
+        "D04.1",
+        "D00.1"
+      ],
+      "acceptance": [
+        "Definir indicadores de marketing/e-commerce, periodo/fuso, papel e denominadores com agencia.",
+        "Endpoints de total e detalhe usam mesmos filtros e autorizacao.",
+        "Casos sinteticos reconciliam atrasos, revisao, conclusao e projetos/checklists; contrato para D05.1."
+      ],
+      "files": [
+        "backend/app/api/v1",
+        "backend/app/services",
+        "backend/tests"
+      ]
+    },
+    {
+      "code": "UI01",
+      "existing": false,
+      "list": "MVP 08 | Rework completo do frontend",
+      "name": "Validar jornadas e direcao visual do frontend completo",
+      "owner": "Thiago",
+      "reviewer": "Fabio",
+      "start": "2026-11-16",
+      "due": "2026-11-18",
+      "dependsOn": [],
+      "acceptance": [
+        "Matriz backend/cliente/tela: existente, parcial, ausente ou bloqueado; confirmar candidatos por uso real.",
+        "Prototipo de navegacao, marketing, e-commerce, inbox e painel em desktop/mobile aprovado por Fabio.",
+        "Definir linguagem visual, hierarquia, tokens e estados; manter Next/React atuais salvo decisao explicita. Sem confundir prototipo com funcionalidade entregue."
+      ],
+      "files": [
+        "frontend/src/app",
+        "frontend/src/components",
+        "docs/reports/BACKEND_FRONTEND_COVERAGE_2026-11-11.md"
+      ]
+    },
+    {
+      "code": "UI02",
+      "existing": false,
+      "list": "MVP 08 | Rework completo do frontend",
+      "name": "Reconstruir shell, navegacao e componentes compartilhados",
+      "owner": "Thiago",
+      "reviewer": "Fabio",
+      "start": "2026-11-19",
+      "due": "2026-11-23",
+      "dependsOn": [
+        "UI01"
+      ],
+      "acceptance": [
+        "Navegacao prioriza marketing/e-commerce e inclui rotas existentes aprovadas.",
+        "Sistema consistente de layout, tipografia, cores, formularios, tabelas, dialogos e estados de erro/loading/empty.",
+        "Responsividade, teclado, foco, contraste e nomes acessiveis; nao alterar contratos da API unilateralmente."
+      ],
+      "files": [
+        "frontend/src/app/globals.css",
+        "frontend/src/app/(dashboard)/layout.tsx",
+        "frontend/src/components/layout",
+        "frontend/src/components/ui"
+      ]
+    },
+    {
+      "code": "UI03",
+      "existing": false,
+      "list": "MVP 08 | Rework completo do frontend",
+      "name": "Refazer login, perfil, onboarding e equipe por papel",
+      "owner": "Thiago",
+      "reviewer": "Fabio",
+      "start": "2026-11-26",
+      "due": "2026-11-27",
+      "dependsOn": [
+        "UI02",
+        "AUD08",
+        "D01.4"
+      ],
+      "acceptance": [
+        "Provisionamento autorizado e onboarding sem workspace funcionam com contratos de Fabio.",
+        "Editar perfil, equipe/setores e revogacao exibem erros e permissoes corretos; nao oferecer cadastro aberto sem decisao.",
+        "401/403 e expiracao de sessao limpam dados de workspace e tratam refresh concorrente."
+      ],
+      "files": [
+        "frontend/src/app/(auth)",
+        "frontend/src/stores/auth-store.ts",
+        "frontend/src/components/settings/team-tab.tsx",
+        "frontend/src/lib/api.ts"
+      ]
+    },
+    {
+      "code": "UI04",
+      "existing": false,
+      "list": "MVP 08 | Rework completo do frontend",
+      "name": "Refazer contatos e timeline com contratos validados",
+      "owner": "Thiago",
+      "reviewer": "Fabio",
+      "start": "2026-11-26",
+      "due": "2026-11-30",
+      "dependsOn": [
+        "UI02",
+        "AUD08"
+      ],
+      "acceptance": [
+        "CRUD, busca, paginacao e timeline preservam a funcionalidade existente.",
+        "Timeline com mensagens e midia autorizada, filtros e estados vazios/erro validados em dois workspaces.",
+        "Distinguir contato de cliente/servico; cadastro operacional novo fica em D02.2."
+      ],
+      "files": [
+        "frontend/src/app/(dashboard)/contacts",
+        "frontend/src/components/inbox/contact-timeline-drawer.tsx"
+      ]
+    },
+    {
+      "code": "UI05",
+      "existing": false,
+      "list": "MVP 08 | Rework completo do frontend",
+      "name": "Refazer inbox e integrar capacidades existentes sem UI",
+      "owner": "Thiago",
+      "reviewer": "Fabio",
+      "start": "2026-11-30",
+      "due": "2026-12-03",
+      "dependsOn": [
+        "UI02",
+        "AUD08",
+        "D06.2"
+      ],
+      "acceptance": [
+        "Filtro por numero/conta combinado com busca, status e paginacao acessa mais de 50 registros sem filtrar apenas pagina local.",
+        "CRUD de views salvas, bulk transfer/participantes e anexos conforme papel e contrato confirmado.",
+        "Exibir estados de envio reais, reconnect e eventos do worker sem vazamento; cobrir mentions e drawer/telas relacionadas."
+      ],
+      "files": [
+        "frontend/src/components/inbox",
+        "frontend/src/app/(dashboard)/inbox",
+        "frontend/src/app/(dashboard)/mentions",
+        "frontend/src/stores/conversation-store.ts",
+        "frontend/src/lib/websocket.ts"
+      ]
+    },
+    {
+      "code": "UI06",
+      "existing": false,
+      "list": "MVP 08 | Rework completo do frontend",
+      "name": "Integrar central de notificacoes e leitura",
+      "owner": "Thiago",
+      "reviewer": "Fabio",
+      "start": "2026-11-26",
+      "due": "2026-11-30",
+      "dependsOn": [
+        "UI02",
+        "AUD08"
+      ],
+      "acceptance": [
+        "Consumir listNotifications/markNotificationsRead existentes, com paginacao, badge e marcacao idempotente.",
+        "Links abrem registros autorizados e mudanca de workspace limpa dados; nao confundir mentions com notifications.",
+        "Erros, vazio e atualizacao/reconnect testados; novas notificacoes de entregas dependem de backend real."
+      ],
+      "files": [
+        "frontend/src/lib/api.ts",
+        "frontend/src/components/layout",
+        "frontend/src/app/(dashboard)"
+      ]
+    },
+    {
+      "code": "UI07",
+      "existing": false,
+      "list": "MVP 08 | Rework completo do frontend",
+      "name": "Refazer settings e expor administracao e diagnosticos faltantes",
+      "owner": "Thiago",
+      "reviewer": "Fabio",
+      "start": "2026-11-30",
+      "due": "2026-12-03",
+      "dependsOn": [
+        "UI02",
+        "AUD08"
+      ],
+      "acceptance": [
+        "Completar UI de membros de setor, edicao de canal/categorias, preferencias de notificacao e diagnosticos de tentativas/entregas de webhook.",
+        "Preservar SLA, calendarios, macros, motivos, canais e politicas ja presentes; confirmar cada lacuna por uso real.",
+        "Agrupar configuracoes por tarefa do usuario, aplicar papeis e nao expor segredos; integra??es avancadas condicionadas ao escopo."
+      ],
+      "files": [
+        "frontend/src/components/settings",
+        "frontend/src/app/(dashboard)/settings",
+        "frontend/src/lib/api.ts"
+      ]
+    },
+    {
+      "code": "UI08",
+      "existing": false,
+      "list": "MVP 08 | Rework completo do frontend",
+      "name": "Alinhar UI do Flow Builder e tornar indisponibilidade explicita",
+      "owner": "Thiago",
+      "reviewer": "Fabio",
+      "start": "2026-12-04",
+      "due": "2026-12-07",
+      "dependsOn": [
+        "UI02",
+        "AUD07",
+        "AUD08"
+      ],
+      "acceptance": [
+        "Tipos/serializacao correspondem ao contrato de Fabio; round-trip nao perde grafo ou status.",
+        "Sem executor, indicar rascunho e impedir falsa ativacao; sem prometer automacao entregue.",
+        "Rework da tela existente se mantida no produto; tarefa secundaria, sem criar executor ou campanha."
+      ],
+      "files": [
+        "frontend/src/app/(dashboard)/flows",
+        "frontend/src/components/flow-builder",
+        "frontend/src/types/flow.ts"
+      ]
+    },
+    {
+      "code": "UI09",
+      "existing": false,
+      "list": "MVP 08 | Rework completo do frontend",
+      "name": "Refazer supervisor e preservar indicadores existentes verificaveis",
+      "owner": "Thiago",
+      "reviewer": "Fabio",
+      "start": "2026-12-07",
+      "due": "2026-12-09",
+      "dependsOn": [
+        "UI02",
+        "AUD08"
+      ],
+      "acceptance": [
+        "Reutilizar endpoints SLA/CSAT/heatmap existentes com filtros e estados de erro, sem marcar como ausentes recursos ja presentes.",
+        "Distinguir metricas de atendimento das novas metricas de entregas da D05.1/API01.",
+        "Permissoes, desktop/mobile e reconciliacao de total/detalhe nos dados disponiveis."
+      ],
+      "files": [
+        "frontend/src/app/(dashboard)/supervisor",
+        "frontend/src/app/(dashboard)/reports",
+        "frontend/src/lib/api.ts"
+      ]
+    },
+    {
+      "code": "UI10",
+      "existing": false,
+      "list": "MVP 08 | Rework completo do frontend",
+      "name": "Integrar revisao, ajustes, aprovacao e conclusao de marketing",
+      "owner": "Thiago",
+      "reviewer": "Fabio",
+      "start": "2026-12-04",
+      "due": "2026-12-07",
+      "dependsOn": [
+        "UI02",
+        "D03.3",
+        "D03.4"
+      ],
+      "acceptance": [
+        "Tela usa transicoes e permissoes reais entregues por Fabio na D03.4.",
+        "Pedido de ajuste, aprovacao, reabertura e historico conforme decisao D00.2; sem portal implicito.",
+        "Fluxo completo com comentarios/anexos, erros e acessibilidade; nao simular sucesso."
+      ],
+      "files": [
+        "frontend/src/app/(dashboard)",
+        "frontend/src/components"
+      ]
+    }
+  ]
+}

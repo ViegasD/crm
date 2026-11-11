@@ -1,0 +1,277 @@
+{
+  "date": "2026-11-11",
+  "folderId": "901318283724",
+  "verified": true,
+  "lists": [
+    {
+      "id": "1000240000018660",
+      "name": "MVP 00 | Diretriz e validacao de escopo"
+    },
+    {
+      "id": "1000240000018661",
+      "name": "MVP 01 | Fundacao e seguranca"
+    },
+    {
+      "id": "1000240000018662",
+      "name": "MVP 02 | Clientes e servicos"
+    },
+    {
+      "id": "1000240000018663",
+      "name": "MVP 03 | Entregas de marketing"
+    },
+    {
+      "id": "1000240000018664",
+      "name": "MVP 04 | Projetos de e-commerce"
+    },
+    {
+      "id": "1000240000018665",
+      "name": "MVP 05 | Painel, homologacao e producao"
+    },
+    {
+      "id": "1000240000018666",
+      "name": "MVP 06 | WhatsApp condicionado ao fluxo"
+    }
+  ],
+  "tasks": [
+    {
+      "code": "D00.1",
+      "id": "wdpu2yt81b",
+      "name": "D00.1 - Validar fluxo real de marketing e e-commerce",
+      "status": "Open",
+      "start": "2026-11-16",
+      "due": "2026-11-16"
+    },
+    {
+      "code": "D00.2",
+      "id": "wdpu2yt81c",
+      "name": "D00.2 - Definir revisao interna, aprovacao e acesso do cliente",
+      "status": "Open",
+      "start": "2026-11-16",
+      "due": "2026-11-17"
+    },
+    {
+      "code": "D00.3",
+      "id": "wdpu2yt81d",
+      "name": "D00.3 - Definir recorrencia, prazos, anexos e notificacoes",
+      "status": "Open",
+      "start": "2026-11-16",
+      "due": "2026-11-17"
+    },
+    {
+      "code": "D00.4",
+      "id": "wdpu2yt81e",
+      "name": "D00.4 - Decidir papel do WhatsApp no MVP",
+      "status": "Open",
+      "start": "2026-11-16",
+      "due": "2026-11-17"
+    },
+    {
+      "code": "D00.5",
+      "id": "wdpu2yt81f",
+      "name": "D00.5 - Alinhar escopo, proposta e criterios de aceite",
+      "status": "Closed",
+      "start": "2026-11-18",
+      "due": "2026-11-18"
+    },
+    {
+      "code": "D01.1",
+      "id": "wdpu2yt81g",
+      "name": "D01.1 - Integrar e validar checkout com branches remotas",
+      "status": "Open",
+      "start": "2026-11-16",
+      "due": "2026-11-16"
+    },
+    {
+      "code": "D01.2",
+      "id": "wdpu2yt81h",
+      "name": "D01.2 - Aplicar papeis e isolamento em operacoes administrativas",
+      "status": "Open",
+      "start": "2026-11-17",
+      "due": "2026-11-17"
+    },
+    {
+      "code": "D01.3",
+      "id": "wdpu2yt81j",
+      "name": "D01.3 - Corrigir autorizacao de upload e download de midia",
+      "status": "Open",
+      "start": "2026-11-17",
+      "due": "2026-11-17"
+    },
+    {
+      "code": "D01.4",
+      "id": "wdpu2yt81m",
+      "name": "D01.4 - Concluir onboarding e gerenciamento de equipe",
+      "status": "Open",
+      "start": "2026-11-18",
+      "due": "2026-11-19"
+    },
+    {
+      "code": "D01.5",
+      "id": "wdpu2yt81n",
+      "name": "D01.5 - Validar migrations em banco vazio e banco existente",
+      "status": "in progress",
+      "start": "2026-11-17",
+      "due": "2026-11-17"
+    },
+    {
+      "code": "D02.1",
+      "id": "wdpu2yt81p",
+      "name": "D02.1 - Modelar clientes, servicos e vinculos operacionais",
+      "status": "Open",
+      "start": "2026-11-18",
+      "due": "2026-11-18"
+    },
+    {
+      "code": "D02.2",
+      "id": "wdpu2yt81r",
+      "name": "D02.2 - Entregar cadastro e consulta de clientes e servicos",
+      "status": "Open",
+      "start": "2026-11-19",
+      "due": "2026-11-19"
+    },
+    {
+      "code": "D02.3",
+      "id": "wdpu2yt81t",
+      "name": "D02.3 - Definir e executar carga inicial de clientes",
+      "status": "Open",
+      "start": "2026-11-19",
+      "due": "2026-11-19"
+    },
+    {
+      "code": "D03.1",
+      "id": "wdpu2yt81u",
+      "name": "D03.1 - Modelar demandas, etapas e regras de transicao",
+      "status": "Open",
+      "start": "2026-11-23",
+      "due": "2026-11-23"
+    },
+    {
+      "code": "D03.2",
+      "id": "wdpu2yt81v",
+      "name": "D03.2 - Entregar criacao, atribuicao e Kanban de demandas",
+      "status": "Open",
+      "start": "2026-11-24",
+      "due": "2026-11-25"
+    },
+    {
+      "code": "D03.3",
+      "id": "wdpu2yt81w",
+      "name": "D03.3 - Adicionar comentarios, anexos e historico de demanda",
+      "status": "Open",
+      "start": "2026-11-26",
+      "due": "2026-11-26"
+    },
+    {
+      "code": "D03.4",
+      "id": "wdpu2yt81x",
+      "name": "D03.4 - Entregar revisao, ajustes, aprovacao e conclusao",
+      "status": "Open",
+      "start": "2026-11-27",
+      "due": "2026-11-27"
+    },
+    {
+      "code": "D03.5",
+      "id": "wdpu2yt81y",
+      "name": "D03.5 - Validar recorrencia e alertas operacionais de marketing",
+      "status": "Open",
+      "start": "2026-11-30",
+      "due": "2026-11-30"
+    },
+    {
+      "code": "D04.1",
+      "id": "wdpu2yt81z",
+      "name": "D04.1 - Modelar projetos, marcos e checklists de e-commerce",
+      "status": "Open",
+      "start": "2026-12-01",
+      "due": "2026-12-01"
+    },
+    {
+      "code": "D04.2",
+      "id": "wdpu2yt821",
+      "name": "D04.2 - Entregar painel de projeto e execucao de checklist",
+      "status": "Open",
+      "start": "2026-12-02",
+      "due": "2026-12-03"
+    },
+    {
+      "code": "D04.3",
+      "id": "wdpu2yt822",
+      "name": "D04.3 - Vincular evidencias, revisao e entrega do projeto",
+      "status": "Open",
+      "start": "2026-12-04",
+      "due": "2026-12-04"
+    },
+    {
+      "code": "D04.4",
+      "id": "wdpu2yt823",
+      "name": "D04.4 - Homologar um projeto real de e-commerce",
+      "status": "Open",
+      "start": "2026-12-07",
+      "due": "2026-12-07"
+    },
+    {
+      "code": "D05.1",
+      "id": "wdpu2yt825",
+      "name": "D05.1 - Entregar indicadores operacionais de entregas",
+      "status": "Open",
+      "start": "2026-12-08",
+      "due": "2026-12-10"
+    },
+    {
+      "code": "D05.2",
+      "id": "wdpu2yt826",
+      "name": "D05.2 - Executar QA integrado e isolamento por papel/workspace",
+      "status": "Open",
+      "start": "2026-12-11",
+      "due": "2026-12-14"
+    },
+    {
+      "code": "D05.3",
+      "id": "wdpu2yt827",
+      "name": "D05.3 - Preparar deploy, backup, armazenamento e monitoramento",
+      "status": "in progress",
+      "start": "2026-12-08",
+      "due": "2026-12-10"
+    },
+    {
+      "code": "D05.4",
+      "id": "wdpu2yt829",
+      "name": "D05.4 - Homologar MVP com agencia e registrar aceite",
+      "status": "Open",
+      "start": "2026-12-14",
+      "due": "2026-12-14"
+    },
+    {
+      "code": "D06.1",
+      "id": "wdpu2yt82c",
+      "name": "D06.1 - Mapear reuso WhatsApp de fabia para CRM2",
+      "status": "Open",
+      "start": "2026-11-18",
+      "due": "2026-11-19"
+    },
+    {
+      "code": "D06.2",
+      "id": "wdpu2yt82d",
+      "name": "D06.2 - Validar envio, webhooks e isolamento por numero",
+      "status": "Open",
+      "start": "2026-11-23",
+      "due": "2026-11-24"
+    },
+    {
+      "code": "D06.3",
+      "id": "wdpu2yt82e",
+      "name": "D06.3 - Implementar regras de entrega, erros e midia necessarias",
+      "status": "Open",
+      "start": "2026-11-25",
+      "due": "2026-11-27"
+    },
+    {
+      "code": "D06.4",
+      "id": "wdpu2yt82f",
+      "name": "D06.4 - Validar coexistencia e historico se aprovados",
+      "status": "Open",
+      "start": "2026-11-30",
+      "due": "2026-11-30"
+    }
+  ]
+}

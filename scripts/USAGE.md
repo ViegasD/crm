@@ -1,6 +1,12 @@
 # Ferramentas ClickUp
 
-A trilha ativa e MVP 00-06 no folder CRM2 `901318283724`. Dados de planejamento ficam em `docs/planning/clickup/`; snapshots e registros legados ficam em `docs/archive/clickup/`.
+A trilha ampliada e MVP 00-08 no folder CRM2 `901318283724`. Dados de planejamento ficam em `docs/planning/clickup/`; snapshots e registros legados ficam em `docs/archive/clickup/`.
+
+## Divisao Fabio/Thiago e rework
+
+`python scripts/clickup_allocate_work.py` consulta e valida o plano sem mutacoes. `--apply` preserva os 30 IDs originais, adiciona/reconcilia 19 tarefas, atribui Fabio (backend/deploy) e Thiago (frontend), atualiza datas provisorias e cria dependencias nativas. A secao de divisao e substituida ao repetir, sem apagar descricoes anteriores. Status existentes sao preservados. Backups privados ficam em `var/backups/`; resultado verificavel em `docs/planning/clickup/CLICKUP_OWNERSHIP_RESULT_2026-11-11.json`.
+
+Nao executar o reconciliador antigo para repor o backlog de 30 tarefas: o plano de ownership e a fila ampliada sao a referencia para trabalho conjunto. Mudancas de escopo, datas ou atribuicoes apos esta rodada devem ser incorporadas ao plano antes de aplicar novamente.
 
 ## Configuracao local
 
@@ -23,6 +29,8 @@ Para salvar um retrato local sem poluir arquivos versionados:
 Crie `var/` antes de usar esse destino. O check e somente leitura, salvo o arquivo de saida solicitado. Token invalido retorna `OAUTH_025`; folder incorreto pode retornar 404 mesmo com chave valida.
 
 ## Plano delivery-first
+
+Para a correcao confirmada em 11/11, `python scripts/clickup_correct_scope.py` faz uma leitura e preview. `--apply` reconcilia os mesmos 30 IDs, preserva status, responsaveis e descricoes e registra backup privado em `var/backups/`. A execucao ja concluida consta em `docs/planning/clickup/CLICKUP_SCOPE_CORRECTION_2026-11-11.json`; nao repetir sem necessidade. O script interrompe se encontrar a correcao ja aplicada ou edicao concorrente.
 
 Preview local, sem requests nem mudancas remotas:
 

@@ -1,24 +1,22 @@
 # Como retomar o CRM2
 
-O [escopo vigente](../../SCOPE.md) inclui CRM comercial, entregas de marketing e projetos de e-commerce. M1–M5 são os blocos do desenho comercial. A fila conjunta fica na pasta CRM2 do ClickUp, com MVP 03 para entregas de marketing e MVP 04 para projetos de e-commerce. Os códigos D03.x e D04.x nessas listas se referem a essas duas frentes.
+**Marketing e e-commerce estão no MVP.** A prioridade é gestão de entregas; comercial permanece secundário, conforme Ruan e a reconfirmação do usuário em 11/11/2026. Não adotar a exclusão dessas áreas no desenho comercial do colaborador.
 
-## Leia nesta ordem
+## Ordem de leitura
 
-1. [Desenho do MVP comercial](../planning/crm2_mvp_comercial.md) para escopo, contratos, migrações e aceite.
-2. [Revisão de código e realinhamento](../reports/crm2_code_review_e_realinhamento_2026-11-11.md) para reuso, lacunas, tarefas e evidências. A base auditada foi `f6a9a22ab79cf1b8cff9b4bb1c35ed516d8b13ff`, do [PR #1](https://github.com/ViegasD/crm/pull/1). Para trabalho novo, confirme o estado do PR, a branch comum e o commit atual com a equipe.
-3. Pasta **CRM2** no ClickUp para títulos, aceite, andamento, responsáveis e dependências atuais. Confira o título e o aceite junto com o código Dxx.x, pois o relatório histórico registrou alguns códigos com outras finalidades. A [resolução EGM](../reports/egm-mvp-comercial/goldfish_review_report.md) registra as decisões incorporadas ao desenho comercial.
-4. [Runbook de desenvolvimento](../../deploy/README.md) e [relatório histórico de validação](../reports/DEPLOYMENT_DEVELOPMENT_2026-11-11.md) para executar e interpretar as verificações. Peça à equipe as permissões e a configuração privada necessárias.
+0. [Divisão confirmada Fabio/Thiago](../planning/DIVISAO_TRABALHO_2026-11-11.md) e [cobertura backend/frontend](../reports/BACKEND_FRONTEND_COVERAGE_2026-11-11.md): estabilização primeiro, frontend completo com Thiago e backend/deploy com Fabio. A fila foi ampliada com correções de auditoria e integração UI; consulte o resultado de aplicação antes de repetir scripts.
 
-## Primeira rodada
+1. [Correção de escopo](../planning/CORRECAO_ESCOPO_2026-11-11.md): decisão vigente e interpretação da revisão anterior.
+2. [SCOPE.md](../../SCOPE.md) e [handoff de origem](HANDOFF_COMPLETO.md): prioridades confirmadas e detalhes ainda propostos.
+3. [Status da implementação](../../ESCOPO_STATUS_CRM2.md), [runbook](../../deploy/README.md) e [evidências de deploy](../reports/DEPLOYMENT_DEVELOPMENT_2026-11-11.md): separar código existente, testes executados e homologação.
+4. ClickUp, pasta CRM2 `901318283724`: fila atual, status, responsáveis e dependências. A [reconciliação verificada](../planning/clickup/CLICKUP_SCOPE_CORRECTION_2026-11-11.json) registra a correção de 7 listas e 30 tarefas.
 
-- **D01.1.** Confirmem a revisão compartilhada e registrem uma execução das verificações da base. Usem branches separadas por tarefa. Na estação que tem trabalho local de Stage 5, usem um checkout isolado.
-- **D01.2 e D01.5.** Priorizem a regra de acesso por workspace e conversa privada, a partir da matriz da D00.2, e a validação das migrações em banco descartável. São duas frentes para dividir entre os contribuidores.
-- **Marketing e e-commerce.** Validem os fluxos reais na D00.1. Consultem as listas MVP 03 e MVP 04 para escolher o próximo trabalho e conferir seus critérios de aceite.
-- **Frontend em paralelo.** O filtro por número usa a API de contas e o parâmetro `channel_account_id`. Validem com duas contas sintéticas, filtros combinados e atualizações da lista. Confiram o vínculo com a tarefa de WhatsApp vigente antes de abrir o PR.
-- **Limpeza.** A revisão não comprovou candidatos à retirada. Proponha remoções pontuais com evidência sobre consumidores, dados, migrações e regressões.
+## Próximas frentes
 
-Quando alternarem tarefas, deixem no ClickUp o link da branch ou PR, as verificações executadas, as pendências e o próximo passo. Separem o aceite manual da evidência automatizada. A definição de acesso e a autorização dos números oficiais dependem da agência. Backup automatizado, restauração e alertas dependem da configuração do ambiente de produção.
+- Validar as jornadas reais de marketing/e-commerce e suas permissões com a agência. Portal, recorrência, regras de aprovação e integrações precisam de decisão específica.
+- Corrigir e testar isolamento por workspace e objeto, mídia, WebSocket, administração e migrations. Preservar os achados técnicos úteis do review; não tratar revisão estática como teste executado.
+- Implementar clientes/serviços, demandas de marketing e projetos/checklists de e-commerce com critérios testáveis. O domínio de entregas ainda não está implementado na base auditada.
+- Reaproveitar o CRM/atendimento existente. Novas funcionalidades comerciais são secundárias.
+- Manter WhatsApp sem pareamento na instância compartilhada até autorização do usuário. Não exigir dois números oficiais como condição geral para o MVP de entregas sem validação das jornadas.
 
-## Para agentes
-
-Leia também [AGENTS.md](../../AGENTS.md). Trate o desenho como contrato e o ClickUp como fila de execução. Valide o commit antes de atribuir um resultado à base. Para alterações de código, use a menor implementação completa e a verificação proporcional ao risco. Quando o agente tiver acesso a Ponytail, use o modo full. Para um novo repasse, use handoff ou registre o mesmo conjunto mínimo de fatos no PR e na tarefa. Use a revisão EGM dirigida quando houver uma pergunta concreta de contrato ou reuso.
+Antes de iniciar código, conferir a revisão compartilhada, o estado do PR e o trabalho em andamento. Preservar alterações locais e usar branches separadas. Registrar evidência técnica e aceite manual separadamente. Não repetir a reorganização do ClickUp nem apagar o histórico de escopo.

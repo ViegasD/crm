@@ -1,0 +1,410 @@
+{
+  "date": "2026-11-11",
+  "verified": true,
+  "folderId": "901318283724",
+  "owners": {
+    "Fabio": {
+      "clickupUserId": 78664464,
+      "scope": "backend, API, produto com agencia, deploy"
+    },
+    "Thiago": {
+      "clickupUserId": 296458349,
+      "scope": "frontend completo e integracao UI"
+    }
+  },
+  "tasks": [
+    {
+      "code": "D00.1",
+      "id": "wdpu2yt81b",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-11-16",
+      "due": "2026-11-18"
+    },
+    {
+      "code": "D00.2",
+      "id": "wdpu2yt81c",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-11-16",
+      "due": "2026-11-18"
+    },
+    {
+      "code": "D00.3",
+      "id": "wdpu2yt81d",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-11-16",
+      "due": "2026-11-18"
+    },
+    {
+      "code": "D00.4",
+      "id": "wdpu2yt81e",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-11-16",
+      "due": "2026-11-18"
+    },
+    {
+      "code": "D00.5",
+      "id": "wdpu2yt81f",
+      "owner": "Fabio",
+      "status": "Closed",
+      "start": "2026-11-16",
+      "due": "2026-11-18"
+    },
+    {
+      "code": "D01.1",
+      "id": "wdpu2yt81g",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-11-16",
+      "due": "2026-11-17"
+    },
+    {
+      "code": "D01.2",
+      "id": "wdpu2yt81h",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-11-16",
+      "due": "2026-11-19"
+    },
+    {
+      "code": "D01.3",
+      "id": "wdpu2yt81j",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-11-16",
+      "due": "2026-11-19"
+    },
+    {
+      "code": "D01.4",
+      "id": "wdpu2yt81m",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-11-19",
+      "due": "2026-11-23"
+    },
+    {
+      "code": "D01.5",
+      "id": "wdpu2yt81n",
+      "owner": "Fabio",
+      "status": "in progress",
+      "start": "2026-11-16",
+      "due": "2026-11-18"
+    },
+    {
+      "code": "D02.1",
+      "id": "wdpu2yt81p",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-11-26",
+      "due": "2026-11-27"
+    },
+    {
+      "code": "D02.2",
+      "id": "wdpu2yt81r",
+      "owner": "Thiago",
+      "status": "Open",
+      "start": "2026-11-30",
+      "due": "2026-12-01"
+    },
+    {
+      "code": "D02.3",
+      "id": "wdpu2yt81t",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-11-30",
+      "due": "2026-12-01"
+    },
+    {
+      "code": "D03.1",
+      "id": "wdpu2yt81u",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-11-26",
+      "due": "2026-11-27"
+    },
+    {
+      "code": "D03.2",
+      "id": "wdpu2yt81v",
+      "owner": "Thiago",
+      "status": "Open",
+      "start": "2026-11-30",
+      "due": "2026-12-02"
+    },
+    {
+      "code": "D03.3",
+      "id": "wdpu2yt81w",
+      "owner": "Thiago",
+      "status": "Open",
+      "start": "2026-12-03",
+      "due": "2026-12-03"
+    },
+    {
+      "code": "D03.4",
+      "id": "wdpu2yt81x",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-11-30",
+      "due": "2026-12-02"
+    },
+    {
+      "code": "D03.5",
+      "id": "wdpu2yt81y",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-12-03",
+      "due": "2026-12-04"
+    },
+    {
+      "code": "D04.1",
+      "id": "wdpu2yt81z",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-11-30",
+      "due": "2026-12-02"
+    },
+    {
+      "code": "D04.2",
+      "id": "wdpu2yt821",
+      "owner": "Thiago",
+      "status": "Open",
+      "start": "2026-12-03",
+      "due": "2026-12-04"
+    },
+    {
+      "code": "D04.3",
+      "id": "wdpu2yt822",
+      "owner": "Thiago",
+      "status": "Open",
+      "start": "2026-12-07",
+      "due": "2026-12-08"
+    },
+    {
+      "code": "D04.4",
+      "id": "wdpu2yt823",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-12-09",
+      "due": "2026-12-10"
+    },
+    {
+      "code": "D05.1",
+      "id": "wdpu2yt825",
+      "owner": "Thiago",
+      "status": "Open",
+      "start": "2026-12-08",
+      "due": "2026-12-09"
+    },
+    {
+      "code": "D05.2",
+      "id": "wdpu2yt826",
+      "owner": "Thiago",
+      "status": "Open",
+      "start": "2026-12-10",
+      "due": "2026-12-11"
+    },
+    {
+      "code": "D05.3",
+      "id": "wdpu2yt827",
+      "owner": "Fabio",
+      "status": "in progress",
+      "start": "2026-11-26",
+      "due": "2026-12-11"
+    },
+    {
+      "code": "D05.4",
+      "id": "wdpu2yt829",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-12-14",
+      "due": "2026-12-14"
+    },
+    {
+      "code": "D06.1",
+      "id": "wdpu2yt82c",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-11-16",
+      "due": "2026-11-18"
+    },
+    {
+      "code": "D06.2",
+      "id": "wdpu2yt82d",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-11-26",
+      "due": "2026-11-27"
+    },
+    {
+      "code": "D06.3",
+      "id": "wdpu2yt82e",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-11-30",
+      "due": "2026-12-02"
+    },
+    {
+      "code": "D06.4",
+      "id": "wdpu2yt82f",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-12-03",
+      "due": "2026-12-04"
+    },
+    {
+      "code": "AUD01",
+      "id": "wdpu2yt9q8",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-11-16",
+      "due": "2026-11-18"
+    },
+    {
+      "code": "AUD02",
+      "id": "wdpu2yt9q9",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-11-16",
+      "due": "2026-11-19"
+    },
+    {
+      "code": "AUD03",
+      "id": "wdpu2yt9qa",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-11-16",
+      "due": "2026-11-18"
+    },
+    {
+      "code": "AUD04",
+      "id": "wdpu2yt9qb",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-11-19",
+      "due": "2026-11-23"
+    },
+    {
+      "code": "AUD05",
+      "id": "wdpu2yt9qc",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-11-19",
+      "due": "2026-11-24"
+    },
+    {
+      "code": "AUD06",
+      "id": "wdpu2yt9qd",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-11-19",
+      "due": "2026-11-24"
+    },
+    {
+      "code": "AUD07",
+      "id": "wdpu2yt9qe",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-11-16",
+      "due": "2026-11-18"
+    },
+    {
+      "code": "AUD08",
+      "id": "wdpu2yt9qf",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-11-24",
+      "due": "2026-11-25"
+    },
+    {
+      "code": "API01",
+      "id": "wdpu2yt9qg",
+      "owner": "Fabio",
+      "status": "Open",
+      "start": "2026-12-03",
+      "due": "2026-12-07"
+    },
+    {
+      "code": "UI01",
+      "id": "wdpu2yt9qh",
+      "owner": "Thiago",
+      "status": "Open",
+      "start": "2026-11-16",
+      "due": "2026-11-18"
+    },
+    {
+      "code": "UI02",
+      "id": "wdpu2yt9qj",
+      "owner": "Thiago",
+      "status": "Open",
+      "start": "2026-11-19",
+      "due": "2026-11-23"
+    },
+    {
+      "code": "UI03",
+      "id": "wdpu2yt9qk",
+      "owner": "Thiago",
+      "status": "Open",
+      "start": "2026-11-26",
+      "due": "2026-11-27"
+    },
+    {
+      "code": "UI04",
+      "id": "wdpu2yt9qm",
+      "owner": "Thiago",
+      "status": "Open",
+      "start": "2026-11-26",
+      "due": "2026-11-30"
+    },
+    {
+      "code": "UI05",
+      "id": "wdpu2yt9qn",
+      "owner": "Thiago",
+      "status": "Open",
+      "start": "2026-11-30",
+      "due": "2026-12-03"
+    },
+    {
+      "code": "UI06",
+      "id": "wdpu2yt9qp",
+      "owner": "Thiago",
+      "status": "Open",
+      "start": "2026-11-26",
+      "due": "2026-11-30"
+    },
+    {
+      "code": "UI07",
+      "id": "wdpu2yt9qq",
+      "owner": "Thiago",
+      "status": "Open",
+      "start": "2026-11-30",
+      "due": "2026-12-03"
+    },
+    {
+      "code": "UI08",
+      "id": "wdpu2yt9qr",
+      "owner": "Thiago",
+      "status": "Open",
+      "start": "2026-12-04",
+      "due": "2026-12-07"
+    },
+    {
+      "code": "UI09",
+      "id": "wdpu2yt9qt",
+      "owner": "Thiago",
+      "status": "Open",
+      "start": "2026-12-07",
+      "due": "2026-12-09"
+    },
+    {
+      "code": "UI10",
+      "id": "wdpu2yt9qu",
+      "owner": "Thiago",
+      "status": "Open",
+      "start": "2026-12-04",
+      "due": "2026-12-07"
+    }
+  ],
+  "nativeDependencies": 85
+}
