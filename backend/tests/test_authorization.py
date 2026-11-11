@@ -408,4 +408,3 @@ class AuthorizationTests(unittest.TestCase):
             event = db.get(WebhookEvent, event_id)
             self.assertEqual(event.attempts, 1)
             self.assertEqual(event.status.value, "failed")
-
