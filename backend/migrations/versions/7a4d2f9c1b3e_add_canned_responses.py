@@ -19,6 +19,9 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
+    # Already provided by the independent upstream initial schema.
+    if sa.inspect(op.get_bind()).has_table('canned_responses'):
+        return
     op.create_table(
         'canned_responses',
         sa.Column('id', sa.UUID(), nullable=False),

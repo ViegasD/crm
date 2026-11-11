@@ -2,6 +2,8 @@
 
 Gestao de entregas de marketing e projetos de e-commerce para a operacao interna da agencia. CRM comercial e atendimento sao uma base existente, com prioridade secundaria no novo MVP.
 
+Instancia compartilhada de desenvolvimento: [abrir app](https://hermes-crm2-dev.5tpiot.easypanel.host). EasyPanel: projeto `hermes`, servico Compose `crm2-dev`. [Acesso privado, validacoes e limites](docs/reports/DEPLOYMENT_DEVELOPMENT_2026-11-11.md) e [runbook](deploy/README.md). WhatsApp permanece sem pareamento por escolha do usuario.
+
 ## Comece aqui
 
 1. [Escopo atual](SCOPE.md): prioridade confirmada e decisoes ainda pendentes.

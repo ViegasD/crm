@@ -44,7 +44,7 @@ async def upload_media(
     _validate_upload(file, content)
 
     key = f"{workspace_id}/{uuid.uuid4()}/{file.filename}"
-    await ensure_bucket(BUCKET)
+    ensure_bucket(BUCKET)
     upload_file(BUCKET, key, content, file.content_type)
 
     presigned = generate_presigned_url(BUCKET, key)

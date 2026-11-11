@@ -24,6 +24,10 @@ def upgrade() -> None:
             ) THEN
                 UPDATE webhook_events SET raw_payload = payload
                 WHERE raw_payload IS NULL;
+                -- Current writers persist only raw_payload. Keep the legacy
+                -- column and historical values without requiring two payloads
+                -- on every new insert.
+                ALTER TABLE webhook_events ALTER COLUMN payload DROP NOT NULL;
             END IF;
         END $$;
         """

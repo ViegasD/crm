@@ -1,0 +1,212 @@
+# Managed by EasyPanel Compose, not a standalone host stack.
+# The environment is stored in the panel. No application/data ports are published.
+x-app: &app
+  image: crm2-backend:${CRM2_REVISION:?required}
+  pull_policy: never
+  restart: unless-stopped
+  environment: &app-env
+    DEBUG: "false"
+    SECRET_KEY: ${SECRET_KEY:?required}
+    CREDENTIAL_ENCRYPTION_KEY: ${CREDENTIAL_ENCRYPTION_KEY:?required}
+    DATABASE_URL: postgresql+asyncpg://crm:${POSTGRES_PASSWORD:?required}@postgres:5432/crm
+    REDIS_URL: redis://redis:6379/0
+    MINIO_ENDPOINT: minio:9000
+    MINIO_PUBLIC_ENDPOINT: https://${STORAGE_HOST:?required}
+    MINIO_ACCESS_KEY: crm2storage
+    MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:?required}
+    MINIO_BUCKET: crm-media
+    MINIO_USE_SSL: "false"
+    EVOLUTION_API_URL: http://evolution:8080
+    EVOLUTION_API_KEY: ${EVOLUTION_API_KEY:?required}
+    META_WEBHOOK_VERIFY_TOKEN: ${META_WEBHOOK_VERIFY_TOKEN:?required}
+    CORS_ALLOWED_ORIGINS: https://${APP_HOST:?required}
+  logging: &logging
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: "3"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: crm
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?required}
+      POSTGRES_DB: crm
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U crm -d crm"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    mem_limit: 512m
+    logging: *logging
+
+  redis:
+    image: redis:7-alpine
+    command: [redis-server, --appendonly, "yes", --maxmemory, 192mb, --maxmemory-policy, noeviction]
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    mem_limit: 256m
+    logging: *logging
+
+  minio:
+    image: minio/minio@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
+    command: server /data --console-address :9001
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: crm2storage
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:?required}
+    volumes:
+      - minio_data:/data
+    mem_limit: 384m
+    logging: *logging
+
+  migrate:
+    <<: *app
+    restart: "no"
+    command: [alembic, upgrade, head]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    mem_limit: 512m
+
+  backend:
+    <<: *app
+    build:
+      context: ${SOURCE_DIR:?required}/backend
+      dockerfile: Dockerfile
+    command: [uvicorn, app.main:app, --host, 0.0.0.0, --port, "8000", --no-access-log]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=4)"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    mem_limit: 640m
+
+  worker:
+    <<: *app
+    command: [celery, -A, app.workers.celery_app, worker, --loglevel=warning, --concurrency=1, --max-tasks-per-child=100]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    mem_limit: 512m
+
+  beat:
+    <<: *app
+    command: [celery, -A, app.workers.celery_app, beat, --loglevel=warning, --schedule=/state/celerybeat-schedule]
+    volumes:
+      - beat_data:/state
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    mem_limit: 256m
+
+  evolution-postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: evolution
+      POSTGRES_PASSWORD: ${EVOLUTION_DB_PASSWORD:?required}
+      POSTGRES_DB: evolution
+    volumes:
+      - evolution_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U evolution -d evolution"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    mem_limit: 256m
+    logging: *logging
+
+  evolution:
+    image: evoapicloud/evolution-api:v2.3.7
+    restart: unless-stopped
+    environment:
+      SERVER_TYPE: http
+      SERVER_URL: http://evolution:8080
+      AUTHENTICATION_TYPE: apikey
+      AUTHENTICATION_API_KEY: ${EVOLUTION_API_KEY:?required}
+      DATABASE_ENABLED: "true"
+      DATABASE_PROVIDER: postgresql
+      DATABASE_CONNECTION_URI: postgresql://evolution:${EVOLUTION_DB_PASSWORD:?required}@evolution-postgres:5432/evolution
+      DATABASE_CONNECTION_CLIENT_NAME: crm2_dev
+      CACHE_REDIS_ENABLED: "true"
+      CACHE_REDIS_URI: redis://redis:6379/1
+      CACHE_REDIS_PREFIX_KEY: crm2-evolution
+      WEBHOOK_GLOBAL_ENABLED: "false"
+      CONFIG_SESSION_PHONE_CLIENT: CRM2 Development
+      CONFIG_SESSION_PHONE_NAME: Chrome
+      LANGUAGE: pt-BR
+      DEL_INSTANCE: "false"
+    depends_on:
+      evolution-postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - evolution_data:/evolution/instances
+    mem_limit: 512m
+    logging: *logging
+
+  frontend:
+    image: crm2-frontend:${CRM2_REVISION:?required}
+    build:
+      context: ${SOURCE_DIR:?required}
+      dockerfile: deploy/frontend.Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: https://${APP_HOST:?required}
+        NEXT_PUBLIC_WS_URL: wss://${APP_HOST:?required}
+        API_INTERNAL_URL: http://backend:8000
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000/login').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    mem_limit: 384m
+    logging: *logging
+
+  gateway:
+    image: nginx:1.28-alpine
+    restart: unless-stopped
+    volumes:
+      - ${SOURCE_DIR:?required}/deploy/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      frontend:
+        condition: service_healthy
+    mem_limit: 64m
+    logging: *logging
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+  beat_data:
+  evolution_postgres_data:
+  evolution_data:

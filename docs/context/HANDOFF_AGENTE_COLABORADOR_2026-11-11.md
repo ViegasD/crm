@@ -1,5 +1,7 @@
 # Handoff para o agente do outro colaborador - CRM2
 
+> Instancia compartilhada de desenvolvimento disponivel em `https://hermes-crm2-dev.5tpiot.easypanel.host`, gerenciada pelo EasyPanel em `hermes` / `crm2-dev`. Leia `docs/reports/DEPLOYMENT_DEVELOPMENT_2026-11-11.md` e `deploy/README.md` antes de alterar/reimplantar. Credenciais sao privadas, fora do Git. WhatsApp fica sem pareamento. O snapshot historico de indisponibilidade de Docker abaixo foi superado pelos testes de VPS registrados nesse relatorio; nao implica que todas as features passaram por aceite manual.
+
 Atualizado em 11/11/2026, fuso America/Araguaina. Destinado ao agente do colaborador que tambem trabalha neste repositorio, incluindo a frente remota Stage 3/4/9. Os commits consultados usam o mesmo nome de autor; este documento nao atribui identidade pessoal a partir disso.
 
 > Publicacao para colaboracao: usar a branch **`codex/delivery-first-integration`** como base compartilhada. Ela publica um snapshot integrado sobre `origin/main`, sem carregar o historico local que continha uma credencial antiga nem o arquivo `backend/.env.local`. Os hashes locais abaixo documentam a origem do trabalho e nao sao a referencia a buscar no remoto. Depois do push, a entrada correta e `git fetch origin` e uma branch propria derivada de `origin/codex/delivery-first-integration`. A validacao de banco/WhatsApp continua pendente; a proposta de integracao e draft.
