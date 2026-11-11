@@ -2,6 +2,8 @@
 
 A entrada principal e o [README do projeto](../README.md). Para decidir o que construir, leia [escopo](../SCOPE.md), [status](../ESCOPO_STATUS_CRM2.md) e [modo de trabalho](../MODO_DE_TRABALHO_CRM2.md).
 
+Instancia compartilhada: [relatorio de deploy, acesso e validacao](reports/DEPLOYMENT_DEVELOPMENT_2026-11-11.md); [runbook EasyPanel](../deploy/README.md).
+
 | Pasta | Conteudo | Como usar |
 | --- | --- | --- |
 | [context](context/) | Handoff e contexto de origem | Distinguir decisao confirmada de proposta do assistente |

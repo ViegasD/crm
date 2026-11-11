@@ -2,6 +2,8 @@
 
 Atualizado em 11/11/2026. O [escopo atual](SCOPE.md) e delivery-first. O [relatorio antigo de maio](docs/archive/crm/ESCOPO_STATUS_2026-05-21.md) e historico; nao deve orientar prioridades nem comprovar o estado atual do ClickUp.
 
+> Atualizacao de deploy no mesmo dia: a instancia compartilhada esta em `https://hermes-crm2-dev.5tpiot.easypanel.host`, EasyPanel `hermes` / `crm2-dev`. Os bloqueios de build/transporte encontrados foram corrigidos; migrations vazia/local/QA passaram em PostgreSQL descartavel e o novo banco de desenvolvimento chegou ao head. HTTPS, login/API, CRUD de contato, midia, WSS, refresh e tarefa Celery passaram, inclusive apos restart. Isso supera o retrato anterior de Docker indisponivel abaixo. WhatsApp permanece sem pareamento e aceite visual/manual continua pendente. Veja o [relatorio atual de deploy](docs/reports/DEPLOYMENT_DEVELOPMENT_2026-11-11.md).
+
 ## Implementacao
 
 A base existente ainda e predominantemente CRM/atendimento: autenticacao, workspaces, contatos, equipe, WhatsApp, midia, conversas, timeline, macros, webhooks e capacidade/SLA. Ela pode apoiar o novo produto apos validacao e ajustes.

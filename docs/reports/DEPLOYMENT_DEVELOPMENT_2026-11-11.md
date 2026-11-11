@@ -47,6 +47,8 @@ EasyPanel successful deployment action: `cmwc9ayke000c07mn6dmcelmt`; prior succe
 | Isolation | No CRM2 host-port bindings; existing applications stayed running |
 | Logs | No error/traceback markers in recent API/worker/beat logs at capture |
 
+After the restart, worker control ping returned one active worker and Redis contained 45 successful task results, with no failed result reported in that capture. This supports scheduler/worker operation; it does not certify every business-rule branch. D01.5 and D05.3 task descriptions were updated with evidence and left `in progress` for remaining manual/backup/acceptance work.
+
 Detailed smoke/status output is stored privately on VPS under `/srv/crm2/ops/`. Initial database dump: `/srv/crm2/backups/initial-verified-crm.dump` (180372 bytes at creation). This is a local manual DB backup, not an off-server scheduled backup or tested restore. Storage was empty after smoke cleanup; no existing business objects were migrated.
 
 ## Limits and next testing
