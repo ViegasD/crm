@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useAuthStore } from "@/stores/auth-store";
 import { contactsApi } from "@/lib/api";
 import type { Contact } from "@/types/contact";
@@ -86,7 +87,9 @@ export default function ContactsPage() {
                 <td className="px-4 py-2.5">
                   <div className="flex items-center gap-2">
                     <Avatar name={c.name} size="sm" />
-                    <span className="font-medium text-slate-900">{c.name}</span>
+                    <Link href={`/contacts/${c.id}`} className="font-medium text-slate-900 hover:text-primary">
+                      {c.name}
+                    </Link>
                     {c.isPriority && <span className="text-[10px] font-bold text-amber-500 uppercase">Priority</span>}
                   </div>
                 </td>
@@ -101,7 +104,7 @@ export default function ContactsPage() {
                   </span>
                 </td>
                 <td className="px-4 py-2.5">
-                  <button onClick={() => deleteContact(c.id)} className="text-muted hover:text-danger transition-colors">
+                  <button onClick={() => deleteContact(c.id)} className="text-muted hover:text-danger transition-colors" type="button">
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </td>

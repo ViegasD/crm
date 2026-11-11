@@ -43,6 +43,31 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/webhooks/whatsapp/evolution", tags=["webhooks"])
 
 
+def _extract_bearer_token(value: str | None) -> str:
+    if not value:
+        return ""
+    scheme, _, token = value.partition(" ")
+    if scheme.lower() == "bearer" and token:
+        return token.strip()
+    return value.strip()
+
+
+def _verify_webhook_auth(adapter: EvolutionAdapter, headers: dict, raw_body: bytes, webhook_secret: str | None) -> bool:
+    if adapter.verify_webhook_signature(headers, raw_body):
+        return True
+
+    if not webhook_secret:
+        return False
+
+    fallback_values = [
+        headers.get("x-webhook-token", ""),
+        headers.get("x-evolution-token", ""),
+        headers.get("authorization", ""),
+        headers.get("autorization", ""),
+    ]
+    return any(_extract_bearer_token(value) == webhook_secret for value in fallback_values)
+
+
 async def _resolve_account(db: AsyncSession, instance_name: str) -> ChannelAccount | None:
     """Find channel account by Evolution instance name stored in external_account_id."""
     result = await db.execute(
@@ -146,7 +171,7 @@ async def receive_event(
         mode=mode,
     )
 
-    if not adapter.verify_webhook_signature(headers, raw_body):
+    if not _verify_webhook_auth(adapter, headers, raw_body, webhook_secret):
         await log_security_event(
             action="webhook_invalid_signature",
             workspace_id=account.workspace_id,
@@ -194,6 +219,20 @@ async def receive_event(
     started = time.perf_counter()
     try:
         events = adapter.parse_webhook(headers, body)
+        if events:
+            logger.info(
+                "Evolution webhook accepted instance=%s event=%s parsed=%d message_types=%s",
+                instance_name,
+                body.get("event"),
+                len(events),
+                ",".join(sorted({event.message_type for event in events})),
+            )
+        else:
+            logger.info(
+                "Evolution webhook ignored instance=%s event=%s",
+                instance_name,
+                body.get("event"),
+            )
         for event in events:
             event.workspace_id = str(account.workspace_id)
             event.channel_account_id = str(account.id)

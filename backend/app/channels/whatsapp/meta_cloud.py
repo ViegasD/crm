@@ -119,13 +119,21 @@ class MetaCloudAdapter(WhatsAppProviderAdapter):
                         text = msg.get("text", {}).get("body")
                     elif msg_type in ("image", "audio", "video", "document", "sticker"):
                         media = msg.get(msg_type, {})
-                        attachments = [{"provider_media_id": media.get("id"), "mime_type": media.get("mime_type"), "type": msg_type}]
+                        normalized_type = "file" if msg_type == "document" else msg_type
+                        attachments = [{
+                            "provider": "meta_cloud",
+                            "providerMediaId": media.get("id"),
+                            "mimeType": media.get("mime_type"),
+                            "name": media.get("filename"),
+                            "type": normalized_type,
+                            "ready": False,
+                        }]
                     elif msg_type == "location":
                         loc = msg.get("location", {})
                         text = f"[Location] lat={loc.get('latitude')} lng={loc.get('longitude')}"
 
                     normalized_type = "file" if msg_type == "document" else msg_type
-                    if normalized_type not in ("text", "image", "audio", "video", "file"):
+                    if normalized_type not in ("text", "image", "sticker", "audio", "video", "file"):
                         normalized_type = "text"
 
                     events.append(NormalizedEvent(

@@ -6,19 +6,36 @@ from botocore.client import Config
 from app.core.config import settings
 
 _client = None
+_presign_client = None
+
+
+def _build_client(endpoint: str):
+    endpoint_url = (
+        endpoint
+        if endpoint.startswith(("http://", "https://"))
+        else f"{'https' if settings.minio_use_ssl else 'http'}://{endpoint}"
+    )
+    return boto3.client(
+        "s3",
+        endpoint_url=endpoint_url,
+        aws_access_key_id=settings.minio_access_key,
+        aws_secret_access_key=settings.minio_secret_key,
+        config=Config(signature_version="s3v4"),
+    )
 
 
 def get_minio_client():
     global _client
     if _client is None:
-        _client = boto3.client(
-            "s3",
-            endpoint_url=f"{'https' if settings.minio_use_ssl else 'http'}://{settings.minio_endpoint}",
-            aws_access_key_id=settings.minio_access_key,
-            aws_secret_access_key=settings.minio_secret_key,
-            config=Config(signature_version="s3v4"),
-        )
+        _client = _build_client(settings.minio_endpoint)
     return _client
+
+
+def get_minio_presign_client():
+    global _presign_client
+    if _presign_client is None:
+        _presign_client = _build_client(settings.minio_public_endpoint or settings.minio_endpoint)
+    return _presign_client
 
 
 def ensure_bucket(bucket: str) -> None:
@@ -39,7 +56,7 @@ def upload_file(bucket: str, key: str, data: bytes, content_type: str) -> None:
 
 
 def generate_presigned_url(bucket: str, key: str, expires: int = 3600) -> str:
-    return get_minio_client().generate_presigned_url(
+    return get_minio_presign_client().generate_presigned_url(
         "get_object",
         Params={"Bucket": bucket, "Key": key},
         ExpiresIn=expires,

@@ -1,0 +1,558 @@
+{
+  "date": "2026-11-11",
+  "folderId": "901318283724",
+  "legacyLists": [],
+  "lists": [
+    {
+      "name": "MVP 00 | Diretriz e validacao de escopo",
+      "description": "Prioridade confirmada: entregas de marketing/e-commerce. Decisoes de produto e aceite ainda precisam de validacao; nao equivalem a contrato aprovado.",
+      "tasks": [
+        {
+          "code": "D00.1",
+          "name": "Validar fluxo real de marketing e e-commerce",
+          "description": "Mapear um caso real de cada operacao com a agencia; registrar etapas, entradas, saidas, responsaveis e significado de entregue.",
+          "acceptance": [
+            "Registrar fluxo de marketing e fluxo de e-commerce com exemplos reais.",
+            "Separar requisitos confirmados, propostas e exclusoes; obter validacao da agencia."
+          ],
+          "dependsOn": [],
+          "priority": 2
+        },
+        {
+          "code": "D00.2",
+          "name": "Definir revisao interna, aprovacao e acesso do cliente",
+          "description": "Decidir operacao apenas interna versus portal/acesso externo; definir revisao, ajustes e quem pode aprovar. Portal nao esta automaticamente incluido.",
+          "acceptance": [
+            "Registrar decisao sobre portal e aprovador.",
+            "Definir transicoes e permissoes, inclusive reabertura e pedido de ajuste."
+          ],
+          "dependsOn": [
+            "D00.1"
+          ],
+          "priority": 2
+        },
+        {
+          "code": "D00.3",
+          "name": "Definir recorrencia, prazos, anexos e notificacoes",
+          "description": "Confirmar servicos iniciais, volume, recorrencia das demandas, armazenamento e canais de notificacao.",
+          "acceptance": [
+            "Documentar demandas recorrentes versus avulsas, fuso e regra de atraso.",
+            "Definir limites de arquivos, retencao e notificacoes necessarias sem assumir integracoes."
+          ],
+          "dependsOn": [
+            "D00.1"
+          ],
+          "priority": 3
+        },
+        {
+          "code": "D00.4",
+          "name": "Decidir papel do WhatsApp no MVP",
+          "description": "WhatsApp nao foi definitivamente excluido. Confirmar se necessario para receber demandas, solicitar revisao ou comunicar entregas; definir providers, numeros e coexistencia.",
+          "acceptance": [
+            "Registrar cenarios obrigatorios de WhatsApp ou adiamento explicito.",
+            "Condicionar tarefas D06 ao escopo aprovado; nao prometer coexistencia sem validar elegibilidade e ambiente real."
+          ],
+          "dependsOn": [
+            "D00.1"
+          ],
+          "priority": 2
+        },
+        {
+          "code": "D00.5",
+          "name": "Alinhar escopo, proposta e criterios de aceite",
+          "description": "Atualizar SCOPE.md e proposta ao foco de entregas; preservar historico. Proposta sem valores, sem cabecalho de destinatario/proponente e sem contrato novo.",
+          "acceptance": [
+            "Eliminar contradicao da proposta que exclui marketing/e-commerce.",
+            "Registrar criterios testaveis e cronograma condicionado; sem prazo garantido nem revenda."
+          ],
+          "dependsOn": [
+            "D00.1",
+            "D00.2",
+            "D00.3",
+            "D00.4"
+          ],
+          "priority": 2
+        }
+      ]
+    },
+    {
+      "name": "MVP 01 | Fundacao e seguranca",
+      "description": "Reaproveitar base existente; verificar integracao da branch QA. Nenhuma tarefa se encerra apenas por existir modelo ou tela.",
+      "tasks": [
+        {
+          "code": "D01.1",
+          "name": "Integrar e validar checkout com branches remotas",
+          "description": "Preservar alteracoes locais, integrar trabalho remoto e revisar diagnosticos Stage 3/4/9 com evidencia do commit efetivo.",
+          "acceptance": [
+            "Registrar commits, conflitos resolvidos e backup recuperavel.",
+            "Executar type-check, lint e validacao backend; separar falhas e aceite manual."
+          ],
+          "dependsOn": [],
+          "priority": 2
+        },
+        {
+          "code": "D01.2",
+          "name": "Aplicar papeis e isolamento em operacoes administrativas",
+          "description": "Base possui require_roles sem enforcement abrangente no checkout inicial. Definir admin/gestor/colaborador conforme decisoes D00.",
+          "acceptance": [
+            "Colaborador nao consegue remover membros ou alterar configuracoes restritas.",
+            "Validar workspace permitido, negado e tentativa de acesso entre tenants."
+          ],
+          "dependsOn": [
+            "D00.2",
+            "D01.1"
+          ],
+          "priority": 2
+        },
+        {
+          "code": "D01.3",
+          "name": "Corrigir autorizacao de upload e download de midia",
+          "description": "Upload/presign devem conferir membership e autorizacao da chave/recurso, antes de reutilizacao em entregas.",
+          "acceptance": [
+            "Usuario de outro workspace recebe recusa em upload e presign.",
+            "Anexos autorizados continuam acessiveis e respeitam limites de tamanho e tipo."
+          ],
+          "dependsOn": [
+            "D01.1"
+          ],
+          "priority": 2
+        },
+        {
+          "code": "D01.4",
+          "name": "Concluir onboarding e gerenciamento de equipe",
+          "description": "Usuario novo precisa criar/entrar em workspace e operar com papel correto; reaproveitar API e equipe existentes.",
+          "acceptance": [
+            "Novo usuario sem workspace possui fluxo utilizavel.",
+            "Convite/inclusao e remocao respeitam autorizacao e nao deixam workspace sem administrador."
+          ],
+          "dependsOn": [
+            "D00.2",
+            "D01.2"
+          ],
+          "priority": 3
+        },
+        {
+          "code": "D01.5",
+          "name": "Validar migrations em banco vazio e banco existente",
+          "description": "Historico tem raizes e migration baseada em metadata atual. Validar schema combinado sem tocar producao.",
+          "acceptance": [
+            "Banco descartavel chega ao head sem duplicacao de tabelas/enums.",
+            "Upgrade de base existente e recuperacao/backup documentados; modelos e schema coerentes."
+          ],
+          "dependsOn": [
+            "D01.1"
+          ],
+          "priority": 2
+        }
+      ]
+    },
+    {
+      "name": "MVP 02 | Clientes e servicos",
+      "description": "Cadastro operacional de clientes, servicos e projetos; contatos existentes sao fundacao, nao cobertura integral desse dominio.",
+      "tasks": [
+        {
+          "code": "D02.1",
+          "name": "Modelar clientes, servicos e vinculos operacionais",
+          "description": "Reaproveitar contatos/empresas e definir servicos contratados, responsavel e vinculo a projetos; sem financeiro completo.",
+          "acceptance": [
+            "Modelo e migration preservam isolamento por workspace.",
+            "Cliente pode ter servicos ativos e responsaveis definidos sem duplicar contatos."
+          ],
+          "dependsOn": [
+            "D00.1",
+            "D01.5"
+          ],
+          "priority": 3
+        },
+        {
+          "code": "D02.2",
+          "name": "Entregar cadastro e consulta de clientes e servicos",
+          "description": "Implementar API e UI para cadastro operacional e consulta por cliente.",
+          "acceptance": [
+            "Criar, editar e consultar cliente e servicos com validacao de campos.",
+            "Regras de arquivamento e permissoes verificadas com dados de exemplo."
+          ],
+          "dependsOn": [
+            "D02.1",
+            "D01.2"
+          ],
+          "priority": 3
+        },
+        {
+          "code": "D02.3",
+          "name": "Definir e executar carga inicial de clientes",
+          "description": "Confirmar origem dos dados, campos e estrategia de importacao/manual; numero de clientes nao define numero de pagantes.",
+          "acceptance": [
+            "Mapeamento e tratamento de duplicidade revisados antes de importar.",
+            "Carga de teste reversivel validada e erros reportados sem expor dados."
+          ],
+          "dependsOn": [
+            "D02.2"
+          ],
+          "priority": 3
+        }
+      ]
+    },
+    {
+      "name": "MVP 03 | Entregas de marketing",
+      "description": "Dominio prioritario: demandas de marketing com etapas, responsaveis e acompanhamento. Detalhamento condicionado ao fluxo validado D00.",
+      "tasks": [
+        {
+          "code": "D03.1",
+          "name": "Modelar demandas, etapas e regras de transicao",
+          "description": "Criar dominio de entregas separado de conversas: cliente, servico, descricao, prioridade, responsavel, prazo e estado.",
+          "acceptance": [
+            "Migration e contratos API representam fluxo validado.",
+            "Permissoes, validacoes de transicao e historico definidos."
+          ],
+          "dependsOn": [
+            "D00.1",
+            "D00.2",
+            "D02.1"
+          ],
+          "priority": 3
+        },
+        {
+          "code": "D03.2",
+          "name": "Entregar criacao, atribuicao e Kanban de demandas",
+          "description": "Construir fluxo integrado backend/frontend com filtros por cliente, responsavel, prioridade e prazo.",
+          "acceptance": [
+            "Criar e atribuir demanda e mover etapas com persistencia.",
+            "Recarregar tela mantem estado; falhas nao mostram sucesso falso; isolamento validado."
+          ],
+          "dependsOn": [
+            "D03.1",
+            "D02.2"
+          ],
+          "priority": 3
+        },
+        {
+          "code": "D03.3",
+          "name": "Adicionar comentarios, anexos e historico de demanda",
+          "description": "Reaproveitar componentes e storage quando adequados, vinculando recursos a demanda e suas permissoes.",
+          "acceptance": [
+            "Comentarios e anexos aparecem na demanda correta com autor/data.",
+            "Acesso cruzado recusado; alteracoes de etapa/atribuicao geram historico."
+          ],
+          "dependsOn": [
+            "D03.2",
+            "D01.3"
+          ],
+          "priority": 3
+        },
+        {
+          "code": "D03.4",
+          "name": "Entregar revisao, ajustes, aprovacao e conclusao",
+          "description": "Implementar ciclo aprovado D00.2; aprovacao interna como proposta, portal somente se validado.",
+          "acceptance": [
+            "Solicitar revisao, devolver para ajuste, aprovar e concluir em caso real.",
+            "Permissoes e historico de decisao verificados; reabertura conforme regra aprovada."
+          ],
+          "dependsOn": [
+            "D03.3",
+            "D00.2"
+          ],
+          "priority": 3
+        },
+        {
+          "code": "D03.5",
+          "name": "Validar recorrencia e alertas operacionais de marketing",
+          "description": "Implementar apenas recorrencia e notificacoes aprovadas D00.3; evitar duplicacao e dependencias externas desnecessarias.",
+          "acceptance": [
+            "Geracao recorrente e regra de prazo conferem com exemplo validado, quando no escopo.",
+            "Alertas aprovados nao duplicam; registrar explicitamente itens adiados."
+          ],
+          "dependsOn": [
+            "D03.2",
+            "D00.3"
+          ],
+          "priority": 3
+        }
+      ]
+    },
+    {
+      "name": "MVP 04 | Projetos de e-commerce",
+      "description": "Gestao de implantacao/manutencao de lojas: projetos, etapas, checklists, pendencias e entregas. Nao construir plataforma propria de e-commerce.",
+      "tasks": [
+        {
+          "code": "D04.1",
+          "name": "Modelar projetos, marcos e checklists de e-commerce",
+          "description": "Definir projeto vinculado a cliente/servico com etapas reais, responsaveis, prazo e pendencias.",
+          "acceptance": [
+            "Caso real de implantacao e manutencao mapeado.",
+            "Modelo, migration e API representam projeto e itens de checklist com isolamento."
+          ],
+          "dependsOn": [
+            "D00.1",
+            "D02.1"
+          ],
+          "priority": 3
+        },
+        {
+          "code": "D04.2",
+          "name": "Entregar painel de projeto e execucao de checklist",
+          "description": "Implementar UI/API para etapas, itens, pendencias, atribuicao e acompanhamento.",
+          "acceptance": [
+            "Criar projeto, atribuir responsavel e concluir itens com persistencia.",
+            "Bloqueios e pendencias visiveis; regras de etapa respeitadas."
+          ],
+          "dependsOn": [
+            "D04.1",
+            "D01.2"
+          ],
+          "priority": 3
+        },
+        {
+          "code": "D04.3",
+          "name": "Vincular evidencias, revisao e entrega do projeto",
+          "description": "Reaproveitar mecanismos de anexos/historico e revisao de marketing onde compativel.",
+          "acceptance": [
+            "Projeto recebe comentarios, arquivos e evidencia de entrega.",
+            "Revisao/ajustes/conclusao preservam historico e permissoes."
+          ],
+          "dependsOn": [
+            "D04.2",
+            "D03.3",
+            "D00.2"
+          ],
+          "priority": 3
+        },
+        {
+          "code": "D04.4",
+          "name": "Homologar um projeto real de e-commerce",
+          "description": "Executar roteiro ponta a ponta da abertura a entrega sem depender de integrar Shopify ou desenvolver loja.",
+          "acceptance": [
+            "Equipe executa um projeto de exemplo com checklist, pendencias e revisao.",
+            "Defeitos e ajustes registrados; aceite documentado antes de fechar."
+          ],
+          "dependsOn": [
+            "D04.3"
+          ],
+          "priority": 3
+        }
+      ]
+    },
+    {
+      "name": "MVP 05 | Painel, homologacao e producao",
+      "description": "Indicadores de entregas, validacao integrada e disponibilizacao. Fechamento exige evidencia tecnica e aceite manual quando necessario.",
+      "tasks": [
+        {
+          "code": "D05.1",
+          "name": "Entregar indicadores operacionais de entregas",
+          "description": "Painel de abertas, em execucao, concluidas, atrasadas e aguardando revisao com filtros por cliente/responsavel/periodo.",
+          "acceptance": [
+            "Contagens conferem com registros controlados de marketing e e-commerce.",
+            "Filtro, fuso, prazo e criterios de estado documentados."
+          ],
+          "dependsOn": [
+            "D03.4",
+            "D04.3",
+            "D00.3"
+          ],
+          "priority": 3
+        },
+        {
+          "code": "D05.2",
+          "name": "Executar QA integrado e isolamento por papel/workspace",
+          "description": "Cobrir cliente, demanda, projeto, revisao, anexos e painel; registrar roteiro manual e comandos.",
+          "acceptance": [
+            "Caminhos principais, erros, cancelamento, duplicidade e recarga verificados.",
+            "Tentativas entre workspaces e papeis indevidos recusadas; defeitos criticos resolvidos."
+          ],
+          "dependsOn": [
+            "D05.1",
+            "D01.2",
+            "D01.3",
+            "D01.5"
+          ],
+          "priority": 2
+        },
+        {
+          "code": "D05.3",
+          "name": "Preparar deploy, backup, armazenamento e monitoramento",
+          "description": "Definir ambiente e custos; verificar workers, storage, healthchecks e recuperacao sem publicar sem configuracao concreta.",
+          "acceptance": [
+            "Runbook de deploy/rollback e restauracao em ambiente de teste.",
+            "Limites, logs sem segredos, acesso HTTPS e monitoramento validados."
+          ],
+          "dependsOn": [
+            "D01.5",
+            "D00.3"
+          ],
+          "priority": 3
+        },
+        {
+          "code": "D05.4",
+          "name": "Homologar MVP com agencia e registrar aceite",
+          "description": "Consolidar criterios aprovados e evidencias; manter pendencias e itens fora do MVP explicitos.",
+          "acceptance": [
+            "Agencia executa fluxos reais de marketing/e-commerce com resultado esperado.",
+            "Registrar aceite, treinamento e pendencias; prazo final negociado com base no escopo."
+          ],
+          "dependsOn": [
+            "D05.2",
+            "D05.3",
+            "D00.5"
+          ],
+          "priority": 2
+        }
+      ]
+    },
+    {
+      "name": "MVP 06 | WhatsApp condicionado ao fluxo",
+      "description": "Trabalho condicional a D00.4. Usar Work/fabia como referencia, adaptar a arquitetura CRM2; nao importar segredos, dados ou regras juridicas especificas.",
+      "tasks": [
+        {
+          "code": "D06.1",
+          "name": "Mapear reuso WhatsApp de fabia para CRM2",
+          "description": "Referencias locais: official_whatsapp_client.py, whatsapp_security.py, routers/official_whatsapp_webhook.py, whatsapp_delivery_policy.py, whatsapp_media_ingestion.py e respectivos testes.",
+          "acceptance": [
+            "Documentar o que ja existe no CRM2 atualizado e gaps reais.",
+            "Definir adaptacoes de AsyncSession/httpx/Celery sem acoplar modelos/firm_id de fabia."
+          ],
+          "dependsOn": [
+            "D01.1",
+            "D00.4"
+          ],
+          "priority": 3
+        },
+        {
+          "code": "D06.2",
+          "name": "Validar envio, webhooks e isolamento por numero",
+          "description": "Se necessario no MVP, validar provider escolhido, assinatura em bytes originais, webhook duravel, idempotencia, recibos e escopo de numero/workspace.",
+          "acceptance": [
+            "Envio/recebimento real por numero autorizado com falhas e duplicacao verificadas.",
+            "Evento de outro numero/workspace recusado; retry nao duplica mensagem."
+          ],
+          "dependsOn": [
+            "D06.1"
+          ],
+          "priority": 3
+        },
+        {
+          "code": "D06.3",
+          "name": "Implementar regras de entrega, erros e midia necessarias",
+          "description": "Avaliar fabia para classificacao Meta/Retry-After, envio ambiguo, janela de atendimento, templates e download limitado; confirmar regras atuais do provider antes de implementar.",
+          "acceptance": [
+            "Falhas permanentes/transitorias e envio ambiguo tem comportamento testado.",
+            "Midia respeita tamanho/tipo/autorizacao; politica de janela/template coberta quando aplicavel."
+          ],
+          "dependsOn": [
+            "D06.2",
+            "D01.3"
+          ],
+          "priority": 3
+        },
+        {
+          "code": "D06.4",
+          "name": "Validar coexistencia e historico se aprovados",
+          "description": "Consultar testes de coexistencia/history em fabia. Funcionalidade condicional a necessidade, elegibilidade e aprovacao real; nao assumir suporte universal.",
+          "acceptance": [
+            "Registrar elegibilidade e requisitos do provider na data da implementacao.",
+            "Se no escopo, validar ecos, duplicacao e historico em conta real; senao registrar adiamento."
+          ],
+          "dependsOn": [
+            "D00.4",
+            "D06.2"
+          ],
+          "priority": 3
+        }
+      ]
+    }
+  ],
+  "historicalLegacyLists": [
+    {
+      "id": "901327298399",
+      "name": "P1 | Stage 1 - Auth + Workspace + Setoriza��o"
+    },
+    {
+      "id": "901327298400",
+      "name": "P1 | Stage 2 - Canal WhatsApp + Inbox Unificado"
+    },
+    {
+      "id": "901327330608",
+      "name": "P1 | Stage 2.1 - WhatsApp Templates + Janela 24h + Protocolo configuravel"
+    },
+    {
+      "id": "901327298403",
+      "name": "P1 | Stage 3 - Ações de Conversa Básicas"
+    },
+    {
+      "id": "901327298407",
+      "name": "P1 | Stage 4 - Segurança de Webhooks"
+    },
+    {
+      "id": "901327298411",
+      "name": "P1 | Stage 9 - Gest�o de Capacidade + Pol�ticas de SLA"
+    },
+    {
+      "id": "901327298408",
+      "name": "P1 | Stage 5 - Flow Builder"
+    },
+    {
+      "id": "901327298412",
+      "name": "P2 | Stage 6 - Integra��o AI - Bot Aut�nomo"
+    },
+    {
+      "id": "901327298414",
+      "name": "P2 | Stage 7 - Copilot de IA para Agentes"
+    },
+    {
+      "id": "901327298415",
+      "name": "P2 | Stage 8 - Auditoria + Logs"
+    },
+    {
+      "id": "901327298418",
+      "name": "P2 | Stage 10 - Dashboard Anal�tico B�sico"
+    },
+    {
+      "id": "901327298421",
+      "name": "P2 | Stage 12 - Demais Canais"
+    },
+    {
+      "id": "901327298424",
+      "name": "P2 | Stage 13 - Categoriza��o + Pastas"
+    },
+    {
+      "id": "901327298427",
+      "name": "P2 | Stage 20 - Help Center (Base de Conhecimento)"
+    },
+    {
+      "id": "901327298428",
+      "name": "P2 | Stage 21 - Live Chat (Widget Web)"
+    },
+    {
+      "id": "901327298429",
+      "name": "P3 | Stage 11 - Billing & Planos"
+    },
+    {
+      "id": "901327298432",
+      "name": "P3 | Stage 14 - Dashboard Anal�tico Avan�ado"
+    },
+    {
+      "id": "901327298433",
+      "name": "P3 | Stage 15 - Campanhas de Disparo em Massa"
+    },
+    {
+      "id": "901327298441",
+      "name": "P3 | Stage 16 - Macros"
+    },
+    {
+      "id": "901327298445",
+      "name": "P3 | Stage 17 - White-label / Custom Branding"
+    },
+    {
+      "id": "901327298447",
+      "name": "P3 | Stage 18 - SSO / SAML"
+    },
+    {
+      "id": "901327298448",
+      "name": "P3 | Stage 19 - Permiss�es Granulares (Roles Avan�ados)"
+    },
+    {
+      "id": "901327298450",
+      "name": "P3 | Stage 22 - Integra��es de Terceiros"
+    }
+  ],
+  "legacyDeletedByUserRequest": "2026-11-11"
+}

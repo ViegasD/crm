@@ -3,8 +3,11 @@ import enum
 
 class UserStatus(str, enum.Enum):
     online = "online"
+    away = "away"
     offline = "offline"
     busy = "busy"
+    in_call = "in_call"
+    on_break = "on_break"
     invisible = "invisible"
 
 
@@ -84,6 +87,7 @@ class ConvPriority(str, enum.Enum):
 class MessageType(str, enum.Enum):
     text = "text"
     image = "image"
+    sticker = "sticker"
     audio = "audio"
     video = "video"
     file = "file"
@@ -111,8 +115,25 @@ class ConvEventType(str, enum.Enum):
     mention = "mention"
     participant_added = "participant_added"
     participant_removed = "participant_removed"
+    sla_at_risk = "sla_at_risk"
+    sla_violated = "sla_violated"
+    sla_escalated = "sla_escalated"
     bot_handed_off = "bot_handed_off"
     bot_took_over = "bot_took_over"
+    message_inbound = "message_inbound"
+    message_outbound = "message_outbound"
+    new_protocol_created = "new_protocol_created"
+    auto_resolved = "auto_resolved"
+    auto_reopened = "auto_reopened"
+    template_sent = "template_sent"
+
+
+class ReopenMode(str, enum.Enum):
+    """How to handle an inbound message after a conversation is resolved."""
+
+    window = "window"  # reopen if within reopen_window_hours; else create new
+    always_reopen = "always_reopen"  # Chatwoot-style: always reopen last conversation
+    always_new = "always_new"  # Opa-style: every resolution starts a new protocol
 
 
 class WebhookEventStatus(str, enum.Enum):
@@ -157,7 +178,9 @@ class CircuitState(str, enum.Enum):
 
 class SlaEventType(str, enum.Enum):
     first_response = "first_response"
+    next_response = "next_response"
     resolution = "resolution"
+    reopen_response = "reopen_response"
 
 
 class FlowTriggerType(str, enum.Enum):
@@ -182,3 +205,5 @@ class ChannelAccountStatus(str, enum.Enum):
     paused = "paused"
     error = "error"
     disconnected = "disconnected"
+
+

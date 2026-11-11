@@ -9,7 +9,10 @@ celery_app = Celery(
     backend=settings.redis_url,
     include=[
         "app.workers.tasks.media",
+        "app.workers.tasks.webhook",
         "app.workers.tasks.webhook_retry",
+        "app.workers.tasks.sla",
+        "app.workers.tasks.stage9",
     ],
 )
 
@@ -38,6 +41,26 @@ celery_app.conf.update(
         "snooze-expire-every-minute": {
             "task": "webhook.snooze_expire",
             "schedule": 60.0,
+        },
+        "sla-evaluate-every-minute": {
+            "task": "sla.evaluate",
+            "schedule": 60.0,
+        },
+        "sla-auto-resolve-every-15-minutes": {
+            "task": "sla.auto_resolve",
+            "schedule": 900.0,
+        },
+        "stage9-deliver-external-webhooks-every-30s": {
+            "task": "stage9.deliver_external_webhooks",
+            "schedule": 30.0,
+        },
+        "stage9-evaluate-idle-every-minute": {
+            "task": "stage9.evaluate_idle",
+            "schedule": 60.0,
+        },
+        "stage9-expire-locks-every-30s": {
+            "task": "stage9.expire_conversation_locks",
+            "schedule": 30.0,
         },
     },
 )

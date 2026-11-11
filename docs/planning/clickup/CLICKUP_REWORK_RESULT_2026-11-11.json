@@ -1,0 +1,393 @@
+{
+  "date": "2026-11-11",
+  "folderId": "901318283724",
+  "legacyLists": [
+    {
+      "id": "901327298399",
+      "before": "P1 | Stage 1 - Auth + Workspace + Setoriza��o",
+      "after": "[LEGADO CRM] P1 | Stage 1 - Auth + Workspace + Setoriza��o"
+    },
+    {
+      "id": "901327298400",
+      "before": "P1 | Stage 2 - Canal WhatsApp + Inbox Unificado",
+      "after": "[LEGADO CRM] P1 | Stage 2 - Canal WhatsApp + Inbox Unificado"
+    },
+    {
+      "id": "901327330608",
+      "before": "P1 | Stage 2.1 - WhatsApp Templates + Janela 24h + Protocolo configuravel",
+      "after": "[LEGADO CRM] P1 | Stage 2.1 - WhatsApp Templates + Janela 24h + Protocolo configuravel"
+    },
+    {
+      "id": "901327298403",
+      "before": "P1 | Stage 3 - Ações de Conversa Básicas",
+      "after": "[LEGADO CRM] P1 | Stage 3 - Ações de Conversa Básicas"
+    },
+    {
+      "id": "901327298407",
+      "before": "P1 | Stage 4 - Segurança de Webhooks",
+      "after": "[LEGADO CRM] P1 | Stage 4 - Segurança de Webhooks"
+    },
+    {
+      "id": "901327298411",
+      "before": "P1 | Stage 9 - Gest�o de Capacidade + Pol�ticas de SLA",
+      "after": "[LEGADO CRM] P1 | Stage 9 - Gest�o de Capacidade + Pol�ticas de SLA"
+    },
+    {
+      "id": "901327298408",
+      "before": "P1 | Stage 5 - Flow Builder",
+      "after": "[LEGADO CRM] P1 | Stage 5 - Flow Builder"
+    },
+    {
+      "id": "901327298412",
+      "before": "P2 | Stage 6 - Integra��o AI - Bot Aut�nomo",
+      "after": "[LEGADO CRM] P2 | Stage 6 - Integra��o AI - Bot Aut�nomo"
+    },
+    {
+      "id": "901327298414",
+      "before": "P2 | Stage 7 - Copilot de IA para Agentes",
+      "after": "[LEGADO CRM] P2 | Stage 7 - Copilot de IA para Agentes"
+    },
+    {
+      "id": "901327298415",
+      "before": "P2 | Stage 8 - Auditoria + Logs",
+      "after": "[LEGADO CRM] P2 | Stage 8 - Auditoria + Logs"
+    },
+    {
+      "id": "901327298418",
+      "before": "P2 | Stage 10 - Dashboard Anal�tico B�sico",
+      "after": "[LEGADO CRM] P2 | Stage 10 - Dashboard Anal�tico B�sico"
+    },
+    {
+      "id": "901327298421",
+      "before": "P2 | Stage 12 - Demais Canais",
+      "after": "[LEGADO CRM] P2 | Stage 12 - Demais Canais"
+    },
+    {
+      "id": "901327298424",
+      "before": "P2 | Stage 13 - Categoriza��o + Pastas",
+      "after": "[LEGADO CRM] P2 | Stage 13 - Categoriza��o + Pastas"
+    },
+    {
+      "id": "901327298427",
+      "before": "P2 | Stage 20 - Help Center (Base de Conhecimento)",
+      "after": "[LEGADO CRM] P2 | Stage 20 - Help Center (Base de Conhecimento)"
+    },
+    {
+      "id": "901327298428",
+      "before": "P2 | Stage 21 - Live Chat (Widget Web)",
+      "after": "[LEGADO CRM] P2 | Stage 21 - Live Chat (Widget Web)"
+    },
+    {
+      "id": "901327298429",
+      "before": "P3 | Stage 11 - Billing & Planos",
+      "after": "[LEGADO CRM] P3 | Stage 11 - Billing & Planos"
+    },
+    {
+      "id": "901327298432",
+      "before": "P3 | Stage 14 - Dashboard Anal�tico Avan�ado",
+      "after": "[LEGADO CRM] P3 | Stage 14 - Dashboard Anal�tico Avan�ado"
+    },
+    {
+      "id": "901327298433",
+      "before": "P3 | Stage 15 - Campanhas de Disparo em Massa",
+      "after": "[LEGADO CRM] P3 | Stage 15 - Campanhas de Disparo em Massa"
+    },
+    {
+      "id": "901327298441",
+      "before": "P3 | Stage 16 - Macros",
+      "after": "[LEGADO CRM] P3 | Stage 16 - Macros"
+    },
+    {
+      "id": "901327298445",
+      "before": "P3 | Stage 17 - White-label / Custom Branding",
+      "after": "[LEGADO CRM] P3 | Stage 17 - White-label / Custom Branding"
+    },
+    {
+      "id": "901327298447",
+      "before": "P3 | Stage 18 - SSO / SAML",
+      "after": "[LEGADO CRM] P3 | Stage 18 - SSO / SAML"
+    },
+    {
+      "id": "901327298448",
+      "before": "P3 | Stage 19 - Permiss�es Granulares (Roles Avan�ados)",
+      "after": "[LEGADO CRM] P3 | Stage 19 - Permiss�es Granulares (Roles Avan�ados)"
+    },
+    {
+      "id": "901327298450",
+      "before": "P3 | Stage 22 - Integra��es de Terceiros",
+      "after": "[LEGADO CRM] P3 | Stage 22 - Integra��es de Terceiros"
+    }
+  ],
+  "lists": [
+    {
+      "id": "1000240000018660",
+      "name": "MVP 00 | Diretriz e validacao de escopo",
+      "tasks": [
+        {
+          "code": "D00.1",
+          "id": "wdpu2yt81b",
+          "url": "https://app.clickup.com/t/wdpu2yt81b",
+          "name": "D00.1 - Validar fluxo real de marketing e e-commerce",
+          "status": "Open"
+        },
+        {
+          "code": "D00.2",
+          "id": "wdpu2yt81c",
+          "url": "https://app.clickup.com/t/wdpu2yt81c",
+          "name": "D00.2 - Definir revisao interna, aprovacao e acesso do cliente",
+          "status": "Open"
+        },
+        {
+          "code": "D00.3",
+          "id": "wdpu2yt81d",
+          "url": "https://app.clickup.com/t/wdpu2yt81d",
+          "name": "D00.3 - Definir recorrencia, prazos, anexos e notificacoes",
+          "status": "Open"
+        },
+        {
+          "code": "D00.4",
+          "id": "wdpu2yt81e",
+          "url": "https://app.clickup.com/t/wdpu2yt81e",
+          "name": "D00.4 - Decidir papel do WhatsApp no MVP",
+          "status": "Open"
+        },
+        {
+          "code": "D00.5",
+          "id": "wdpu2yt81f",
+          "url": "https://app.clickup.com/t/wdpu2yt81f",
+          "name": "D00.5 - Alinhar escopo, proposta e criterios de aceite",
+          "status": "Open"
+        }
+      ]
+    },
+    {
+      "id": "1000240000018661",
+      "name": "MVP 01 | Fundacao e seguranca",
+      "tasks": [
+        {
+          "code": "D01.1",
+          "id": "wdpu2yt81g",
+          "url": "https://app.clickup.com/t/wdpu2yt81g",
+          "name": "D01.1 - Integrar e validar checkout com branches remotas",
+          "status": "Open"
+        },
+        {
+          "code": "D01.2",
+          "id": "wdpu2yt81h",
+          "url": "https://app.clickup.com/t/wdpu2yt81h",
+          "name": "D01.2 - Aplicar papeis e isolamento em operacoes administrativas",
+          "status": "Open"
+        },
+        {
+          "code": "D01.3",
+          "id": "wdpu2yt81j",
+          "url": "https://app.clickup.com/t/wdpu2yt81j",
+          "name": "D01.3 - Corrigir autorizacao de upload e download de midia",
+          "status": "Open"
+        },
+        {
+          "code": "D01.4",
+          "id": "wdpu2yt81m",
+          "url": "https://app.clickup.com/t/wdpu2yt81m",
+          "name": "D01.4 - Concluir onboarding e gerenciamento de equipe",
+          "status": "Open"
+        },
+        {
+          "code": "D01.5",
+          "id": "wdpu2yt81n",
+          "url": "https://app.clickup.com/t/wdpu2yt81n",
+          "name": "D01.5 - Validar migrations em banco vazio e banco existente",
+          "status": "Open"
+        }
+      ]
+    },
+    {
+      "id": "1000240000018662",
+      "name": "MVP 02 | Clientes e servicos",
+      "tasks": [
+        {
+          "code": "D02.1",
+          "id": "wdpu2yt81p",
+          "url": "https://app.clickup.com/t/wdpu2yt81p",
+          "name": "D02.1 - Modelar clientes, servicos e vinculos operacionais",
+          "status": "Open"
+        },
+        {
+          "code": "D02.2",
+          "id": "wdpu2yt81r",
+          "url": "https://app.clickup.com/t/wdpu2yt81r",
+          "name": "D02.2 - Entregar cadastro e consulta de clientes e servicos",
+          "status": "Open"
+        },
+        {
+          "code": "D02.3",
+          "id": "wdpu2yt81t",
+          "url": "https://app.clickup.com/t/wdpu2yt81t",
+          "name": "D02.3 - Definir e executar carga inicial de clientes",
+          "status": "Open"
+        }
+      ]
+    },
+    {
+      "id": "1000240000018663",
+      "name": "MVP 03 | Entregas de marketing",
+      "tasks": [
+        {
+          "code": "D03.1",
+          "id": "wdpu2yt81u",
+          "url": "https://app.clickup.com/t/wdpu2yt81u",
+          "name": "D03.1 - Modelar demandas, etapas e regras de transicao",
+          "status": "Open"
+        },
+        {
+          "code": "D03.2",
+          "id": "wdpu2yt81v",
+          "url": "https://app.clickup.com/t/wdpu2yt81v",
+          "name": "D03.2 - Entregar criacao, atribuicao e Kanban de demandas",
+          "status": "Open"
+        },
+        {
+          "code": "D03.3",
+          "id": "wdpu2yt81w",
+          "url": "https://app.clickup.com/t/wdpu2yt81w",
+          "name": "D03.3 - Adicionar comentarios, anexos e historico de demanda",
+          "status": "Open"
+        },
+        {
+          "code": "D03.4",
+          "id": "wdpu2yt81x",
+          "url": "https://app.clickup.com/t/wdpu2yt81x",
+          "name": "D03.4 - Entregar revisao, ajustes, aprovacao e conclusao",
+          "status": "Open"
+        },
+        {
+          "code": "D03.5",
+          "id": "wdpu2yt81y",
+          "url": "https://app.clickup.com/t/wdpu2yt81y",
+          "name": "D03.5 - Validar recorrencia e alertas operacionais de marketing",
+          "status": "Open"
+        }
+      ]
+    },
+    {
+      "id": "1000240000018664",
+      "name": "MVP 04 | Projetos de e-commerce",
+      "tasks": [
+        {
+          "code": "D04.1",
+          "id": "wdpu2yt81z",
+          "url": "https://app.clickup.com/t/wdpu2yt81z",
+          "name": "D04.1 - Modelar projetos, marcos e checklists de e-commerce",
+          "status": "Open"
+        },
+        {
+          "code": "D04.2",
+          "id": "wdpu2yt821",
+          "url": "https://app.clickup.com/t/wdpu2yt821",
+          "name": "D04.2 - Entregar painel de projeto e execucao de checklist",
+          "status": "Open"
+        },
+        {
+          "code": "D04.3",
+          "id": "wdpu2yt822",
+          "url": "https://app.clickup.com/t/wdpu2yt822",
+          "name": "D04.3 - Vincular evidencias, revisao e entrega do projeto",
+          "status": "Open"
+        },
+        {
+          "code": "D04.4",
+          "id": "wdpu2yt823",
+          "url": "https://app.clickup.com/t/wdpu2yt823",
+          "name": "D04.4 - Homologar um projeto real de e-commerce",
+          "status": "Open"
+        }
+      ]
+    },
+    {
+      "id": "1000240000018665",
+      "name": "MVP 05 | Painel, homologacao e producao",
+      "tasks": [
+        {
+          "code": "D05.1",
+          "id": "wdpu2yt825",
+          "url": "https://app.clickup.com/t/wdpu2yt825",
+          "name": "D05.1 - Entregar indicadores operacionais de entregas",
+          "status": "Open"
+        },
+        {
+          "code": "D05.2",
+          "id": "wdpu2yt826",
+          "url": "https://app.clickup.com/t/wdpu2yt826",
+          "name": "D05.2 - Executar QA integrado e isolamento por papel/workspace",
+          "status": "Open"
+        },
+        {
+          "code": "D05.3",
+          "id": "wdpu2yt827",
+          "url": "https://app.clickup.com/t/wdpu2yt827",
+          "name": "D05.3 - Preparar deploy, backup, armazenamento e monitoramento",
+          "status": "Open"
+        },
+        {
+          "code": "D05.4",
+          "id": "wdpu2yt829",
+          "url": "https://app.clickup.com/t/wdpu2yt829",
+          "name": "D05.4 - Homologar MVP com agencia e registrar aceite",
+          "status": "Open"
+        }
+      ]
+    },
+    {
+      "id": "1000240000018666",
+      "name": "MVP 06 | WhatsApp condicionado ao fluxo",
+      "tasks": [
+        {
+          "code": "D06.1",
+          "id": "wdpu2yt82c",
+          "url": "https://app.clickup.com/t/wdpu2yt82c",
+          "name": "D06.1 - Mapear reuso WhatsApp de fabia para CRM2",
+          "status": "Open"
+        },
+        {
+          "code": "D06.2",
+          "id": "wdpu2yt82d",
+          "url": "https://app.clickup.com/t/wdpu2yt82d",
+          "name": "D06.2 - Validar envio, webhooks e isolamento por numero",
+          "status": "Open"
+        },
+        {
+          "code": "D06.3",
+          "id": "wdpu2yt82e",
+          "url": "https://app.clickup.com/t/wdpu2yt82e",
+          "name": "D06.3 - Implementar regras de entrega, erros e midia necessarias",
+          "status": "Open"
+        },
+        {
+          "code": "D06.4",
+          "id": "wdpu2yt82f",
+          "url": "https://app.clickup.com/t/wdpu2yt82f",
+          "name": "D06.4 - Validar coexistencia e historico se aprovados",
+          "status": "Open"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "lists": 30,
+    "legacyTasksPreserved": 138,
+    "newTasksOpen": 30,
+    "totalTasks": 168,
+    "acceptanceDescriptionsVerified": true
+  },
+  "finalVerification": {
+    "lists": 7,
+    "tasks": 30,
+    "allOpen": true,
+    "allStartAndDueDatesVerified": true,
+    "legacyTasksRemaining": 0,
+    "legacyListsRemaining": 0,
+    "start": "2026-11-16",
+    "finish": "2026-12-14",
+    "businessDays": 20
+  }
+}

@@ -37,6 +37,7 @@ from app.core.security import (
 )
 from app.models.channel import ChannelAccount, ChannelCredential
 from app.models.enums import WebhookEventStatus, WhatsAppProvider
+from app.schemas.message import serialize_message_out
 from app.services.message_service import persist_normalized_event
 from app.services.security_audit_service import log_security_event
 from app.services.webhook_event_service import mark_event_status, record_webhook_event
@@ -261,14 +262,25 @@ async def receive_event(request: Request, db: Annotated[AsyncSession, Depends(ge
             event.channel_account_id = str(account.id)
             msg = await persist_normalized_event(db, account, event)
             if msg:
-                await manager.broadcast(
-                    str(account.workspace_id),
-                    {
-                        "type": "message.new",
-                        "conversation_id": str(msg.conversation_id),
-                        "message_id": str(msg.id),
-                    },
-                )
+                if event.event_type == "message.status":
+                    await manager.broadcast(
+                        str(account.workspace_id),
+                        {
+                            "type": "message.updated",
+                            "conversation_id": str(msg.conversation_id),
+                            "message_id": str(msg.id),
+                            "message": serialize_message_out(msg).model_dump(mode="json"),
+                        },
+                    )
+                elif event.event_type == "message.received" and event.direction == "inbound":
+                    await manager.broadcast(
+                        str(account.workspace_id),
+                        {
+                            "type": "message.new",
+                            "conversation_id": str(msg.conversation_id),
+                            "message_id": str(msg.id),
+                        },
+                    )
     except Exception as exc:  # noqa: BLE001
         latency = int((time.perf_counter() - started) * 1000)
         logger.exception("Meta webhook processing failed")

@@ -1,0 +1,40 @@
+param([string]$ApiToken)
+
+. (Join-Path $PSScriptRoot "clickup_common.ps1")
+
+$config = Resolve-ClickUpConfig -ApiToken $ApiToken
+$h = $config.Headers
+
+# Stage 1 (901327298399): ALL tasks done
+# Stage 2 (901327298400): all except "webhook_events" task
+# Stage 3 (901327298403): only Etiquetagem + Transferência
+
+$config = @(
+    @{ ListId = "901327298399"; Exclude = $null;                    Include = $null }
+    @{ ListId = "901327298400"; Exclude = "webhook_events";         Include = $null }
+    @{ ListId = "901327298403"; Exclude = $null;                    Include = "Etiquet|Transfer" }
+)
+
+$closed = 0; $skipped = 0
+
+foreach ($c in $config) {
+    $tasks = (Invoke-RestMethod "https://api.clickup.com/api/v2/list/$($c.ListId)/task" -Headers $h).tasks
+    foreach ($t in $tasks) {
+        $skip = $false
+        if ($c.Exclude -and $t.name -match $c.Exclude) { $skip = $true }
+        if ($c.Include -and -not ($t.name -match $c.Include)) { $skip = $true }
+
+        if ($skip) {
+            Write-Host "  SKIP  $($t.name)"
+            $skipped++
+        } else {
+            $body = '{"status":"Closed"}'
+            Invoke-RestMethod -Method Put -Uri "https://api.clickup.com/api/v2/task/$($t.id)" -Headers $h -Body $body | Out-Null
+            Write-Host "  CLOSE $($t.name)"
+            $closed++
+        }
+    }
+    Write-Host ""
+}
+
+Write-Host "Closed: $closed  Skipped: $skipped"

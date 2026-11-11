@@ -1,7 +1,8 @@
 param(
     [switch]$SkipDocker,
     [switch]$SkipInstall,
-    [switch]$SkipMigrations
+    [switch]$SkipMigrations,
+    [int]$Port = 8001
 )
 
 $ErrorActionPreference = "Stop"
@@ -54,4 +55,4 @@ if (-not $SkipMigrations) {
     & $VenvPython -m alembic upgrade head
 }
 
-& $VenvPython -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+& $VenvPython -m uvicorn app.main:app --host 0.0.0.0 --port $Port --reload

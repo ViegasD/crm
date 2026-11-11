@@ -45,6 +45,7 @@ frontend/.env.local
 frontend/.env.production
 backend/.env
 backend/.env.local
+scripts/.env
 
 # Docker volumes / data
 postgres_data/
@@ -66,3 +67,9 @@ desktop.ini
 # Logs
 *.log
 logs/
+
+# Private source documents and local generated reports
+/docs/sources/*
+!/docs/sources/README.md
+/var/
+/scripts/clickup_update_plan.local.json

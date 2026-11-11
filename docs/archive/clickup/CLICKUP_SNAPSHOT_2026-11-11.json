@@ -1,0 +1,1391 @@
+﻿{
+    "checkedOn":  "2026-11-11",
+    "folderId":  "901318283724",
+    "folderName":  "CRM2",
+    "listCount":  23,
+    "taskCount":  138,
+    "closed":  32,
+    "open":  106,
+    "tasks":  [
+                  {
+                      "listId":  "901327298399",
+                      "listName":  "P1 | Stage 1 - Auth + Workspace + Setoriza��o",
+                      "id":  "86ahmdnx0",
+                      "name":  "CRUD de workspaces, setores e membros",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdnx0"
+                  },
+                  {
+                      "listId":  "901327298399",
+                      "listName":  "P1 | Stage 1 - Auth + Workspace + Setoriza��o",
+                      "id":  "86ahmdnwq",
+                      "name":  "Middleware de autentica��o e autoriza��o",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdnwq"
+                  },
+                  {
+                      "listId":  "901327298399",
+                      "listName":  "P1 | Stage 1 - Auth + Workspace + Setoriza��o",
+                      "id":  "86ahmdnwf",
+                      "name":  "Tabelas: sectors, sector_members, roles enum",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdnwf"
+                  },
+                  {
+                      "listId":  "901327298399",
+                      "listName":  "P1 | Stage 1 - Auth + Workspace + Setoriza��o",
+                      "id":  "86ahmdnwb",
+                      "name":  "Registro e login - JWT",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdnwb"
+                  },
+                  {
+                      "listId":  "901327298399",
+                      "listName":  "P1 | Stage 1 - Auth + Workspace + Setoriza��o",
+                      "id":  "86ahmdnw8",
+                      "name":  "Tabelas: users, workspaces, user_workspace_memberships",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdnw8"
+                  },
+                  {
+                      "listId":  "901327298400",
+                      "listName":  "P1 | Stage 2 - Canal WhatsApp + Inbox Unificado",
+                      "id":  "86ahngype",
+                      "name":  "Stage 2.1 - Estratégia WhatsApp: compliance oficial + Evolution BYON auditável",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahngype"
+                  },
+                  {
+                      "listId":  "901327298400",
+                      "listName":  "P1 | Stage 2 - Canal WhatsApp + Inbox Unificado",
+                      "id":  "86ahmkj7h",
+                      "name":  "Meta Cloud API - integracao ponta a ponta (UI + webhook + envio)",
+                      "status":  "in progress",
+                      "statusType":  "custom",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmkj7h"
+                  },
+                  {
+                      "listId":  "901327298400",
+                      "listName":  "P1 | Stage 2 - Canal WhatsApp + Inbox Unificado",
+                      "id":  "86ahmdp1f",
+                      "name":  "M�dia - worker Celery para webhooks",
+                      "status":  "review",
+                      "statusType":  "custom",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp1f"
+                  },
+                  {
+                      "listId":  "901327298400",
+                      "listName":  "P1 | Stage 2 - Canal WhatsApp + Inbox Unificado",
+                      "id":  "86ahmdp13",
+                      "name":  "M�dia - presigned URL para download",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp13"
+                  },
+                  {
+                      "listId":  "901327298400",
+                      "listName":  "P1 | Stage 2 - Canal WhatsApp + Inbox Unificado",
+                      "id":  "86ahmdp0z",
+                      "name":  "M�dia - upload endpoint e valida��o",
+                      "status":  "review",
+                      "statusType":  "custom",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp0z"
+                  },
+                  {
+                      "listId":  "901327298400",
+                      "listName":  "P1 | Stage 2 - Canal WhatsApp + Inbox Unificado",
+                      "id":  "86ahmdp0p",
+                      "name":  "Perfil de contato - UI",
+                      "status":  "review",
+                      "statusType":  "custom",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp0p"
+                  },
+                  {
+                      "listId":  "901327298400",
+                      "listName":  "P1 | Stage 2 - Canal WhatsApp + Inbox Unificado",
+                      "id":  "86ahmdp00",
+                      "name":  "Campos customizados por workspace",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp00"
+                  },
+                  {
+                      "listId":  "901327298400",
+                      "listName":  "P1 | Stage 2 - Canal WhatsApp + Inbox Unificado",
+                      "id":  "86ahmdnzj",
+                      "name":  "CRUD de contatos",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdnzj"
+                  },
+                  {
+                      "listId":  "901327298400",
+                      "listName":  "P1 | Stage 2 - Canal WhatsApp + Inbox Unificado",
+                      "id":  "86ahmdnz1",
+                      "name":  "Contatos - tabelas e migrations",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdnz1"
+                  },
+                  {
+                      "listId":  "901327298400",
+                      "listName":  "P1 | Stage 2 - Canal WhatsApp + Inbox Unificado",
+                      "id":  "86ahmdnyx",
+                      "name":  "Inbox WebSocket - entrega em tempo real",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdnyx"
+                  },
+                  {
+                      "listId":  "901327298400",
+                      "listName":  "P1 | Stage 2 - Canal WhatsApp + Inbox Unificado",
+                      "id":  "86ahmdnyp",
+                      "name":  "NormalizedEvent + abstra��o de provider",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdnyp"
+                  },
+                  {
+                      "listId":  "901327298400",
+                      "listName":  "P1 | Stage 2 - Canal WhatsApp + Inbox Unificado",
+                      "id":  "86ahmdnyf",
+                      "name":  "WhatsApp - EvolutionCloudAdapter",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdnyf"
+                  },
+                  {
+                      "listId":  "901327298400",
+                      "listName":  "P1 | Stage 2 - Canal WhatsApp + Inbox Unificado",
+                      "id":  "86ahmdny2",
+                      "name":  "WhatsApp - EvolutionBaileysAdapter",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdny2"
+                  },
+                  {
+                      "listId":  "901327298400",
+                      "listName":  "P1 | Stage 2 - Canal WhatsApp + Inbox Unificado",
+                      "id":  "86ahmdnxw",
+                      "name":  "WhatsApp - MetaCloudAdapter",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdnxw"
+                  },
+                  {
+                      "listId":  "901327298400",
+                      "listName":  "P1 | Stage 2 - Canal WhatsApp + Inbox Unificado",
+                      "id":  "86ahmdnxm",
+                      "name":  "Tabela webhook_events - ingestão durável",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdnxm"
+                  },
+                  {
+                      "listId":  "901327298400",
+                      "listName":  "P1 | Stage 2 - Canal WhatsApp + Inbox Unificado",
+                      "id":  "86ahmdnxf",
+                      "name":  "Tabelas: channel_accounts, channel_credentials, conversations, messages, message_identities",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdnxf"
+                  },
+                  {
+                      "listId":  "901327330608",
+                      "listName":  "P1 | Stage 2.1 - WhatsApp Templates + Janela 24h + Protocolo configuravel",
+                      "id":  "86ahp4395",
+                      "name":  "Stage 2.1 - Protocolo configuravel por workspace (estilo Opa Suite)",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahp4395"
+                  },
+                  {
+                      "listId":  "901327330608",
+                      "listName":  "P1 | Stage 2.1 - WhatsApp Templates + Janela 24h + Protocolo configuravel",
+                      "id":  "86ahp438f",
+                      "name":  "Stage 2.1 - Janela 24h enforcement (WhatsApp)",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahp438f"
+                  },
+                  {
+                      "listId":  "901327298403",
+                      "listName":  "P1 | Stage 3 - Ações de Conversa Básicas",
+                      "id":  "86ahmdp49",
+                      "name":  "Linha do tempo / Timeline histórica por contato, protocolo e reabertura",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp49"
+                  },
+                  {
+                      "listId":  "901327298403",
+                      "listName":  "P1 | Stage 3 - Ações de Conversa Básicas",
+                      "id":  "86ahmdp3t",
+                      "name":  "Participantes / observadores",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp3t"
+                  },
+                  {
+                      "listId":  "901327298403",
+                      "listName":  "P1 | Stage 3 - Ações de Conversa Básicas",
+                      "id":  "86ahmdp31",
+                      "name":  "Transfer�ncia entre agentes/setores",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp31"
+                  },
+                  {
+                      "listId":  "901327298403",
+                      "listName":  "P1 | Stage 3 - Ações de Conversa Básicas",
+                      "id":  "86ahmdp2j",
+                      "name":  "Etiquetagem de conversas",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp2j"
+                  },
+                  {
+                      "listId":  "901327298403",
+                      "listName":  "P1 | Stage 3 - Ações de Conversa Básicas",
+                      "id":  "86ahmdp23",
+                      "name":  "Mensagens pré-escritas (canned responses)",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp23"
+                  },
+                  {
+                      "listId":  "901327298407",
+                      "listName":  "P1 | Stage 4 - Segurança de Webhooks",
+                      "id":  "86ahmdp69",
+                      "name":  "Log de tentativas inválidas em security_audit_logs",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp69"
+                  },
+                  {
+                      "listId":  "901327298407",
+                      "listName":  "P1 | Stage 4 - Segurança de Webhooks",
+                      "id":  "86ahmdp5x",
+                      "name":  "webhook_secret criptografado por channel_account",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp5x"
+                  },
+                  {
+                      "listId":  "901327298407",
+                      "listName":  "P1 | Stage 4 - Segurança de Webhooks",
+                      "id":  "86ahmdp5q",
+                      "name":  "Comparação timing-safe e rejeição de replay",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp5q"
+                  },
+                  {
+                      "listId":  "901327298407",
+                      "listName":  "P1 | Stage 4 - Segurança de Webhooks",
+                      "id":  "86ahmdp57",
+                      "name":  "Validação HMAC-SHA256 por provider",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp57"
+                  },
+                  {
+                      "listId":  "901327298411",
+                      "listName":  "P1 | Stage 9 - Gest�o de Capacidade + Pol�ticas de SLA",
+                      "id":  "86ahnr6a0",
+                      "name":  "Stage 9.x - CSAT score por setor + relatorio drill-down (paridade Opa)",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahnr6a0"
+                  },
+                  {
+                      "listId":  "901327298411",
+                      "listName":  "P1 | Stage 9 - Gest�o de Capacidade + Pol�ticas de SLA",
+                      "id":  "86ahnewwv",
+                      "name":  "QA manual obrigatório - Stage 9",
+                      "status":  "review",
+                      "statusType":  "custom",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahnewwv"
+                  },
+                  {
+                      "listId":  "901327298411",
+                      "listName":  "P1 | Stage 9 - Gest�o de Capacidade + Pol�ticas de SLA",
+                      "id":  "86ahmdpaj",
+                      "name":  "Escalonamento autom�tico ao estourar SLA",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpaj"
+                  },
+                  {
+                      "listId":  "901327298411",
+                      "listName":  "P1 | Stage 9 - Gest�o de Capacidade + Pol�ticas de SLA",
+                      "id":  "86ahmdpac",
+                      "name":  "C�lculo de status SLA por Celery",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpac"
+                  },
+                  {
+                      "listId":  "901327298411",
+                      "listName":  "P1 | Stage 9 - Gest�o de Capacidade + Pol�ticas de SLA",
+                      "id":  "86ahmdpa4",
+                      "name":  "Tabelas sla_policies e sla_events",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpa4"
+                  },
+                  {
+                      "listId":  "901327298411",
+                      "listName":  "P1 | Stage 9 - Gest�o de Capacidade + Pol�ticas de SLA",
+                      "id":  "86ahmdp9j",
+                      "name":  "Ocupa��o em tempo real para supervisores",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp9j"
+                  },
+                  {
+                      "listId":  "901327298411",
+                      "listName":  "P1 | Stage 9 - Gest�o de Capacidade + Pol�ticas de SLA",
+                      "id":  "86ahmdp9a",
+                      "name":  "Pausa e redistribui��o ao atingir limite",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp9a"
+                  },
+                  {
+                      "listId":  "901327298411",
+                      "listName":  "P1 | Stage 9 - Gest�o de Capacidade + Pol�ticas de SLA",
+                      "id":  "86ahmdp8y",
+                      "name":  "Atribuição atômica de conversas",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp8y"
+                  },
+                  {
+                      "listId":  "901327298411",
+                      "listName":  "P1 | Stage 9 - Gest�o de Capacidade + Pol�ticas de SLA",
+                      "id":  "86ahmdp8h",
+                      "name":  "Tabelas agent_capacity e conversation_assignments",
+                      "status":  "Closed",
+                      "statusType":  "closed",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp8h"
+                  },
+                  {
+                      "listId":  "901327298408",
+                      "listName":  "P1 | Stage 5 - Flow Builder",
+                      "id":  "86ahnnvgx",
+                      "name":  "Stage 5.x - AI Flow Builder Assistant (gerar flow a partir de prompt)",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahnnvgx"
+                  },
+                  {
+                      "listId":  "901327298408",
+                      "listName":  "P1 | Stage 5 - Flow Builder",
+                      "id":  "86ahmdp80",
+                      "name":  "Templates pré-prontos de fluxo",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp80"
+                  },
+                  {
+                      "listId":  "901327298408",
+                      "listName":  "P1 | Stage 5 - Flow Builder",
+                      "id":  "86ahmdp7p",
+                      "name":  "Canvas ReactFlow - UI do flow builder",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp7p"
+                  },
+                  {
+                      "listId":  "901327298408",
+                      "listName":  "P1 | Stage 5 - Flow Builder",
+                      "id":  "86ahmdp7h",
+                      "name":  "Executor de fluxos - motor de execução",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp7h"
+                  },
+                  {
+                      "listId":  "901327298408",
+                      "listName":  "P1 | Stage 5 - Flow Builder",
+                      "id":  "86ahmdp7c",
+                      "name":  "Nós de ação: bot, action, tag, assign_agent, http_request, note, send_whatsapp_template",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp7c"
+                  },
+                  {
+                      "listId":  "901327298408",
+                      "listName":  "P1 | Stage 5 - Flow Builder",
+                      "id":  "86ahmdp77",
+                      "name":  "Nós de lógica: condition, switch, set_variable, wait, subflow",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp77"
+                  },
+                  {
+                      "listId":  "901327298408",
+                      "listName":  "P1 | Stage 5 - Flow Builder",
+                      "id":  "86ahmdp74",
+                      "name":  "Nós de entrada: question, input_validated, menu",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp74"
+                  },
+                  {
+                      "listId":  "901327298408",
+                      "listName":  "P1 | Stage 5 - Flow Builder",
+                      "id":  "86ahmdp6x",
+                      "name":  "Nós básicos: trigger, message, end + keywords/social triggers",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp6x"
+                  },
+                  {
+                      "listId":  "901327298408",
+                      "listName":  "P1 | Stage 5 - Flow Builder",
+                      "id":  "86ahmdp6q",
+                      "name":  "Modelo de dados do grafo (FlowGraph / FlowNode / FlowEdge)",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdp6q"
+                  },
+                  {
+                      "listId":  "901327298412",
+                      "listName":  "P2 | Stage 6 - Integra��o AI - Bot Aut�nomo",
+                      "id":  "86ahnnvkz",
+                      "name":  "Stage 6.x - Transcri��o autom�tica de �udio inbound (WhatsApp / Telegram)",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahnnvkz"
+                  },
+                  {
+                      "listId":  "901327298412",
+                      "listName":  "P2 | Stage 6 - Integra��o AI - Bot Aut�nomo",
+                      "id":  "86ahnh5g1",
+                      "name":  "AI Knowledge Sources para Bot e Copilot",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahnh5g1"
+                  },
+                  {
+                      "listId":  "901327298412",
+                      "listName":  "P2 | Stage 6 - Integra��o AI - Bot Aut�nomo",
+                      "id":  "86ahmdpc4",
+                      "name":  "N� bot integrado ao executor de fluxos",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpc4"
+                  },
+                  {
+                      "listId":  "901327298412",
+                      "listName":  "P2 | Stage 6 - Integra��o AI - Bot Aut�nomo",
+                      "id":  "86ahmdpbz",
+                      "name":  "bot_config_capabilities - valida��o antes de executar",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpbz"
+                  },
+                  {
+                      "listId":  "901327298412",
+                      "listName":  "P2 | Stage 6 - Integra��o AI - Bot Aut�nomo",
+                      "id":  "86ahmdpbq",
+                      "name":  "Loop ag�ntico do bot_config",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpbq"
+                  },
+                  {
+                      "listId":  "901327298412",
+                      "listName":  "P2 | Stage 6 - Integra��o AI - Bot Aut�nomo",
+                      "id":  "86ahmdpb8",
+                      "name":  "Armazenamento criptografado de API keys",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpb8"
+                  },
+                  {
+                      "listId":  "901327298412",
+                      "listName":  "P2 | Stage 6 - Integra��o AI - Bot Aut�nomo",
+                      "id":  "86ahmdpay",
+                      "name":  "Tabela bot_configs - entidade workspace-scoped",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpay"
+                  },
+                  {
+                      "listId":  "901327298412",
+                      "listName":  "P2 | Stage 6 - Integra��o AI - Bot Aut�nomo",
+                      "id":  "86ahmdpat",
+                      "name":  "LiteLLM router - OpenAI, Anthropic, Google",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpat"
+                  },
+                  {
+                      "listId":  "901327298414",
+                      "listName":  "P2 | Stage 7 - Copilot de IA para Agentes",
+                      "id":  "86ahnnvgy",
+                      "name":  "Stage 7.x - AI summary auto-dispatch ao resolver conversa",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahnnvgy"
+                  },
+                  {
+                      "listId":  "901327298414",
+                      "listName":  "P2 | Stage 7 - Copilot de IA para Agentes",
+                      "id":  "86ahmdpdk",
+                      "name":  "Rastreamento de uso (source=copilot)",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpdk"
+                  },
+                  {
+                      "listId":  "901327298414",
+                      "listName":  "P2 | Stage 7 - Copilot de IA para Agentes",
+                      "id":  "86ahmdpde",
+                      "name":  "Resumo da conversa para handoff",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpde"
+                  },
+                  {
+                      "listId":  "901327298414",
+                      "listName":  "P2 | Stage 7 - Copilot de IA para Agentes",
+                      "id":  "86ahmdpd7",
+                      "name":  "Tradu��o inline",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpd7"
+                  },
+                  {
+                      "listId":  "901327298414",
+                      "listName":  "P2 | Stage 7 - Copilot de IA para Agentes",
+                      "id":  "86ahmdpd0",
+                      "name":  "Ajuste de tom",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpd0"
+                  },
+                  {
+                      "listId":  "901327298414",
+                      "listName":  "P2 | Stage 7 - Copilot de IA para Agentes",
+                      "id":  "86ahmdpcp",
+                      "name":  "Sugest�o de resposta (SSE streaming)",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpcp"
+                  },
+                  {
+                      "listId":  "901327298415",
+                      "listName":  "P2 | Stage 8 - Auditoria + Logs",
+                      "id":  "86ahmdpf3",
+                      "name":  "Exporta��o operacional (CSV / XLSX / JSON / PDF)",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpf3"
+                  },
+                  {
+                      "listId":  "901327298415",
+                      "listName":  "P2 | Stage 8 - Auditoria + Logs",
+                      "id":  "86ahmdpex",
+                      "name":  "Exporta��o jur�dica (evidence_zip)",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpex"
+                  },
+                  {
+                      "listId":  "901327298415",
+                      "listName":  "P2 | Stage 8 - Auditoria + Logs",
+                      "id":  "86ahmdpek",
+                      "name":  "security_audit_logs - a��es administrativas",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpek"
+                  },
+                  {
+                      "listId":  "901327298415",
+                      "listName":  "P2 | Stage 8 - Auditoria + Logs",
+                      "id":  "86ahmdpe9",
+                      "name":  "Log de execu��o de fluxo por n�",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpe9"
+                  },
+                  {
+                      "listId":  "901327298415",
+                      "listName":  "P2 | Stage 8 - Auditoria + Logs",
+                      "id":  "86ahmdpe1",
+                      "name":  "audit_logs - snapshots imut�veis de conversa",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpe1"
+                  },
+                  {
+                      "listId":  "901327298418",
+                      "listName":  "P2 | Stage 10 - Dashboard Anal�tico B�sico",
+                      "id":  "86ahmdpg7",
+                      "name":  "Filtros globais por per�odo, canal e setor",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpg7"
+                  },
+                  {
+                      "listId":  "901327298418",
+                      "listName":  "P2 | Stage 10 - Dashboard Anal�tico B�sico",
+                      "id":  "86ahmdpfz",
+                      "name":  "Drill-down por agente - pain�is detalhados",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpfz"
+                  },
+                  {
+                      "listId":  "901327298418",
+                      "listName":  "P2 | Stage 10 - Dashboard Anal�tico B�sico",
+                      "id":  "86ahmdpfq",
+                      "name":  "Ranking de agentes",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpfq"
+                  },
+                  {
+                      "listId":  "901327298418",
+                      "listName":  "P2 | Stage 10 - Dashboard Anal�tico B�sico",
+                      "id":  "86ahmdpfm",
+                      "name":  "Vis�o por agente",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpfm"
+                  },
+                  {
+                      "listId":  "901327298418",
+                      "listName":  "P2 | Stage 10 - Dashboard Anal�tico B�sico",
+                      "id":  "86ahmdpfg",
+                      "name":  "M�tricas core de conversas",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpfg"
+                  },
+                  {
+                      "listId":  "901327298421",
+                      "listName":  "P2 | Stage 12 - Demais Canais",
+                      "id":  "86ahnr6a6",
+                      "name":  "Stage 12.x - Custom Channel API generica (refactor ChannelAdapter)",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahnr6a6"
+                  },
+                  {
+                      "listId":  "901327298421",
+                      "listName":  "P2 | Stage 12 - Demais Canais",
+                      "id":  "86ahnh5gd",
+                      "name":  "WhatsApp Calling / Voice AI (roadmap premium)",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahnh5gd"
+                  },
+                  {
+                      "listId":  "901327298421",
+                      "listName":  "P2 | Stage 12 - Demais Canais",
+                      "id":  "86ahmdphm",
+                      "name":  "UI de configura��o de canais",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdphm"
+                  },
+                  {
+                      "listId":  "901327298421",
+                      "listName":  "P2 | Stage 12 - Demais Canais",
+                      "id":  "86ahmdphc",
+                      "name":  "Telegram - adapter Bot API",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdphc"
+                  },
+                  {
+                      "listId":  "901327298421",
+                      "listName":  "P2 | Stage 12 - Demais Canais",
+                      "id":  "86ahmdpgz",
+                      "name":  "Email - canal SMTP/IMAP",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpgz"
+                  },
+                  {
+                      "listId":  "901327298421",
+                      "listName":  "P2 | Stage 12 - Demais Canais",
+                      "id":  "86ahmdpgu",
+                      "name":  "Facebook Messenger - adapter Meta Webhooks",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpgu"
+                  },
+                  {
+                      "listId":  "901327298421",
+                      "listName":  "P2 | Stage 12 - Demais Canais",
+                      "id":  "86ahmdpgm",
+                      "name":  "Instagram - adapter Meta Webhooks",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpgm"
+                  },
+                  {
+                      "listId":  "901327298424",
+                      "listName":  "P2 | Stage 13 - Categoriza��o + Pastas",
+                      "id":  "86ahnnvgw",
+                      "name":  "Stage 13.x - AI auto-tagging de conversas (regex + IA intent)",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahnnvgw"
+                  },
+                  {
+                      "listId":  "901327298424",
+                      "listName":  "P2 | Stage 13 - Categoriza��o + Pastas",
+                      "id":  "86ahnh5fq",
+                      "name":  "Segmentos dinâmicos, importação e ações em massa de contatos",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahnh5fq"
+                  },
+                  {
+                      "listId":  "901327298424",
+                      "listName":  "P2 | Stage 13 - Categoriza��o + Pastas",
+                      "id":  "86ahnh5fn",
+                      "name":  "Deduplicação, merge e unmerge de contatos",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahnh5fn"
+                  },
+                  {
+                      "listId":  "901327298424",
+                      "listName":  "P2 | Stage 13 - Categoriza��o + Pastas",
+                      "id":  "86ahnh5fa",
+                      "name":  "Lifecycle/Funil de contatos",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahnh5fa"
+                  },
+                  {
+                      "listId":  "901327298424",
+                      "listName":  "P2 | Stage 13 - Categoriza��o + Pastas",
+                      "id":  "86ahmdpjd",
+                      "name":  "Filtros salvos (pastas din�micas)",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpjd"
+                  },
+                  {
+                      "listId":  "901327298424",
+                      "listName":  "P2 | Stage 13 - Categoriza��o + Pastas",
+                      "id":  "86ahmdpja",
+                      "name":  "Regras autom�ticas de categoriza��o",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpja"
+                  },
+                  {
+                      "listId":  "901327298424",
+                      "listName":  "P2 | Stage 13 - Categoriza��o + Pastas",
+                      "id":  "86ahmdpj8",
+                      "name":  "Contagem de n�o lidas por pasta",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpj8"
+                  },
+                  {
+                      "listId":  "901327298424",
+                      "listName":  "P2 | Stage 13 - Categoriza��o + Pastas",
+                      "id":  "86ahmdpj7",
+                      "name":  "Pastas manuais (conversation_folders)",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpj7"
+                  },
+                  {
+                      "listId":  "901327298427",
+                      "listName":  "P2 | Stage 20 - Help Center (Base de Conhecimento)",
+                      "id":  "86ahmdpka",
+                      "name":  "M�tricas do Help Center",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpka"
+                  },
+                  {
+                      "listId":  "901327298427",
+                      "listName":  "P2 | Stage 20 - Help Center (Base de Conhecimento)",
+                      "id":  "86ahmdpk0",
+                      "name":  "Copilot sugere artigos relevantes",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpk0"
+                  },
+                  {
+                      "listId":  "901327298427",
+                      "listName":  "P2 | Stage 20 - Help Center (Base de Conhecimento)",
+                      "id":  "86ahmdpjy",
+                      "name":  "Portal p�blico e busca sem�ntica (RAG)",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpjy"
+                  },
+                  {
+                      "listId":  "901327298427",
+                      "listName":  "P2 | Stage 20 - Help Center (Base de Conhecimento)",
+                      "id":  "86ahmdpju",
+                      "name":  "Editor de artigos e publica��o",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpju"
+                  },
+                  {
+                      "listId":  "901327298427",
+                      "listName":  "P2 | Stage 20 - Help Center (Base de Conhecimento)",
+                      "id":  "86ahmdpjq",
+                      "name":  "Tabelas help_articles, help_categories, help_article_embeddings",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpjq"
+                  },
+                  {
+                      "listId":  "901327298428",
+                      "listName":  "P2 | Stage 21 - Live Chat (Widget Web)",
+                      "id":  "86ahmdpmk",
+                      "name":  "Personaliza��o visual",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpmk"
+                  },
+                  {
+                      "listId":  "901327298428",
+                      "listName":  "P2 | Stage 21 - Live Chat (Widget Web)",
+                      "id":  "86ahmdpm9",
+                      "name":  "Fila de espera e roteamento",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpm9"
+                  },
+                  {
+                      "listId":  "901327298428",
+                      "listName":  "P2 | Stage 21 - Live Chat (Widget Web)",
+                      "id":  "86ahmdpm1",
+                      "name":  "Identifica��o de visitante",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpm1"
+                  },
+                  {
+                      "listId":  "901327298428",
+                      "listName":  "P2 | Stage 21 - Live Chat (Widget Web)",
+                      "id":  "86ahmdpkq",
+                      "name":  "Snippet JS embeddable",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpkq"
+                  },
+                  {
+                      "listId":  "901327298429",
+                      "listName":  "P3 | Stage 11 - Billing \u0026 Planos",
+                      "id":  "86ahnr6aw",
+                      "name":  "Stage 11.x - 3 planos seed (Starter/Pro/Business) + overage automatico com banner (NAO HTTP 402)",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahnr6aw"
+                  },
+                  {
+                      "listId":  "901327298429",
+                      "listName":  "P3 | Stage 11 - Billing \u0026 Planos",
+                      "id":  "86ahnh5gg",
+                      "name":  "Métricas de cobrança: contatos ativos, seats, canais, mensagens e IA",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahnh5gg"
+                  },
+                  {
+                      "listId":  "901327298429",
+                      "listName":  "P3 | Stage 11 - Billing \u0026 Planos",
+                      "id":  "86ahmdpp1",
+                      "name":  "NF-e / Nota Fiscal",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpp1"
+                  },
+                  {
+                      "listId":  "901327298429",
+                      "listName":  "P3 | Stage 11 - Billing \u0026 Planos",
+                      "id":  "86ahmdpnx",
+                      "name":  "Trial expiry e dunning",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpnx"
+                  },
+                  {
+                      "listId":  "901327298429",
+                      "listName":  "P3 | Stage 11 - Billing \u0026 Planos",
+                      "id":  "86ahmdpnu",
+                      "name":  "Tab de consumo (Configura��es ? Billing)",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpnu"
+                  },
+                  {
+                      "listId":  "901327298429",
+                      "listName":  "P3 | Stage 11 - Billing \u0026 Planos",
+                      "id":  "86ahmdpnn",
+                      "name":  "Integra��o Stripe - subscriptions + usage invoicing",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpnn"
+                  },
+                  {
+                      "listId":  "901327298429",
+                      "listName":  "P3 | Stage 11 - Billing \u0026 Planos",
+                      "id":  "86ahmdpng",
+                      "name":  "llm_usage_records - rastreamento de uso LLM",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpng"
+                  },
+                  {
+                      "listId":  "901327298429",
+                      "listName":  "P3 | Stage 11 - Billing \u0026 Planos",
+                      "id":  "86ahmdpn3",
+                      "name":  "Enforcement de limites - HTTP 402",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpn3"
+                  },
+                  {
+                      "listId":  "901327298429",
+                      "listName":  "P3 | Stage 11 - Billing \u0026 Planos",
+                      "id":  "86ahmdpmx",
+                      "name":  "Tabelas plans e workspace_subscriptions",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpmx"
+                  },
+                  {
+                      "listId":  "901327298432",
+                      "listName":  "P3 | Stage 14 - Dashboard Anal�tico Avan�ado",
+                      "id":  "86ahnh5fy",
+                      "name":  "Relatórios de lifecycle, funil e ads attribution",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahnh5fy"
+                  },
+                  {
+                      "listId":  "901327298432",
+                      "listName":  "P3 | Stage 14 - Dashboard Anal�tico Avan�ado",
+                      "id":  "86ahmdppm",
+                      "name":  "�ndice de insatisfa��o e convers�o",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdppm"
+                  },
+                  {
+                      "listId":  "901327298432",
+                      "listName":  "P3 | Stage 14 - Dashboard Anal�tico Avan�ado",
+                      "id":  "86ahmdppg",
+                      "name":  "Relat�rios de SLA",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdppg"
+                  },
+                  {
+                      "listId":  "901327298432",
+                      "listName":  "P3 | Stage 14 - Dashboard Anal�tico Avan�ado",
+                      "id":  "86ahmdppc",
+                      "name":  "CSAT - pesquisa autom�tica p�s-atendimento",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdppc"
+                  },
+                  {
+                      "listId":  "901327298433",
+                      "listName":  "P3 | Stage 15 - Campanhas de Disparo em Massa",
+                      "id":  "86ahnh5fw",
+                      "name":  "Click-to-Chat Ads e atribuição de origem",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahnh5fw"
+                  },
+                  {
+                      "listId":  "901327298433",
+                      "listName":  "P3 | Stage 15 - Campanhas de Disparo em Massa",
+                      "id":  "86ahmdpqe",
+                      "name":  "Relat�rio de campanha em tempo real",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpqe"
+                  },
+                  {
+                      "listId":  "901327298433",
+                      "listName":  "P3 | Stage 15 - Campanhas de Disparo em Massa",
+                      "id":  "86ahmdpqc",
+                      "name":  "Templates aprovados WhatsApp + proteção por provider",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpqc"
+                  },
+                  {
+                      "listId":  "901327298433",
+                      "listName":  "P3 | Stage 15 - Campanhas de Disparo em Massa",
+                      "id":  "86ahmdpq4",
+                      "name":  "Agendamento e envio com rate limiting",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpq4"
+                  },
+                  {
+                      "listId":  "901327298433",
+                      "listName":  "P3 | Stage 15 - Campanhas de Disparo em Massa",
+                      "id":  "86ahmdppv",
+                      "name":  "Segmenta��o de contatos",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdppv"
+                  },
+                  {
+                      "listId":  "901327298441",
+                      "listName":  "P3 | Stage 16 - Macros",
+                      "id":  "86ahmdpqm",
+                      "name":  "Execu��o de macro com um clique",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpqm"
+                  },
+                  {
+                      "listId":  "901327298441",
+                      "listName":  "P3 | Stage 16 - Macros",
+                      "id":  "86ahmdpqk",
+                      "name":  "CRUD de macros (global e pessoal)",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpqk"
+                  },
+                  {
+                      "listId":  "901327298445",
+                      "listName":  "P3 | Stage 17 - White-label / Custom Branding",
+                      "id":  "86ahmdptd",
+                      "name":  "E-mails transacionais com branding do cliente",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdptd"
+                  },
+                  {
+                      "listId":  "901327298445",
+                      "listName":  "P3 | Stage 17 - White-label / Custom Branding",
+                      "id":  "86ahmdpt2",
+                      "name":  "Dom�nio customizado via CNAME",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpt2"
+                  },
+                  {
+                      "listId":  "901327298445",
+                      "listName":  "P3 | Stage 17 - White-label / Custom Branding",
+                      "id":  "86ahmdprt",
+                      "name":  "Logo e paleta de cores por workspace",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdprt"
+                  },
+                  {
+                      "listId":  "901327298447",
+                      "listName":  "P3 | Stage 18 - SSO / SAML",
+                      "id":  "86ahmdpuh",
+                      "name":  "JIT provisioning de usu�rios",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpuh"
+                  },
+                  {
+                      "listId":  "901327298447",
+                      "listName":  "P3 | Stage 18 - SSO / SAML",
+                      "id":  "86ahmdpu6",
+                      "name":  "Configura��o de IdP por workspace",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpu6"
+                  },
+                  {
+                      "listId":  "901327298447",
+                      "listName":  "P3 | Stage 18 - SSO / SAML",
+                      "id":  "86ahmdpu0",
+                      "name":  "Integra��o SAML 2.0 no FastAPI",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpu0"
+                  },
+                  {
+                      "listId":  "901327298448",
+                      "listName":  "P3 | Stage 19 - Permiss�es Granulares (Roles Avan�ados)",
+                      "id":  "86ahmdpx5",
+                      "name":  "Log de altera��es de permiss�o",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpx5"
+                  },
+                  {
+                      "listId":  "901327298448",
+                      "listName":  "P3 | Stage 19 - Permiss�es Granulares (Roles Avan�ados)",
+                      "id":  "86ahmdpwk",
+                      "name":  "UI de gerenciamento de permiss�es",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpwk"
+                  },
+                  {
+                      "listId":  "901327298448",
+                      "listName":  "P3 | Stage 19 - Permiss�es Granulares (Roles Avan�ados)",
+                      "id":  "86ahmdpw1",
+                      "name":  "Enforcement granular nas rotas API",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpw1"
+                  },
+                  {
+                      "listId":  "901327298448",
+                      "listName":  "P3 | Stage 19 - Permiss�es Granulares (Roles Avan�ados)",
+                      "id":  "86ahmdpv7",
+                      "name":  "Matriz de permiss�es por role",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpv7"
+                  },
+                  {
+                      "listId":  "901327298450",
+                      "listName":  "P3 | Stage 22 - Integra��es de Terceiros",
+                      "id":  "86ahnr6ah",
+                      "name":  "Stage 22.x - Loja interna de Vertical Packs (ISP / e-commerce / hotelaria) - GRATIS",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahnr6ah"
+                  },
+                  {
+                      "listId":  "901327298450",
+                      "listName":  "P3 | Stage 22 - Integra��es de Terceiros",
+                      "id":  "86ahnnvm6",
+                      "name":  "Stage 22.x - Importador de contatos/conversas (Movidesk, Zenvia, Octadesk, Opa)",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahnnvm6"
+                  },
+                  {
+                      "listId":  "901327298450",
+                      "listName":  "P3 | Stage 22 - Integra��es de Terceiros",
+                      "id":  "86ahnnvm4",
+                      "name":  "Stage 22.x - Integra��o nativa IXC Soft (ISP brasileiro)",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahnnvm4"
+                  },
+                  {
+                      "listId":  "901327298450",
+                      "listName":  "P3 | Stage 22 - Integra��es de Terceiros",
+                      "id":  "86ahnh5g7",
+                      "name":  "Catálogo e pagamentos em conversa (roadmap futuro)",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahnh5g7"
+                  },
+                  {
+                      "listId":  "901327298450",
+                      "listName":  "P3 | Stage 22 - Integra��es de Terceiros",
+                      "id":  "86ahnh5g3",
+                      "name":  "Mobile/PWA do agente (roadmap futuro)",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahnh5g3"
+                  },
+                  {
+                      "listId":  "901327298450",
+                      "listName":  "P3 | Stage 22 - Integra��es de Terceiros",
+                      "id":  "86ahmdpy3",
+                      "name":  "Shopify - dados do cliente no inbox",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpy3"
+                  },
+                  {
+                      "listId":  "901327298450",
+                      "listName":  "P3 | Stage 22 - Integra��es de Terceiros",
+                      "id":  "86ahmdpxv",
+                      "name":  "Linear - cria��o de issue",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpxv"
+                  },
+                  {
+                      "listId":  "901327298450",
+                      "listName":  "P3 | Stage 22 - Integra��es de Terceiros",
+                      "id":  "86ahmdpxq",
+                      "name":  "Notion - exporta��o de conversa",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpxq"
+                  },
+                  {
+                      "listId":  "901327298450",
+                      "listName":  "P3 | Stage 22 - Integra��es de Terceiros",
+                      "id":  "86ahmdpxm",
+                      "name":  "Slack - notifica��es de atendimento",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpxm"
+                  },
+                  {
+                      "listId":  "901327298450",
+                      "listName":  "P3 | Stage 22 - Integra��es de Terceiros",
+                      "id":  "86ahmdpxe",
+                      "name":  "Infraestrutura de integra��es (integration_configs)",
+                      "status":  "Open",
+                      "statusType":  "open",
+                      "parent":  null,
+                      "url":  "https://app.clickup.com/t/86ahmdpxe"
+                  }
+              ]
+}

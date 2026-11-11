@@ -27,10 +27,10 @@ export default function FlowsPage() {
   async function toggleActive(flow: Flow) {
     if (!currentWorkspace) return;
     if (flow.isActive) {
-      const r = await flowsApi.deactivate(currentWorkspace.id, flow.id);
+      await flowsApi.deactivate(currentWorkspace.id, flow.id);
       setFlows((prev) => prev.map((f) => f.id === flow.id ? { ...f, isActive: false } : f));
     } else {
-      const r = await flowsApi.activate(currentWorkspace.id, flow.id);
+      await flowsApi.activate(currentWorkspace.id, flow.id);
       setFlows((prev) => prev.map((f) => f.id === flow.id ? { ...f, isActive: true } : f));
     }
   }

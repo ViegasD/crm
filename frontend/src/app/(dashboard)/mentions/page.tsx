@@ -10,22 +10,23 @@ import { formatDistanceToNow } from "date-fns";
 
 export default function MentionsPage() {
   const { currentWorkspace } = useAuthStore();
+  const workspaceId = currentWorkspace?.id;
   const [items, setItems] = useState<Mention[]>([]);
   const [unread, setUnread] = useState<boolean | undefined>(true);
   const [loading, setLoading] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    if (!currentWorkspace) return;
+    if (!workspaceId) return;
     setLoading(true);
     mentionsApi
-      .list(currentWorkspace.id, { unread, page_size: 100 })
+      .list(workspaceId, { unread, page_size: 100 })
       .then((r) => {
         setItems(r.data?.items ?? []);
         setUnreadCount(r.data?.unreadCount ?? 0);
       })
       .finally(() => setLoading(false));
-  }, [currentWorkspace?.id, unread]);
+  }, [workspaceId, unread]);
 
   async function markAllRead() {
     if (!currentWorkspace) return;
@@ -69,7 +70,7 @@ export default function MentionsPage() {
       <div className="flex-1 overflow-y-auto p-6">
         {loading && <p className="text-sm text-muted">Loading…</p>}
         {!loading && items.length === 0 && (
-          <p className="text-sm text-muted">Nothing to see here. You'll be notified when teammates mention you.</p>
+          <p className="text-sm text-muted">Nothing to see here. You&apos;ll be notified when teammates mention you.</p>
         )}
         <div className="flex flex-col gap-2 max-w-3xl">
           {items.map((m) => (

@@ -3,7 +3,7 @@ from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, Index, Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, synonym
 
 from app.models.base import Base, gen_uuid
 from app.models.enums import WebhookEventStatus
@@ -19,7 +19,6 @@ class WebhookEvent(Base):
     __tablename__ = "webhook_events"
     __table_args__ = (
         Index("ix_webhook_status_created", "status", "created_at"),
-        Index("ix_webhook_provider_signature", "provider", "signature_hash"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=gen_uuid)
@@ -31,9 +30,11 @@ class WebhookEvent(Base):
     )
     provider: Mapped[str] = mapped_column(String(50), nullable=False)
     signature_hash: Mapped[str | None] = mapped_column(String(128), nullable=True)
-    status: Mapped[WebhookEventStatus] = mapped_column(default=WebhookEventStatus.received, nullable=False)
     headers: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
-    payload: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
+    status: Mapped[WebhookEventStatus] = mapped_column(default=WebhookEventStatus.received, nullable=False)
+    raw_payload: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
+    # Both replay pipelines address the same persisted payload.
+    payload = synonym("raw_payload")
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     max_attempts: Mapped[int] = mapped_column(Integer, default=8, nullable=False)
@@ -45,3 +46,6 @@ class WebhookEvent(Base):
         DateTime(timezone=True), server_default=func.now(), nullable=False, index=True
     )
     processed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )

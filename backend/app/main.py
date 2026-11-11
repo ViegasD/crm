@@ -9,6 +9,7 @@ from app.api.v1 import (
     catalog,
     channel_accounts,
     contacts,
+    conversation_policies,
     conversations,
     flows,
     labels,
@@ -18,10 +19,13 @@ from app.api.v1 import (
     sectors,
     sla,
     users,
+    public,
+    stage9_extras,
     webhook_events,
     webhook_ops,
     workspaces,
 )
+from app.core.config import settings
 from app.core.redis import close_redis, get_redis
 from app.webhooks.whatsapp import evolution as evolution_webhook
 from app.webhooks.whatsapp import meta as meta_webhook
@@ -39,9 +43,12 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="CRM API", version="0.1.0", lifespan=lifespan)
 
+cors_allowed_origins = [origin.strip() for origin in settings.cors_allowed_origins.split(",") if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=cors_allowed_origins,
+    allow_origin_regex=r"^https?://(?:localhost|127\.0\.0\.1|\d{1,3}(?:\.\d{1,3}){3}):3000$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -57,6 +64,7 @@ app.include_router(sectors.router, prefix="/api/v1")
 app.include_router(channel_accounts.router, prefix="/api/v1")
 app.include_router(contacts.router, prefix="/api/v1")
 app.include_router(conversations.router, prefix="/api/v1")
+app.include_router(conversation_policies.router, prefix="/api/v1")
 app.include_router(messages.router, prefix="/api/v1")
 app.include_router(labels.router, prefix="/api/v1")
 app.include_router(canned_responses.router, prefix="/api/v1")
@@ -64,6 +72,8 @@ app.include_router(macros.router, prefix="/api/v1")
 app.include_router(catalog.router, prefix="/api/v1")
 app.include_router(webhook_events.router, prefix="/api/v1")
 app.include_router(webhook_ops.router, prefix="/api/v1")
+app.include_router(stage9_extras.router, prefix="/api/v1")
+app.include_router(public.router, prefix="/api/v1")
 app.include_router(flows.router, prefix="/api/v1")
 app.include_router(sla.router, prefix="/api/v1")
 

@@ -3,7 +3,7 @@
 export type ConversationStatus = "open" | "in_progress" | "resolved" | "pending";
 export type SlaStatus = "ok" | "at_risk" | "violated";
 export type ConvPriority = "low" | "medium" | "high" | "urgent";
-export type MessageType = "text" | "image" | "audio" | "video" | "file" | "internal_note" | "activity";
+export type MessageType = "text" | "image" | "sticker" | "audio" | "video" | "file" | "internal_note" | "activity";
 export type ChannelType = "whatsapp" | "instagram" | "facebook" | "telegram" | "line" | "tiktok" | "sms" | "email" | "live_chat";
 
 export type CannedVisibility = "workspace" | "sector" | "user";
@@ -52,6 +52,7 @@ export interface Conversation {
   isPrivate?: boolean;
   serviceReasonId?: string | null;
   resolveNote?: string | null;
+  slaPolicyOverrideId?: string | null;
   contactName?: string;
   contactPhone?: string;
   lastMessage?: string;
@@ -71,16 +72,21 @@ export interface Message {
   type: MessageType;
   attachments: Attachment[];
   isRead: boolean;
+  providerStatus?: "queued" | "sent" | "delivered" | "read" | "failed" | string | null;
+  providerStatusUpdatedAt?: string | null;
+  providerStatusError?: string | null;
   createdAt: string;
 }
 
 export interface Attachment {
-  key: string;
+  key?: string;
   bucket?: string;
   url?: string;
   name?: string;
+  type?: MessageType | string;
   mimeType?: string;
   sizeBytes?: number;
+  ready?: boolean;
 }
 
 export interface ConversationEvent {

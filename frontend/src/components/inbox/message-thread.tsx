@@ -4,9 +4,9 @@ import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/ui/avatar";
 import { messagesApi } from "@/lib/api";
 import { useConversationStore } from "@/stores/conversation-store";
-import type { Message } from "@/types/conversation";
+import type { Attachment, Message, MessageType } from "@/types/conversation";
 import { format } from "date-fns";
-import { FileIcon, ImageIcon, FileAudioIcon, FileVideoIcon } from "lucide-react";
+import { Download, FileAudioIcon, FileIcon, FileVideoIcon, ImageIcon, LoaderCircle } from "lucide-react";
 
 interface Props {
   workspaceId: string;
@@ -47,6 +47,7 @@ function MessageBubble({ msg }: { msg: Message }) {
   const isAgent = msg.senderType === "agent";
   const isNote = msg.type === "internal_note";
   const isSystem = msg.type === "activity" || msg.senderType === "system";
+  const statusLabel = getProviderStatusLabel(msg.providerStatus, msg.providerStatusError);
 
   if (isSystem) {
     return (
@@ -73,41 +74,172 @@ function MessageBubble({ msg }: { msg: Message }) {
           {isNote && <p className="text-[10px] font-semibold mb-1 text-amber-600">INTERNAL NOTE</p>}
           {msg.content && <p className="whitespace-pre-wrap">{msg.content}</p>}
           {msg.attachments?.map((att, i) => (
-            <AttachmentPreview key={i} attachment={att} />
+            <AttachmentPreview key={i} attachment={att} messageType={msg.type} tone={isAgent ? "agent" : "contact"} />
           ))}
         </div>
-        <span className="text-[10px] text-muted px-1">
-          {format(new Date(msg.createdAt), "HH:mm")}
-        </span>
+        <div className="px-1 text-[10px] text-muted flex items-center gap-2">
+          <span>{format(new Date(msg.createdAt), "HH:mm")}</span>
+          {isAgent && statusLabel && <span>{statusLabel}</span>}
+        </div>
       </div>
     </div>
   );
 }
 
-function AttachmentPreview({ attachment }: { attachment: { mimeType?: string; url?: string; name?: string } }) {
-  const { mimeType, url, name } = attachment;
-  if (mimeType?.startsWith("image/") && url) {
+function getProviderStatusLabel(status?: string | null, error?: string | null): string | null {
+  switch (status) {
+    case "queued":
+      return "Queued";
+    case "sent":
+      return "Sent";
+    case "delivered":
+      return "Delivered";
+    case "read":
+      return "Read";
+    case "failed":
+      return error ? `Failed: ${error}` : "Failed";
+    default:
+      return null;
+  }
+}
+
+function AttachmentPreview({ attachment, messageType, tone }: { attachment: Attachment; messageType: MessageType; tone: "agent" | "contact" }) {
+  const { mimeType, url, name, ready } = attachment;
+  const kind = getAttachmentKind(attachment, messageType);
+
+  if (ready === false || !url) {
+    const Icon = getAttachmentIcon(kind);
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img src={url} alt={name} className="mt-1 rounded-lg max-w-[240px] max-h-[180px] object-cover" />
+      <div
+        className={cn(
+          "mt-2 flex min-w-[220px] items-center gap-3 rounded-2xl border px-3 py-3 text-xs",
+          tone === "agent"
+            ? "border-white/20 bg-white/10 text-white"
+            : "border-slate-200 bg-slate-50 text-slate-700"
+        )}
+      >
+        <div
+          className={cn(
+            "flex h-10 w-10 items-center justify-center rounded-full",
+            tone === "agent" ? "bg-white/15" : "bg-white"
+          )}
+        >
+          <Icon className="h-4 w-4" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-medium">{name ?? getAttachmentLabel(kind)}</p>
+          <div className="mt-1 flex items-center gap-1.5 opacity-80">
+            <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+            <span>Processing...</span>
+          </div>
+        </div>
+      </div>
     );
   }
-  const Icon = mimeType?.startsWith("audio/")
-    ? FileAudioIcon
-    : mimeType?.startsWith("video/")
-    ? FileVideoIcon
-    : mimeType?.startsWith("image/")
-    ? ImageIcon
-    : FileIcon;
+
+  if (kind === "image") {
+    return (
+      <div className="mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={url} alt={name ?? "Image attachment"} className="max-h-[260px] w-full max-w-[280px] object-cover" />
+        {name && <div className="px-3 py-2 text-xs text-slate-600">{name}</div>}
+      </div>
+    );
+  }
+
+  if (kind === "sticker") {
+    return (
+      <div className="mt-2 inline-flex max-w-[180px] items-center justify-center rounded-2xl p-1">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={url} alt={name ?? "Sticker"} className="max-h-[160px] w-auto max-w-[160px] object-contain" />
+      </div>
+    );
+  }
+
+  if (kind === "audio") {
+    return (
+      <div className="mt-2 w-full min-w-[260px] max-w-[320px] rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 text-slate-900">
+        <div className="mb-2 flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm">
+            <FileAudioIcon className="h-4 w-4" />
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium">{name ?? "Audio message"}</p>
+            <p className="text-xs text-slate-500">Voice note</p>
+          </div>
+        </div>
+        <audio controls preload="metadata" className="h-10 w-full max-w-full">
+          <source src={url} type={mimeType} />
+        </audio>
+      </div>
+    );
+  }
+
+  if (kind === "video") {
+    return (
+      <div className="mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-slate-950">
+        <video controls preload="metadata" className="max-h-[280px] w-full max-w-[320px] bg-black">
+          <source src={url} type={mimeType} />
+        </video>
+        {name && <div className="px-3 py-2 text-xs text-slate-300">{name}</div>}
+      </div>
+    );
+  }
+
+  const Icon = getAttachmentIcon(kind);
   return (
     <a
       href={url}
       target="_blank"
       rel="noreferrer"
-      className="mt-1 flex items-center gap-2 text-xs underline opacity-80"
+      className="mt-2 flex min-w-[240px] items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-slate-900 transition-colors hover:bg-slate-100"
     >
-      <Icon className="h-4 w-4" />
-      {name ?? "Attachment"}
+      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm">
+        <Icon className="h-4 w-4" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-medium">{name ?? "Attachment"}</p>
+        <p className="text-xs text-slate-500">Open file</p>
+      </div>
+      <Download className="h-4 w-4 shrink-0 text-slate-500" />
     </a>
   );
+}
+
+function getAttachmentKind(attachment: Attachment, messageType: MessageType): "audio" | "video" | "image" | "sticker" | "file" {
+  if (messageType === "sticker" || attachment.type === "sticker") return "sticker";
+  const mimeType = attachment.mimeType;
+  if (mimeType?.startsWith("audio/")) return "audio";
+  if (mimeType?.startsWith("video/")) return "video";
+  if (mimeType?.startsWith("image/")) return "image";
+  return "file";
+}
+
+function getAttachmentIcon(kind: "audio" | "video" | "image" | "sticker" | "file") {
+  switch (kind) {
+    case "audio":
+      return FileAudioIcon;
+    case "video":
+      return FileVideoIcon;
+    case "sticker":
+    case "image":
+      return ImageIcon;
+    default:
+      return FileIcon;
+  }
+}
+
+function getAttachmentLabel(kind: "audio" | "video" | "image" | "sticker" | "file") {
+  switch (kind) {
+    case "audio":
+      return "Audio message";
+    case "video":
+      return "Video attachment";
+    case "sticker":
+      return "Sticker";
+    case "image":
+      return "Image attachment";
+    default:
+      return "Attachment";
+  }
 }

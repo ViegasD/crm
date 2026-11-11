@@ -21,6 +21,7 @@ export interface Contact {
   status: ContactStatus;
   document?: string;
   company?: string;
+  integrationId?: string;
   avatarUrl?: string;
   isPriority: boolean;
   phones: ContactPhone[];

@@ -15,6 +15,7 @@ interface ConversationStore {
   setActiveId: (id: string | null) => void;
   setMessages: (convId: string, msgs: Message[]) => void;
   appendMessage: (msg: Message) => void;
+  updateMessage: (msg: Message) => void;
   incrementUnread: (convId: string) => void;
   clearUnread: (convId: string) => void;
 }
@@ -50,6 +51,29 @@ export const useConversationStore = create<ConversationStore>((set) => ({
         messages: {
           ...s.messages,
           [msg.conversationId]: [...existing, msg],
+        },
+      };
+    }),
+
+  updateMessage: (msg) =>
+    set((s) => {
+      const existing = s.messages[msg.conversationId] ?? [];
+      const idx = existing.findIndex((m) => m.id === msg.id);
+      if (idx === -1) {
+        return {
+          messages: {
+            ...s.messages,
+            [msg.conversationId]: [...existing, msg],
+          },
+        };
+      }
+
+      const next = [...existing];
+      next[idx] = { ...next[idx], ...msg };
+      return {
+        messages: {
+          ...s.messages,
+          [msg.conversationId]: next,
         },
       };
     }),
