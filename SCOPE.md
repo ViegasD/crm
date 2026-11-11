@@ -1,6 +1,8 @@
-# CRM2 — Histórico do escopo de marketing e e-commerce
+# CRM2 - Escopo atual
 
-O [desenho do MVP comercial](docs/planning/crm2_mvp_comercial.md) é o escopo vigente. O texto abaixo registra a decisão anterior de 09/11/2026, que priorizava entregas de marketing e e-commerce. O roadmap omnichannel anterior está em [histórico](docs/archive/crm/SCOPE_LEGADO.md).
+Reconfirmado pelo usuario em 11/11/2026: **marketing e e-commerce estao no MVP**. A exclusao dessas areas no desenho comercial do colaborador esta superada; veja a [correcao de escopo](docs/planning/CORRECAO_ESCOPO_2026-11-11.md).
+
+Atualizado em 11/11/2026. A decisao de 09/11/2026 prioriza **gestao de entregas de marketing e e-commerce**. CRM comercial fica em segundo plano. Este documento e a entrada atual de escopo; o extenso roadmap omnichannel anterior esta preservado como [historico](docs/archive/crm/SCOPE_LEGADO.md).
 
 ## Prioridade confirmada e detalhamento proposto
 

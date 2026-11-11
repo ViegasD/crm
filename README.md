@@ -1,15 +1,18 @@
 # CRM2
 
-CRM comercial da agência, com gestão de leads e oportunidades, atendimento por WhatsApp oficial e indicadores verificáveis.
+Gestao de entregas de marketing e projetos de e-commerce para a operacao interna da agencia. CRM comercial e atendimento sao uma base existente, com prioridade secundaria no novo MVP.
 
 Instancia compartilhada de desenvolvimento: [abrir app](https://hermes-crm2-dev.5tpiot.easypanel.host). EasyPanel: projeto `hermes`, servico Compose `crm2-dev`. [Acesso privado, validacoes e limites](docs/reports/DEPLOYMENT_DEVELOPMENT_2026-11-11.md) e [runbook](deploy/README.md). WhatsApp permanece sem pareamento por escolha do usuario.
 
 ## Comece aqui
 
-1. [Como retomar o CRM2](docs/context/CONTINUIDADE_CRM2.md) — entrada para contribuidores e agentes.
-2. [Escopo e desenho do MVP comercial](docs/planning/crm2_mvp_comercial.md).
-3. [Revisão de código e realinhamento](docs/reports/crm2_code_review_e_realinhamento_2026-11-11.md).
-4. [Índice da documentação](docs/README.md).
+Diretriz reconfirmada em 11/11: **marketing e e-commerce estão no MVP; comercial é secundário**. A exclusão dessas áreas no novo desenho comercial está superada. Leia a [correção de escopo](docs/planning/CORRECAO_ESCOPO_2026-11-11.md).
+
+1. [Escopo atual](SCOPE.md): prioridade confirmada e decisoes ainda pendentes.
+2. [Status atual](ESCOPO_STATUS_CRM2.md): implementacao, validacoes e riscos.
+3. [Modo de trabalho](MODO_DE_TRABALHO_CRM2.md): regras de stages, evidencia e aceite.
+4. [Documentacao](docs/README.md): contexto, planejamento, referencias, relatorios e historico.
+5. [Estrutura do repositorio](docs/reference/STRUCTURE.md): localizacao de codigo e ferramentas.
 
 ## Desenvolvimento local
 
@@ -42,6 +45,6 @@ Os comandos de verificacao nao substituem upgrade em banco descartavel nem teste
 
 ## Planejamento
 
-O andamento atual fica na pasta CRM2 do ClickUp. Os blocos e códigos das tarefas estão na [revisão e no realinhamento](docs/reports/crm2_code_review_e_realinhamento_2026-11-11.md). Os [snapshots do planejamento anterior](docs/planning/clickup/) são históricos.
+ClickUp: folder CRM2 `901318283724`, 30 tarefas nas listas `MVP 00` a `MVP 06`, com cronograma provisorio de 16/11 a 14/12/2026. Consulte o ClickUp para status atuais e a [correcao de escopo](docs/planning/CORRECAO_ESCOPO_2026-11-11.md) para interpretar o realinhamento comercial anterior. Fontes locais do plano e dos resultados ficam em [docs/planning/clickup](docs/planning/clickup/).
 
 Ferramentas de ClickUp: [scripts/USAGE.md](scripts/USAGE.md). Material privado de origem fica em `docs/sources/`; saidas temporarias locais ficam em `var/`. Historico de CRM e ferramentas obsoletas ficam em `docs/archive/`.

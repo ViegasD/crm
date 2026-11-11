@@ -24,6 +24,8 @@ Crie `var/` antes de usar esse destino. O check e somente leitura, salvo o arqui
 
 ## Plano delivery-first
 
+Para a correcao confirmada em 11/11, `python scripts/clickup_correct_scope.py` faz uma leitura e preview. `--apply` reconcilia os mesmos 30 IDs, preserva status, responsaveis e descricoes e registra backup privado em `var/backups/`. A execucao ja concluida consta em `docs/planning/clickup/CLICKUP_SCOPE_CORRECTION_2026-11-11.json`; nao repetir sem necessidade. O script interrompe se encontrar a correcao ja aplicada ou edicao concorrente.
+
 Preview local, sem requests nem mudancas remotas:
 
 ```powershell

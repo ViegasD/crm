@@ -1,3 +1,5 @@
+> **ESCOPO SUPERADO EM 11/11/2026:** o usuario reconfirmou marketing e e-commerce no MVP, com comercial secundario. A exclusao dessas areas abaixo nao e orientacao vigente. Consulte [a correcao de escopo](../planning/CORRECAO_ESCOPO_2026-11-11.md) e [a continuidade atual](../context/CONTINUIDADE_CRM2.md). Os achados tecnicos de codigo permanecem como referencia, sem equivaler a testes executados.
+
 # CRM2 — code review do PR #1 e plano de realinhamento
 
 Data: 11/11/2026. Revisão auditada: `f6a9a22ab79cf1b8cff9b4bb1c35ed516d8b13ff`, head do [PR #1](https://github.com/ViegasD/crm/pull/1), contra `main` em `ca2616d51487d85f16b5ba21ba8b281e59246e17`.

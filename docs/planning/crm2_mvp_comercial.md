@@ -1,3 +1,5 @@
+> **ESCOPO SUPERADO EM 11/11/2026:** o usuario reconfirmou marketing e e-commerce no MVP, com comercial secundario. A exclusao dessas areas abaixo nao e orientacao vigente. Consulte [a correcao de escopo](../planning/CORRECAO_ESCOPO_2026-11-11.md) e [a continuidade atual](../context/CONTINUIDADE_CRM2.md). Os achados tecnicos de codigo permanecem como referencia, sem equivaler a testes executados.
+
 # CRM2 — MVP comercial da agência
 
 - **Autor** ViegasD
